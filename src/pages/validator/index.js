@@ -21,9 +21,19 @@ const data = [
 ];
 
 export default function Validator() {
+    const handleSearch = value => {
+        console.log('Search must be done!');
+        console.log('value: ' + value);
+    };
+
+    const handleFilter = subjects => {
+        console.log('Filter must be done!');
+        console.log(subjects);
+    };
+
     return (
         <div style={styles.container}>
-            <Searchbar />
+            <Searchbar search={handleSearch} filter={handleFilter} />
             <div style={styles.divPadding} />
             <TeachersTable teachers={data} />
         </div>

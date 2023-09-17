@@ -1,37 +1,59 @@
+// Mui
 import { Box, Button, Chip, FormControl, InputLabel, MenuItem, OutlinedInput, Select, TextField } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
-const subjects = ['Physics', 'Math', 'Biology', 'History'];
+// Hooks
+import { useState } from 'react';
 
-export default function Searchbar() {
+// Utils
+import { getColor } from '@/utils/getColor';
+import { subjects } from '@/constants';
+
+// Styles
+import { styles } from '../styles';
+
+export default function Searchbar({ search, filter }) {
+    const [searchValue, setSearchValue] = useState('');
+    const [filterValues, setFilterValues] = useState([]);
+
+    const handleSubmit = e => {
+        e.preventDefault();
+        search(searchValue);
+    };
+
+    const handleFilterChange = event => {
+        setFilterValues(typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value);
+    };
+
     return (
         <>
-            <div style={{ display: 'inline-flex' }}>
-                <TextField label='Search' variant='outlined' size='small' sx={{ width: '18rem' }} />
-                <Button
-                    variant='contained'
-                    sx={{
-                        boxShadow: 'none',
-                        borderTopLeftRadius: 0,
-                        borderBottomLeftRadius: 0,
-                        transform: 'translateX(-100%)',
-                    }}
-                >
+            <form onSubmit={handleSubmit} style={styles.searchForm}>
+                <TextField
+                    value={searchValue}
+                    onChange={event => setSearchValue(event.target.value)}
+                    label='Search'
+                    variant='outlined'
+                    size='small'
+                    sx={styles.searchInput}
+                />
+                <Button variant='contained' type='submit' sx={styles.searchButton}>
                     <SearchIcon />
                 </Button>
-            </div>
+            </form>
 
-            <FormControl sx={{ width: '15rem', marginLeft: '-2rem' }}>
+            <FormControl sx={styles.select}>
                 <InputLabel size='small'>Subjects</InputLabel>
                 <Select
-                    value={[]}
+                    value={filterValues}
+                    onChange={handleFilterChange}
                     size='small'
                     multiple
+                    onClose={() => filter(filterValues)}
                     input={<OutlinedInput label='Subjects' />}
                     renderValue={selected => (
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                        <Box sx={styles.selectChip}>
                             {selected.map(value => (
-                                <Chip key={value} label={value} />
+                                <Chip key={value} label={value} sx={{ backgroundColor: getColor(value) }} />
                             ))}
                         </Box>
                     )}

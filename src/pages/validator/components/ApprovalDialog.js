@@ -21,7 +21,7 @@ import { useState } from 'react';
 import { styles } from '../styles';
 
 export default function ApprovalDialog({ open, setOpen, approve, teacher }) {
-    const [selectedSubjects, setSelectedSubjects] = useState([]);
+    const [selectedSubjects, setSelectedSubjects] = useState(teacher.subjects);
 
     const handleChange = e => {
         setSelectedSubjects(typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value);
