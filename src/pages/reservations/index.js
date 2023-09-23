@@ -1,4 +1,4 @@
-import { Button } from '@mui/material';
+import { Button, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { useState } from 'react';
 
 const blocks = [
@@ -20,9 +20,18 @@ const blocks = [
     '17:00 - 17:30',
     '17:30 - 18:00',
 ];
+const teacher = {
+    name: 'Luis',
+    email: 'luis@uca.edu.ar',
+    phone: 67890,
+    office: 'UCA',
+    officeHours: '09:00-18:00',
+    subjects: ['Math', 'Chemistry'],
+};
 
 export default function Reservations() {
     const [selectedBlocks, setSelectedBlocks] = useState([]);
+    const [subject, setSubject] = useState('');
 
     const handleBlockSelection = (block, day) => {
         if (selectedBlocks.find(element => element.time === block && element.day === day) !== undefined) {
@@ -60,6 +69,20 @@ export default function Reservations() {
 
     return (
         <div>
+            <h2>{`${teacher.name}  ${teacher.office}`}</h2>
+            <p>{`${teacher.email}  ${teacher.phone}`}</p>
+
+            <FormControl sx={{ minWidth: 120 }}>
+                <InputLabel>Subject</InputLabel>
+                <Select value={subject} label='Subject' onChange={e => setSubject(e.target.value)}>
+                    {teacher.subjects.map(subject => (
+                        <MenuItem value={subject} key={subject}>
+                            {subject}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+
             <table style={{ border: '1px solid black', borderRadius: 5, borderSpacing: 0 }}>
                 <thead>
                     <tr>
