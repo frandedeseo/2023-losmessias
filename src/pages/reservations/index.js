@@ -1,4 +1,15 @@
-import { Button, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    RadioGroup,
+    Select,
+} from '@mui/material';
 import { useState } from 'react';
 
 const blocks = [
@@ -27,11 +38,13 @@ const teacher = {
     office: 'UCA',
     officeHours: '09:00-18:00',
     subjects: ['Math', 'Chemistry'],
+    price: 50,
 };
 
 export default function Reservations() {
     const [selectedBlocks, setSelectedBlocks] = useState([]);
     const [subject, setSubject] = useState('');
+    const [showConfirmReservation, setShowConfirmationReservation] = useState(false);
 
     const handleBlockSelection = (block, day) => {
         if (selectedBlocks.find(element => element.time === block && element.day === day) !== undefined) {
@@ -53,6 +66,7 @@ export default function Reservations() {
 
     const handleCancel = () => {
         setSelectedBlocks([]);
+        setShowConfirmationReservation(false);
     };
 
     const handleReserve = () => {
@@ -64,6 +78,7 @@ export default function Reservations() {
                 endTime: time.split('-')[1],
             };
         });
+        handleCancel();
         console.log(adaptedReservation);
     };
 
@@ -124,9 +139,27 @@ export default function Reservations() {
             </table>
 
             <Button onClick={handleCancel}>Cancel</Button>
-            <Button variant='contained' onClick={handleReserve}>
+            <Button variant='contained' onClick={() => setShowConfirmationReservation(true)} disabled={selectedBlocks.length === 0}>
                 Reserve
             </Button>
+
+            <Dialog open={showConfirmReservation}>
+                <DialogTitle>Confirm Reservation</DialogTitle>
+                <DialogContent dividers>
+                    <p>{`Price per hour: $${teacher.price}`}</p>
+                    <p>{`Subject: ${subject}`}</p>
+                    {selectedBlocks.map(block => (
+                        <p key={block.time + block.day}>{block.day + ' ' + block.time}</p>
+                    ))}
+                    <p>{`Total: $${teacher.price * selectedBlocks.length}`}</p>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCancel}>Cancel</Button>
+                    <Button variant='contained' onClick={handleReserve}>
+                        Reserve
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }
