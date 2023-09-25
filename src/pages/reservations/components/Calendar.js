@@ -1,3 +1,5 @@
+import { Typography } from '@mui/material';
+
 const blocks = [
     '09:00 - 09:30',
     '09:30 - 10:00',
@@ -39,21 +41,33 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks }) {
 
     return (
         <table style={{ width: '90%', margin: 'auto', borderCollapse: 'collapse' }}>
-            <thead style={{ height: '3rem', fontSize: '1.2rem', backgroundColor: '#fafafa' }}>
+            <thead style={{ height: '3rem', backgroundColor: '#fafafa' }}>
                 <tr>
                     <th style={{ borderBottom: '1px solid #f0f0f0', width: '8%' }}></th>
-                    <th style={{ borderBottom: '1px solid #f0f0f0' }}>Monday</th>
-                    <th style={{ borderBottom: '1px solid #f0f0f0' }}>Tuesday</th>
-                    <th style={{ borderBottom: '1px solid #f0f0f0' }}>Wednesday</th>
-                    <th style={{ borderBottom: '1px solid #f0f0f0' }}>Thursday</th>
-                    <th style={{ borderBottom: '1px solid #f0f0f0' }}>Friday</th>
+                    <th style={{ borderBottom: '1px solid #f0f0f0' }}>
+                        <Typography variant='h6'>Monday</Typography>
+                    </th>
+                    <th style={{ borderBottom: '1px solid #f0f0f0' }}>
+                        <Typography variant='h6'>Tuesday</Typography>
+                    </th>
+                    <th style={{ borderBottom: '1px solid #f0f0f0' }}>
+                        <Typography variant='h6'>Wednesday</Typography>
+                    </th>
+                    <th style={{ borderBottom: '1px solid #f0f0f0' }}>
+                        <Typography variant='h6'>Thursday</Typography>
+                    </th>
+                    <th style={{ borderBottom: '1px solid #f0f0f0' }}>
+                        <Typography variant='h6'>Friday</Typography>
+                    </th>
                 </tr>
             </thead>
 
             <tbody>
                 {blocks.map(block => (
                     <tr key={block} style={{ height: '2.3rem' }}>
-                        <td style={{ borderBlock: '1px solid #f0f0f0', textAlign: 'center' }}>{block}</td>
+                        <td style={{ borderBlock: '1px solid #f0f0f0', textAlign: 'center' }}>
+                            <Typography variant='body1'>{block}</Typography>
+                        </td>
                         <td
                             style={active(block, 'Monday') ? { backgroundColor: '#86efac' } : { borderBlock: '1px solid #f0f0f0' }}
                             onClick={() => handleBlockSelection(block, 'Monday')}
