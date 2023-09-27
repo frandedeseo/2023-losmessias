@@ -18,12 +18,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 
 // Components
-import Calendar from './components/Calendar';
+import Calendar from '@/components/Calendar';
 import HorizontalProfessorCard from './components/HorizontalProfessorCard';
 
 // Utils
 import { order_and_group } from '@/utils/order_and_group';
-import Layout from '@/components/ui/Layout';
 
 export default function Reservation() {
     const router = useRouter();
@@ -69,7 +68,7 @@ export default function Reservation() {
     };
 
     return (
-        <Layout>
+        <>
             <div style={{ display: 'flex', width: '90%', margin: '2rem auto', alignItems: 'end', justifyContent: 'space-between' }}>
                 <HorizontalProfessorCard professor={professor} />
 
@@ -118,6 +117,6 @@ export default function Reservation() {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Layout>
+        </>
     );
 }

@@ -2,10 +2,11 @@
 import TeachersTable from './components/TeachersTable';
 import Searchbar from './components/Searchbar';
 
+// Hooks
+import { useState } from 'react';
+
 // styles
 import { styles } from './styles.js';
-import { useState } from 'react';
-import Layout from '@/components/ui/Layout';
 
 export async function getServerSideProps() {
     const res = await fetch('http://localhost:8080/api/professor-subject/findByStatus?status=PENDING');
@@ -124,12 +125,10 @@ export default function Validator({ data }) {
     };
 
     return (
-        <Layout>
-            <div style={styles.container}>
-                <Searchbar search={handleSearch} />
-                <div style={styles.divPadding} />
-                <TeachersTable data={teachersSubjects} approve={handleApprove} reject={handleReject} />
-            </div>
-        </Layout>
+        <div style={styles.container}>
+            <Searchbar search={handleSearch} />
+            <div style={styles.divPadding} />
+            <TeachersTable data={teachersSubjects} approve={handleApprove} reject={handleReject} />
+        </div>
     );
 }
