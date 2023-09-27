@@ -15,22 +15,32 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import { useApi } from '../useApi.js';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
 const defaultTheme = createTheme();
 
 export default function SignUp( {setLogInForm, setTransferList, setSignUpForm} ) {
+    
+    const { data, getHomePageStudent, getHomePageTeacher, sendRequestForRegistration } = useApi();
+
     const handleSubmit = (event) => {
-        event.preventDefault();
+        
         const data = new FormData(event.currentTarget);
-        console.log({
+        
+        const request = {
+            firstName: data.get('firstName'),
+            lastName: data.get('lastName'),
             email: data.get('email'),
             password: data.get('password'),
-        });
+            role: alignment
+        };
+
+        sendRequestForRegistration(request);
     };
 
-    const [alignment, setAlignment] = React.useState('student');
+    const [alignment, setAlignment] = React.useState('Student');
 
     const handleChange = (event, newAlignment) => {
         setAlignment(newAlignment);
@@ -41,7 +51,7 @@ export default function SignUp( {setLogInForm, setTransferList, setSignUpForm} )
         <Typography component="h1" variant="h5">
             Sign up
         </Typography>
-        <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
 
             <Grid container spacing={2} >
                 <Grid container xs={12} sx={{marginTop: 2}} justifyContent={'center'}>
@@ -52,8 +62,8 @@ export default function SignUp( {setLogInForm, setTransferList, setSignUpForm} )
                         onChange={handleChange}
                         aria-label="Platform"
                         >
-                        <ToggleButton value="student">Student</ToggleButton>
-                        <ToggleButton value="teacher">Teacher</ToggleButton>
+                        <ToggleButton value="Student">Student</ToggleButton>
+                        <ToggleButton value="Teacher">Teacher</ToggleButton>
                     </ToggleButtonGroup>
                 </Grid>
 
@@ -122,10 +132,6 @@ export default function SignUp( {setLogInForm, setTransferList, setSignUpForm} )
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
-                onClick={()=>{
-                    setSignUpForm(false);
-                    setTransferList(true);
-                }}
             >
                 Sign Up
             </Button>
