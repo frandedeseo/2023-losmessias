@@ -5,22 +5,13 @@ import Searchbar from './components/Searchbar';
 // styles
 import { styles } from './styles.js';
 
-const data = [
-    { id: 0, name: 'Francisco de Deseo', subjects: ['Physics', 'Math'] },
-    { id: 1, name: 'Gonzalo Hernandez', subjects: ['History'] },
-    { id: 2, name: 'Augusto Ramseyer', subjects: ['Informatic'] },
-    { id: 3, name: 'Francisco de Deseo', subjects: ['Physics', 'Math'] },
-    { id: 4, name: 'Gonzalo Hernandez', subjects: ['History'] },
-    { id: 5, name: 'Augusto Ramseyer', subjects: ['Informatic'] },
-    { id: 6, name: 'Francisco de Deseo', subjects: ['Physics', 'Math'] },
-    { id: 7, name: 'Gonzalo Hernandez', subjects: ['History'] },
-    { id: 8, name: 'Augusto Ramseyer', subjects: ['Informatic'] },
-    { id: 9, name: 'Francisco de Deseo', subjects: ['Physics', 'Math'] },
-    { id: 10, name: 'Santiago Hernandez', subjects: ['Music'] },
-    { id: 11, name: 'Fabiana Paluci', subjects: ['Economics'] },
-];
+export async function getServerSideProps() {
+    const res = await fetch('http://localhost:8080/api/professor-subject/findByStatus?status=PENDING');
+    const data = await res.json();
+    return { props: { data } };
+}
 
-export default function Validator() {
+export default function Validator({ data }) {
     const handleSearch = value => {
         console.log('Search must be done!');
         console.log('value: ' + value);
@@ -35,7 +26,7 @@ export default function Validator() {
         <div style={styles.container}>
             <Searchbar search={handleSearch} filter={handleFilter} />
             <div style={styles.divPadding} />
-            <TeachersTable teachers={data} />
+            <TeachersTable data={data} />
         </div>
     );
 }

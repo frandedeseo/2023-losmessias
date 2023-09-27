@@ -21,36 +21,45 @@ import { getColor } from '@/utils/getColor';
 // Styles
 import { styles } from '../styles.js';
 
-export default function TeachersTable({ teachers }) {
-    const [teacher, setTeacher] = useState({});
+export default function TeachersTable({ data }) {
+    const [teacherSubject, setTeacherSubject] = useState({});
     const [showApprovalConfirmation, setShowApprovalConfirmation] = useState(false);
     const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [shownTeachers, setShownTeachers] = useState(teachers.slice(0, rowsPerPage));
+    const [shownTeachersSubjects, setShownTeachersSubjects] = useState(data.slice(0, rowsPerPage));
 
     const handleApprove = () => {
         console.log('Approval must be done!');
         setShowApprovalConfirmation(false);
     };
 
-    const handleReject = () => {
-        console.log('Reject must be done!');
+    const handleReject = async () => {
+        const res = await fetch('http://localhost:8080/api/professor-subject/reject', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                professorId: teacherSubject.professor.id,
+                subjectIds: teacherSubject.subject.id,
+            }),
+        });
         setShowRejectConfirmation(false);
     };
 
     const handleApproveClick = teacher => {
-        setTeacher(teacher);
+        setTeacherSubject(teacher);
         setShowApprovalConfirmation(true);
     };
 
-    const handleRejectClick = teacher => {
-        setTeacher(teacher);
+    const handleRejectClick = teacherSubject => {
+        setTeacherSubject(teacherSubject);
         setShowRejectConfirmation(true);
     };
 
     const handleChangePage = (event, newPage) => {
-        setShownTeachers(teachers.slice(newPage * rowsPerPage, (newPage + 1) * rowsPerPage));
+        setShownTeachersSubjects(data.slice(newPage * rowsPerPage, (newPage + 1) * rowsPerPage));
         setPage(newPage);
     };
 
@@ -72,11 +81,11 @@ export default function TeachersTable({ teachers }) {
                     </TableHead>
 
                     <TableBody>
-                        {shownTeachers.map(teacher => (
-                            <TableRow key={teacher.id}>
-                                <TableCell>{teacher.name}</TableCell>
+                        {shownTeachersSubjects.map(teacherSubject => (
+                            <TableRow key={teacherSubject.id}>
+                                <TableCell>{`${teacherSubject.professor.firstName} ${teacherSubject.professor.lastName}`}</TableCell>
                                 <TableCell>
-                                    {teacher.subjects.map(subject => (
+                                    {/* {teacher.subjects.map(subject => (
                                         <Chip
                                             key={subject}
                                             label={subject}
@@ -85,13 +94,19 @@ export default function TeachersTable({ teachers }) {
                                                 marginInline: '0.1rem',
                                             }}
                                         />
-                                    ))}
+                                    ))} */}
+                                    <Chip
+                                        label={teacherSubject.subject.name}
+                                        sx={{
+                                            backgroundColor: getColor(teacherSubject.subject.name),
+                                        }}
+                                    />
                                 </TableCell>
                                 <TableCell align='right' sx={styles.tableCell}>
-                                    <Button variant='outlined' color='error' onClick={() => handleRejectClick(teacher)}>
+                                    <Button variant='outlined' color='error' onClick={() => handleRejectClick(teacherSubject)}>
                                         Reject
                                     </Button>
-                                    <Button variant='contained' onClick={() => handleApproveClick(teacher)}>
+                                    <Button variant='contained' onClick={() => handleApproveClick(teacherSubject)}>
                                         Approve
                                     </Button>
                                 </TableCell>
@@ -101,7 +116,7 @@ export default function TeachersTable({ teachers }) {
                 </Table>
                 <TablePagination
                     component='div'
-                    count={teachers.length}
+                    count={data.length}
                     page={page}
                     rowsPerPage={rowsPerPage}
                     onPageChange={handleChangePage}
@@ -112,12 +127,17 @@ export default function TeachersTable({ teachers }) {
             {showApprovalConfirmation && (
                 <ApprovalDialog
                     open={showApprovalConfirmation}
-                    teacher={teacher}
+                    teacher={teacherSubject}
                     setOpen={setShowApprovalConfirmation}
                     approve={handleApprove}
                 />
             )}
-            <RejectionDialog open={showRejectConfirmation} setOpen={setShowRejectConfirmation} reject={handleReject} teacher={teacher} />
+            <RejectionDialog
+                open={showRejectConfirmation}
+                setOpen={setShowRejectConfirmation}
+                reject={handleReject}
+                teacher={teacherSubject}
+            />
         </>
     );
 }
