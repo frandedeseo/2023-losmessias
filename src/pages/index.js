@@ -3,6 +3,7 @@ import Layout from '../components/ui/Layout';
 import { Box, Chip, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
 import ProfessorCard from '@/components/cards/ProfessorCard';
 import { useState } from 'react';
+import { getColor } from '@/utils/getColor';
 
 export async function getServerSideProps() {
     const res = await fetch('http://localhost:8080/api/professor');
@@ -115,7 +116,7 @@ export default function Home({ data, subjects }) {
                                 renderValue={selected => (
                                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                                         {selected.map(value => (
-                                            <Chip key={value} label={value} />
+                                            <Chip key={value} label={value} sx={{ backgroundColor: getColor(value) }} />
                                         ))}
                                     </Box>
                                 )}
@@ -132,7 +133,7 @@ export default function Home({ data, subjects }) {
                         {professors.map((profesor, index) => (
                             <ProfessorCard
                                 key={index}
-                                name={profesor.name}
+                                name={profesor.firstName + ' ' + profesor.lastName}
                                 email={profesor.email}
                                 phone={profesor.phone}
                                 office={profesor.location}
