@@ -79,7 +79,7 @@ export default function Home({ data, subjects }) {
                             Filters
                         </Typography>
                         <Divider width={'100%'} sx={{ my: 2 }} />
-                        <FormControl sx={{ ml: 2 }}>
+                        <FormControl sx={{ ml: 2, backgroundColor: '#fff' }}>
                             <InputLabel id='office-select'>Location</InputLabel>
                             <Select
                                 multiple
@@ -104,7 +104,7 @@ export default function Home({ data, subjects }) {
                             </Select>
                         </FormControl>
 
-                        <FormControl sx={{ ml: 2, marginTop: '1.5rem' }}>
+                        <FormControl sx={{ ml: 2, marginTop: '1.5rem', backgroundColor: '#fff' }}>
                             <InputLabel id='office-select'>Subjects</InputLabel>
                             <Select
                                 multiple

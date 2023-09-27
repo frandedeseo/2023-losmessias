@@ -43,7 +43,7 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks }) {
         <table style={{ width: '90%', margin: 'auto', borderCollapse: 'collapse' }}>
             <thead style={{ height: '3rem', backgroundColor: '#fafafa' }}>
                 <tr>
-                    <th style={{ borderBottom: '1px solid #f0f0f0', width: '8%' }}></th>
+                    <th style={{ borderBottom: '1px solid #f0f0f0', width: '10%' }}></th>
                     <th style={{ borderBottom: '1px solid #f0f0f0' }}>
                         <Typography variant='h6'>Monday</Typography>
                     </th>
@@ -62,7 +62,7 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks }) {
                 </tr>
             </thead>
 
-            <tbody>
+            <tbody style={{ backgroundColor: '#fff' }}>
                 {blocks.map(block => (
                     <tr key={block} style={{ height: '2.3rem' }}>
                         <td style={{ borderBlock: '1px solid #f0f0f0', textAlign: 'center' }}>

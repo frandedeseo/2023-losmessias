@@ -15,6 +15,7 @@ import {
 
 // Hooks
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 // Components
 import Calendar from './components/Calendar';
@@ -22,24 +23,21 @@ import HorizontalProfessorCard from './components/HorizontalProfessorCard';
 
 // Utils
 import { order_and_group } from '@/utils/order_and_group';
-import { useRouter } from 'next/router';
-
-const teacher = {
-    name: 'Luis',
-    email: 'luis@uca.edu.ar',
-    phone: 67890,
-    office: 'UCA',
-    subjects: ['Math', 'Chemistry'],
-    price: 50,
-};
+import Layout from '@/components/ui/Layout';
 
 export default function Reservation() {
-    const [selectedBlocks, setSelectedBlocks] = useState([]);
-    const [subject, setSubject] = useState(teacher.subjects[0]);
-    const [showConfirmReservation, setShowConfirmationReservation] = useState(false);
     const router = useRouter();
+    const subjects = router.query.subject.split('-');
+    const professor = {
+        name: router.query.name,
+        phone: router.query.phone,
+        email: router.query.email,
+        office: router.query.office,
+    };
 
-    console.log(router.query);
+    const [selectedBlocks, setSelectedBlocks] = useState([]);
+    const [subject, setSubject] = useState(subjects[0]);
+    const [showConfirmReservation, setShowConfirmationReservation] = useState(false);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
@@ -71,14 +69,14 @@ export default function Reservation() {
     };
 
     return (
-        <div>
+        <Layout>
             <div style={{ display: 'flex', width: '90%', margin: '2rem auto', alignItems: 'end', justifyContent: 'space-between' }}>
-                <HorizontalProfessorCard professor={teacher} />
+                <HorizontalProfessorCard professor={professor} />
 
-                <FormControl sx={{ minWidth: 150 }}>
+                <FormControl sx={{ minWidth: 150, backgroundColor: '#fff' }}>
                     <InputLabel>Subject</InputLabel>
                     <Select value={subject} label='Subject' onChange={e => handleSubjectChange(e)}>
-                        {teacher.subjects.map(subject => (
+                        {subjects.map(subject => (
                             <MenuItem value={subject} key={subject}>
                                 {subject}
                             </MenuItem>
@@ -108,8 +106,8 @@ export default function Reservation() {
                         <Divider orientation='vertical' flexItem />
                         <div style={{ paddingInline: '2rem' }}>
                             <Typography>{`Subject: ${subject}`}</Typography>
-                            <Typography>{`Price per hour: $${teacher.price}`}</Typography>
-                            <Typography>{`Total: $${(teacher.price * selectedBlocks.length) / 2}`}</Typography>
+                            <Typography>{`Price per hour: $${professor.price}`}</Typography>
+                            <Typography>{`Total: $${(professor.price * selectedBlocks.length) / 2}`}</Typography>
                         </div>
                     </div>
                 </DialogContent>
@@ -120,6 +118,6 @@ export default function Reservation() {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </div>
+        </Layout>
     );
 }

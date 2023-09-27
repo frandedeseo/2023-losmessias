@@ -14,7 +14,7 @@ export default function ProfessorCard({ name, email, phone, office, officeHours,
             <Link
                 href={{
                     pathname: '/reservations',
-                    query: { name: name, subject: prepare_subjects() },
+                    query: { name, subject: prepare_subjects(), email, phone, office },
                 }}
                 style={{ textDecoration: 'none' }}
             >
