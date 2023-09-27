@@ -12,13 +12,13 @@ import { subjects } from '@/constants';
 // Styles
 import { styles } from '../styles';
 
-export default function Searchbar({ search, filter }) {
+export default function Searchbar({ search }) {
     const [searchValue, setSearchValue] = useState('');
     const [filterValues, setFilterValues] = useState([]);
 
     const handleSubmit = e => {
         e.preventDefault();
-        search(searchValue);
+        search(searchValue, filterValues);
     };
 
     const handleFilterChange = event => {
@@ -48,7 +48,7 @@ export default function Searchbar({ search, filter }) {
                     onChange={handleFilterChange}
                     size='small'
                     multiple
-                    onClose={() => filter(filterValues)}
+                    onClose={() => search(searchValue, filterValues)}
                     input={<OutlinedInput label='Subjects' />}
                     renderValue={selected => (
                         <Box sx={styles.selectChip}>

@@ -13,7 +13,7 @@ import Paper from '@mui/material/Paper';
 import { Button, Chip, TablePagination } from '@mui/material';
 
 // Hooks
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // Utils
 import { getColor } from '@/utils/getColor';
@@ -21,30 +21,27 @@ import { getColor } from '@/utils/getColor';
 // Styles
 import { styles } from '../styles.js';
 
-export default function TeachersTable({ data }) {
+export default function TeachersTable({ data, approve, reject }) {
     const [teacherSubject, setTeacherSubject] = useState({});
     const [showApprovalConfirmation, setShowApprovalConfirmation] = useState(false);
     const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
-    const [shownTeachersSubjects, setShownTeachersSubjects] = useState(data.slice(0, rowsPerPage));
+    const [teachersSubjects, setTeachersSubjects] = useState({});
+    const [shownTeachersSubjects, setShownTeachersSubjects] = useState([]);
+
+    useEffect(() => {
+        setTeachersSubjects(data);
+        setShownTeachersSubjects(data.slice(0, rowsPerPage));
+    }, [data]);
 
     const handleApprove = () => {
-        console.log('Approval must be done!');
+        approve(teacherSubject);
         setShowApprovalConfirmation(false);
     };
 
-    const handleReject = async () => {
-        const res = await fetch('http://localhost:8080/api/professor-subject/reject', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                professorId: teacherSubject.professor.id,
-                subjectIds: teacherSubject.subject.id,
-            }),
-        });
+    const handleReject = () => {
+        reject(teacherSubject);
         setShowRejectConfirmation(false);
     };
 
@@ -59,7 +56,7 @@ export default function TeachersTable({ data }) {
     };
 
     const handleChangePage = (event, newPage) => {
-        setShownTeachersSubjects(data.slice(newPage * rowsPerPage, (newPage + 1) * rowsPerPage));
+        setShownTeachersSubjects(teachersSubjects.slice(newPage * rowsPerPage, (newPage + 1) * rowsPerPage));
         setPage(newPage);
     };
 
@@ -134,9 +131,9 @@ export default function TeachersTable({ data }) {
             )}
             <RejectionDialog
                 open={showRejectConfirmation}
+                teacher={teacherSubject}
                 setOpen={setShowRejectConfirmation}
                 reject={handleReject}
-                teacher={teacherSubject}
             />
         </>
     );

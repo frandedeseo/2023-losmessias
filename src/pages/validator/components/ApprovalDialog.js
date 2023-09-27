@@ -5,6 +5,7 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
+    DialogContentText,
     DialogTitle,
     FormControl,
     InputLabel,
@@ -35,27 +36,42 @@ export default function ApprovalDialog({ open, setOpen, approve, teacher }) {
     };
 
     return (
+        // <Dialog open={open} onClose={handleClose}>
+        //     <DialogTitle>{'Approve teacher: ' + teacher.name}</DialogTitle>
+
+        //     <DialogContent>
+        //         <FormControl sx={styles.form}>
+        //             <InputLabel>Subjects</InputLabel>
+        //             <Select
+        //                 multiple
+        //                 value={selectedSubjects}
+        //                 onChange={handleChange}
+        //                 input={<OutlinedInput label='Subjects' />}
+        //                 renderValue={selected => selected.join(', ')}
+        //             >
+        //                 {teacher.subjects.map(subject => (
+        //                     <MenuItem key={subject} value={subject}>
+        //                         <Checkbox checked={selectedSubjects.indexOf(subject) > -1} />
+        //                         <ListItemText primary={subject} />
+        //                     </MenuItem>
+        //                 ))}
+        //             </Select>
+        //         </FormControl>
+        //     </DialogContent>
+
+        //     <DialogActions sx={styles.dialogButtons}>
+        //         <Button variant='contained' onClick={handleApprove}>
+        //             Approve
+        //         </Button>
+        //         <Button onClick={handleClose}>Cancel</Button>
+        //     </DialogActions>
+        // </Dialog>
+
         <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>{'Approve teacher: ' + teacher.name}</DialogTitle>
+            <DialogTitle>Do you want to approve this teacher?</DialogTitle>
 
             <DialogContent>
-                <FormControl sx={styles.form}>
-                    <InputLabel>Subjects</InputLabel>
-                    <Select
-                        multiple
-                        value={selectedSubjects}
-                        onChange={handleChange}
-                        input={<OutlinedInput label='Subjects' />}
-                        renderValue={selected => selected.join(', ')}
-                    >
-                        {teacher.subjects.map(subject => (
-                            <MenuItem key={subject} value={subject}>
-                                <Checkbox checked={selectedSubjects.indexOf(subject) > -1} />
-                                <ListItemText primary={subject} />
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                <DialogContentText>{teacher.name}</DialogContentText>
             </DialogContent>
 
             <DialogActions sx={styles.dialogButtons}>
