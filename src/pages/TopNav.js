@@ -15,14 +15,8 @@ export default function TopNav( {setLogInForm, setSignUpForm, setTransferList}) 
       <AppBar position="static">
         <Toolbar>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            ONLINE LEARNING GROUP
+            Leherer
           </Typography>
-          <Button color="inherit"
-          onClick={() => {
-              setLogInForm(true);
-              setSignUpForm(false);
-              setTransferList(false);
-          }}>LogIn</Button>
           <Button color="inherit"                        
           onClick={() => {
               setLogInForm(false);

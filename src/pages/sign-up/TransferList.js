@@ -19,8 +19,10 @@ function intersection(a, b) {
 
 export default function TransferList() {
   const [checked, setChecked] = React.useState([]);
-  const [left, setLeft] = React.useState([0, 1, 2, 3]);
-  const [right, setRight] = React.useState([4, 5, 6, 7]);
+  const [left, setLeft] = React.useState(data);
+  const [right, setRight] = React.useState([]);
+
+  const {data, getSubjects, addProfessorLecture} = useApi();
 
   const leftChecked = intersection(checked, left);
   const rightChecked = intersection(checked, right);
@@ -55,15 +57,24 @@ export default function TransferList() {
     setChecked(not(checked, rightChecked));
   };
 
+  const handleSubmit = () => {
+    
+    const request = {
+        subjects: right,
+    };
+
+    sendRequestForRegistration(request);
+  };
+
   const handleAllLeft = () => {
     setLeft(left.concat(right));
     setRight([]);
   };
 
-  const customList = (items) => (
+  const customList = (index) => (
     <Paper sx={{ width: 200, height: 230, overflow: 'auto' }}>
       <List dense component="div" role="list">
-        {items.map((value) => {
+        {index.map((value) => {
           const labelId = `transfer-list-item-${value}-label`;
 
           return (
@@ -84,7 +95,7 @@ export default function TransferList() {
                   }}
                 />
               </ListItemIcon>
-              <ListItemText id={labelId} primary={`Algebra ${value + 1}`} />
+              <ListItemText id={labelId} primary={`${value}`} />
             </ListItem>
           );
         })}
@@ -93,7 +104,7 @@ export default function TransferList() {
   );
 
   return (
-    <Grid container spacing={2} justifyContent="center" alignItems="center">
+    <Grid component="form" onSubmit={handleSubmit} container spacing={2} justifyContent="center" alignItems="center">
       <Typography component="h4" variant="h5">
         Choose the subjects your are capable of teaching:
       </Typography>

@@ -132,11 +132,7 @@ export default function SignUp( {setLogInForm, setTransferList, setSignUpForm} )
             </Button>
             <Grid container justifyContent="flex-end">
                 <Grid item>
-                    <Link href="#" variant="body2"
-                        onClick={() => {
-                            setLogInForm(true);
-                            setSignUpForm(false);
-                        }}
+                    <Link href="http://localhost:8080/login" variant="body2"
                     >
                         Already have an account? Log in
                     </Link>

@@ -49,17 +49,8 @@ export function useApi() {
         
     }
     
-    const sendRequestForLogIn = (request) => {
-        const requestOptions = {
-            method: "POST",
-            headers: {'Content-Type': 'application/x-www-form-urlencoded' },
-            params:{
-                username: request.email,
-                password: request.password
-            }
-        };
-        alert(requestOptions);
-        fetch("http://localhost:8080/login", requestOptions)
+    const sendRequestForLogIn = () => {
+        fetch("http://localhost:8080/login")
             .then((response) => response.json())
             .then((json) => {
                 setData(json);
@@ -69,6 +60,28 @@ export function useApi() {
             });
     }
 
-    return { data, getHomePageStudent, getHomePageTeacher, sendRequestForRegistration, sendRequestForLogIn };
+    const getSubjects = () => {
+        fetch("http://localhost:8080/api/subject")
+            .then((response) => response.json())
+            .then((json) => {
+                setData(json);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
+    const addProfessorLecture = () => {
+        fetch("http://localhost:8080/api/subject")
+            .then((response) => response.json())
+            .then((json) => {
+                setData(json);
+            })
+            .catch((error) => {
+                console.log(error);
+            });        
+    }
+
+    return { data, getHomePageStudent, getHomePageTeacher, sendRequestForRegistration, sendRequestForLogIn, getSubjects };
 }
 
