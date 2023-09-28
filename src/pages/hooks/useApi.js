@@ -39,14 +39,14 @@ export function useApi() {
         };
         alert(requestOptions.body);
         fetch('http://localhost:8080/api/v1/registration', requestOptions)
-            .then((response) => response.json())
-            .then((json) => {
-                alert(json);
-                setData(json);
-            })
-            .catch((error) => {
-                console.log(error);
-            })
+            .then(res => {
+                alert(res);
+                if (res.status != 200) {
+                    
+                    console.log("error status = " + res.status);
+                }
+            });
+        
     }
     
     const sendRequestForLogIn = (request) => {
@@ -66,7 +66,7 @@ export function useApi() {
             })
             .catch((error) => {
                 console.log(error);
-            })
+            });
     }
 
     return { data, getHomePageStudent, getHomePageTeacher, sendRequestForRegistration, sendRequestForLogIn };
