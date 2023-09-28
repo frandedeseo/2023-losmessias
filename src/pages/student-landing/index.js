@@ -9,8 +9,20 @@ import { getColor } from '@/utils/getColor';
 
 // Mui
 import { Box, Chip, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
+export async function getServerSideProps() {
+    const res = await fetch('http://localhost:8080/api/professor/all');
+    const data = await res.json();
 
-export default function StudentsLandingPage({ data, subjects }) {
+    const subjectsRes = await fetch('http://localhost:8080/api/subject/all');
+    const subjects = await subjectsRes.json();
+    return { props: { data, subjects } };
+}
+
+// export default function StudentsLandingPage({ data, subjects }) {
+export default function StudentsLandingPage() {
+    const { props } = getServerSideProps();
+    console.log("HOLA"+props);
+    // const {data, subjects } = props;
     const [professors, setProfessors] = useState(data);
     const [locationSelected, setLocationSelected] = useState([]);
     const [subjectSelected, setSubjectSelected] = useState([]);
