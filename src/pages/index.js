@@ -1,24 +1,20 @@
-import { useState } from 'react';
-import Page from './sign-up/Page';
-import TopNav from './TopNav';
-import TransferList from './sign-up/TransferList';
+// Components
+import StudentsLandingPage from '@/pages/components/StudentLandinPage';
+import ProfessorLandingPage from './components/ProfessorLandingPage';
+import { useUser } from '@/context/UserContext';
 
-export default function Home() {
-    const [logInForm, setLogInForm] = useState(false);
-    const [signUpForm, setSignUpForm] = useState(true);
-    const [transferList, setTransferList] = useState(false);
+export async function getServerSideProps() {
+    const res = await fetch('http://localhost:8080/api/professor/all');
+    const data = await res.json();
 
-    return (
-        <>
-            <TopNav setLogInForm={setLogInForm} setSignUpForm={setSignUpForm} setTransferList={setTransferList}></TopNav>
-            <Page
-                transferList={true}
-                setTransferList={setTransferList}
-                logInForm={logInForm}
-                setLogInForm={setLogInForm}
-                signUpForm={signUpForm}
-                setSignUpForm={setSignUpForm}
-            ></Page>
-        </>
-    );
+    const subjectsRes = await fetch('http://localhost:8080/api/subject/all');
+    const subjects = await subjectsRes.json();
+    return { props: { data, subjects } };
+}
+
+export default function Home({ data, subjects }) {
+    //const user = useUser();
+
+    return <StudentsLandingPage data={data} subjects={subjects} />;
+    //return <ProfessorLandingPage />;
 }
