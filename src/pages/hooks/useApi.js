@@ -38,7 +38,7 @@ export function useApi() {
             })
         };
         alert(requestOptions.body);
-        fetch('https://localhost:8080/api/v1/registration', requestOptions)
+        fetch('http://localhost:8080/api/v1/registration', requestOptions)
             .then((response) => response.json())
             .then((json) => {
                 alert(json);
@@ -51,14 +51,15 @@ export function useApi() {
     
     const sendRequestForLogIn = (request) => {
         const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                "email": request.email,
-                "password": request.password
-            })
+            method: "POST",
+            headers: {'Content-Type': 'application/x-www-form-urlencoded' },
+            params:{
+                username: request.email,
+                password: request.password
+            }
         };
-        fetch('https://localhost:8080/login', requestOptions)
+        alert(requestOptions);
+        fetch("http://localhost:8080/login", requestOptions)
             .then((response) => response.json())
             .then((json) => {
                 setData(json);
@@ -68,6 +69,6 @@ export function useApi() {
             })
     }
 
-    return { data, getHomePageStudent, getHomePageTeacher, sendRequestForRegistration };
+    return { data, getHomePageStudent, getHomePageTeacher, sendRequestForRegistration, sendRequestForLogIn };
 }
 
