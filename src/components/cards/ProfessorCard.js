@@ -4,7 +4,7 @@ import Link from 'next/link';
 import PersonIcon from '@mui/icons-material/Person';
 import { getColor } from '@/utils/getColor';
 
-export default function ProfessorCard({ name, email, phone, office, officeHours, image, style, subjects }) {
+export default function ProfessorCard({ id, name, email, phone, office, officeHours, image, style, subjects }) {
     const prepare_subjects = () => {
         return subjects.map(subject => subject.name).join('-');
     };
@@ -14,7 +14,7 @@ export default function ProfessorCard({ name, email, phone, office, officeHours,
             <Link
                 href={{
                     pathname: '/reservations',
-                    query: { name, subject: prepare_subjects(), email, phone, office },
+                    query: { id },
                 }}
                 style={{ textDecoration: 'none' }}
             >

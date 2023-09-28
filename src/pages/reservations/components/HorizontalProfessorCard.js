@@ -14,7 +14,7 @@ export default function HorizontalProfessorCard({ professor }) {
                                 <PersonIcon />
                             </ListItemIcon>
                             <Typography variant='body1' color='text.secondary'>
-                                {professor.name}
+                                {professor.firstName + ' ' + professor.lastName}
                             </Typography>
                         </ListItem>
                         <ListItem>
@@ -40,7 +40,7 @@ export default function HorizontalProfessorCard({ professor }) {
                                 <Business />
                             </ListItemIcon>
                             <Typography variant='body1' color='text.secondary'>
-                                {professor.office}
+                                {professor.location}
                             </Typography>
                         </ListItem>
                     </List>

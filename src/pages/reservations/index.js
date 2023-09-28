@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 
 // Hooks
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 // Components
@@ -24,19 +24,33 @@ import HorizontalProfessorCard from './components/HorizontalProfessorCard';
 // Utils
 import { order_and_group } from '@/utils/order_and_group';
 
+// Consts
+const dayNumber = {
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+};
+
 export default function Reservation() {
     const router = useRouter();
-    const subjects = router.query.subject.split('-');
-    const professor = {
-        name: router.query.name,
-        phone: router.query.phone,
-        email: router.query.email,
-        office: router.query.office,
-    };
 
     const [selectedBlocks, setSelectedBlocks] = useState([]);
-    const [subject, setSubject] = useState(subjects[0]);
+    const [professor, setProfessor] = useState({ subjects: [] });
+    const [subject, setSubject] = useState(0);
     const [showConfirmReservation, setShowConfirmationReservation] = useState(false);
+
+    var curr = new Date();
+    var first = curr.getDate() - curr.getDay();
+
+    useEffect(() => {
+        fetch(`http://localhost:8080/api/professor/${router.query.id}`).then(res =>
+            res.json().then(json => {
+                setProfessor(json);
+            })
+        );
+    }, []);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
@@ -44,16 +58,36 @@ export default function Reservation() {
     };
 
     const handleReserve = () => {
-        let adaptedReservation = selectedBlocks.map(block => {
+        let success = 1;
+
+        selectedBlocks.forEach(block => {
             const time = block.time.trim();
-            return {
-                day: block.day,
-                startTime: time.split('-')[0],
-                endTime: time.split('-')[1],
+            const reservation = {
+                day: new Date(curr.setDate(first + dayNumber[block.day])).toISOString().split('T')[0],
+                startingHour: time.split('-')[0],
+                endingHour: time.split('-')[1],
+                professorId: professor.id,
+                subjectId: professor.subjects[subject].id,
+                studentId: 1,
+                price: 250,
             };
+
+            fetch('http://localhost:8080/api/reservation/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ...reservation,
+                }),
+            }).then(res => {
+                if (res.status !== 200) success = 0;
+            });
         });
         handleCancel();
-        console.log(adaptedReservation);
+
+        if (success === 1) alert('Reservation has been made successfully!');
+        else alert('There was an error making the reservation!');
     };
 
     const handleSubjectChange = e => {
@@ -75,9 +109,9 @@ export default function Reservation() {
                 <FormControl sx={{ minWidth: 150, backgroundColor: '#fff' }}>
                     <InputLabel>Subject</InputLabel>
                     <Select value={subject} label='Subject' onChange={e => handleSubjectChange(e)}>
-                        {subjects.map(subject => (
-                            <MenuItem value={subject} key={subject}>
-                                {subject}
+                        {professor.subjects?.map((subject, idx) => (
+                            <MenuItem value={idx} key={subject.id}>
+                                {subject.name}
                             </MenuItem>
                         ))}
                     </Select>
@@ -104,9 +138,9 @@ export default function Reservation() {
                         </div>
                         <Divider orientation='vertical' flexItem />
                         <div style={{ paddingInline: '2rem' }}>
-                            <Typography>{`Subject: ${subject}`}</Typography>
-                            <Typography>{`Price per hour: $${professor.price}`}</Typography>
-                            <Typography>{`Total: $${(professor.price * selectedBlocks.length) / 2}`}</Typography>
+                            <Typography>{`Subject: ${professor.subjects[subject]?.name}`}</Typography>
+                            <Typography>{`Price per hour: 500`}</Typography>
+                            <Typography>{`Total: $${(500 * selectedBlocks.length) / 2}`}</Typography>
                         </div>
                     </div>
                 </DialogContent>

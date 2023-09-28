@@ -7,6 +7,7 @@ import { useState } from 'react';
 
 // styles
 import { styles } from './styles.js';
+import { Alert } from '@mui/material';
 
 export async function getServerSideProps() {
     const res = await fetch('http://localhost:8080/api/professor-subject/findByStatus?status=PENDING');
@@ -54,6 +55,7 @@ export default function Validator({ data }) {
             }),
         }).then(res => {
             if (res.status === 200) {
+                alert(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} has been approved!`);
                 setAllTeachersSubjects(prevTeachers =>
                     prevTeachers.filter(prevTeacherSubject => {
                         if (
@@ -78,6 +80,7 @@ export default function Validator({ data }) {
                     })
                 );
             } else {
+                alert(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} approval failed!`);
                 console.log('error status = ' + res.status);
             }
         });
@@ -95,6 +98,7 @@ export default function Validator({ data }) {
             }),
         }).then(res => {
             if (res.status === 200) {
+                alert(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} has been rejected!`);
                 setAllTeachersSubjects(prevTeachers =>
                     prevTeachers.filter(prevTeacherSubject => {
                         if (
@@ -119,6 +123,7 @@ export default function Validator({ data }) {
                     })
                 );
             } else {
+                alert(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} rejection failed!`);
                 console.log('error status = ' + res.status);
             }
         });

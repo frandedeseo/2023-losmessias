@@ -119,6 +119,7 @@ export default function StudentsLandingPage({ data, subjects }) {
                     {professors.map((profesor, index) => (
                         <ProfessorCard
                             key={index}
+                            id={profesor.id}
                             name={profesor.firstName + ' ' + profesor.lastName}
                             email={profesor.email}
                             phone={profesor.phone}
