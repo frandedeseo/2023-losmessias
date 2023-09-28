@@ -19,10 +19,7 @@ export async function getServerSideProps() {
 }
 
 // export default function StudentsLandingPage({ data, subjects }) {
-export default function StudentsLandingPage() {
-    const { props } = getServerSideProps();
-    console.log("HOLA"+props);
-    // const {data, subjects } = props;
+export default function StudentsLandingPage({data, subjects}) {
     const [professors, setProfessors] = useState(data);
     const [locationSelected, setLocationSelected] = useState([]);
     const [subjectSelected, setSubjectSelected] = useState([]);
