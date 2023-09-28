@@ -69,23 +69,23 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks }) {
                             <Typography variant='body1'>{block}</Typography>
                         </td>
                         <td
-                            style={active(block, 'Monday') ? { backgroundColor: '#86efac' } : { borderBlock: '1px solid #f0f0f0' }}
+                            style={active(block, 'Monday') ? { backgroundColor: '#1565c0' } : { borderBlock: '1px solid #f0f0f0' }}
                             onClick={() => handleBlockSelection(block, 'Monday')}
                         ></td>
                         <td
-                            style={active(block, 'Tuesday') ? { backgroundColor: '#86efac' } : { borderBlock: '1px solid #f0f0f0' }}
+                            style={active(block, 'Tuesday') ? { backgroundColor: '#1565c0' } : { borderBlock: '1px solid #f0f0f0' }}
                             onClick={() => handleBlockSelection(block, 'Tuesday')}
                         ></td>
                         <td
-                            style={active(block, 'Wednesday') ? { backgroundColor: '#86efac' } : { borderBlock: '1px solid #f0f0f0' }}
+                            style={active(block, 'Wednesday') ? { backgroundColor: '#1565c0' } : { borderBlock: '1px solid #f0f0f0' }}
                             onClick={() => handleBlockSelection(block, 'Wednesday')}
                         ></td>
                         <td
-                            style={active(block, 'Thursday') ? { backgroundColor: '#86efac' } : { borderBlock: '1px solid #f0f0f0' }}
+                            style={active(block, 'Thursday') ? { backgroundColor: '#1565c0' } : { borderBlock: '1px solid #f0f0f0' }}
                             onClick={() => handleBlockSelection(block, 'Thursday')}
                         ></td>
                         <td
-                            style={active(block, 'Friday') ? { backgroundColor: '#86efac' } : { borderBlock: '1px solid #f0f0f0' }}
+                            style={active(block, 'Friday') ? { backgroundColor: '#1565c0' } : { borderBlock: '1px solid #f0f0f0' }}
                             onClick={() => handleBlockSelection(block, 'Friday')}
                         ></td>
                     </tr>

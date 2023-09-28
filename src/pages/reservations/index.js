@@ -45,12 +45,14 @@ export default function Reservation() {
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
-        fetch(`http://localhost:8080/api/professor/${router.query.id}`).then(res =>
-            res.json().then(json => {
-                setProfessor(json);
-            })
-        );
-    }, []);
+        if (router.isReady) {
+            fetch(`http://localhost:8080/api/professor/${router.query.id}`).then(res =>
+                res.json().then(json => {
+                    setProfessor(json);
+                })
+            );
+        }
+    }, [router.isReady]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
