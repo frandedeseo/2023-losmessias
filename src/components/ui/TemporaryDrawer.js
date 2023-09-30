@@ -10,7 +10,7 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
 
     const drawerItems = [
         {
-            href: '/',
+            href: '/student-landing',
             icon: <HomeMaxOutlined />,
             primary: 'Home',
         },

@@ -46,7 +46,7 @@ export default function Reservation() {
 
     useEffect(() => {
         if (router.isReady) {
-            fetch(`http://localhost:8080/api/professor/${router.query.id}`).then(res =>
+            fetch(`http://localhost:8080/api/professor/${router.query.professorId}`).then(res =>
                 res.json().then(json => {
                     setProfessor(json);
                 })
@@ -70,7 +70,7 @@ export default function Reservation() {
                 endingHour: time.split('-')[1],
                 professorId: professor.id,
                 subjectId: professor.subjects[subject].id,
-                studentId: 1,
+                studentId: router.query.studentId,
                 price: 250,
             };
 
