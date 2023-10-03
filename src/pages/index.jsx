@@ -5,6 +5,7 @@ import { useUser } from '@/context/UserContext';
 import { useState } from 'react';
 import TopNav from './TopNav';
 import Page from './sign-up/Page';
+import PersonalData from './personal-data';
 
 export async function getServerSideProps() {
     const res = await fetch('http://localhost:8080/api/professor/all');
@@ -22,15 +23,15 @@ export default function Home({ data, subjects }) {
 
     return (
         <>
-            {/* <TopNav setLogInForm={setLogInForm} setSignUpForm={setSignUpForm} setTransferList={setTransferList} /> */}
-            <Page
+            <PersonalData />
+            {/* <Page
                 transferList={transferList}
                 setTransferList={setTransferList}
                 logInForm={logInForm}
                 setLogInForm={setLogInForm}
                 signUpForm={signUpForm}
                 setSignUpForm={setSignUpForm}
-            />
+            /> */}
         </>
     );
     const user = useUser();
