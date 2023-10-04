@@ -1,24 +1,20 @@
+import { styles } from "./styles";
+
 const { Typography } = require("@mui/material");
 
 export default function PersonalDataItem({ name, value }) {
-    return <div style={{ flexDirection: "row", display: "flex" }}>
-        <Typography
-            variant='h6'
-            sx={{
-                margin: '1% 0% 1% 5%',
-                fontWeight: "bold",
-            }}
-        >
-            {name}:
-        </Typography>
+    return (
+        <div style={{ flexDirection: "row", display: "flex" }}>
+            <Typography
+                variant='h6'
+                sx={styles.itemTypography} >
+                {name}:
+            </Typography>
 
-        <Typography
-            variant='h6'
-            sx={{
-                margin: '1% 5% 1% 1%',
-                fontStyle: "italic",
-            }}>
-            {value}
-        </Typography>
-    </div>;
+            <Typography
+                variant='h6'
+                sx={styles.itemInformation} >
+                {value}
+            </Typography>
+        </div>);
 }

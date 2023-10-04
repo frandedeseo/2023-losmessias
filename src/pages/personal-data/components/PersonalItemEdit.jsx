@@ -1,24 +1,22 @@
+import { styles } from "./styles";
+
 const { Typography, TextField } = require("@mui/material");
 
-export default function PersonalItemEdit({ name, value }) {
-    return <div style={{ flexDirection: "row", display: "flex" }}>
-        <Typography
-            variant='h6'
-            sx={{
-                margin: '1% 0% 1% 5%',
-                fontWeight: "bold",
-            }}
-        >
-            {name}:
-        </Typography>
+export default function PersonalItemEdit({ name, value, handleEdit }) {
+    return (
+        <div style={{ flexDirection: "row", display: "flex" }}>
+            <Typography
+                variant='h6'
+                sx={styles.itemTypography}
+            >
+                {name}:
+            </Typography>
 
-        <TextField
-            variant="standard"
-            defaultValue={value}
-            sx={{
-                margin: '1% 5% 1% 1%',
-                fontStyle: "italic"
-            }}
-        />
-    </div>;
+            <TextField
+                variant="standard"
+                defaultValue={value}
+                sx={styles.itemEditTextField}
+                onChange={(e) => handleEdit(e.target.value)}
+            />
+        </div>);
 }
