@@ -7,10 +7,15 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import LogIn from './LogIn';
 import SignUp from './SignUp';
 import { TransferList } from './TransferList';
+import ForgotPassword from './ForgotPassword';
+import RecoverPassword from './RecoverPassword';
 
 const defaultTheme = createTheme();
 
-export default function Page({ transferList, setTransferList, logInForm, setLogInForm, signUpForm, setSignUpForm }) {
+export default function Page({ transferList, setTransferList, logInForm, setLogInForm, signUpForm, setSignUpForm,  forgotPassword, setForgotPassword}) {
+    
+    const [recoverPassword, setRecoverPassword] = React.useState(true);
+    
     return (
         <ThemeProvider theme={defaultTheme}>
             <Grid container component='main' justifyContent='center' direction='row' sx={{ height: '91vh' }}>
@@ -40,10 +45,12 @@ export default function Page({ transferList, setTransferList, logInForm, setLogI
                         }}
                     >
                         {signUpForm && (
-                            <SignUp setTransferList={setTransferList} setLogInForm={setLogInForm} setSignUpForm={setSignUpForm}></SignUp>
+                            <SignUp setTransferList={setTransferList} setLogInForm={setLogInForm} setSignUpForm={setSignUpForm} setForgotPassword={setForgotPassword}></SignUp>
                         )}
+                        {forgotPassword && <ForgotPassword setSignUpForm={setSignUpForm} setForgotPassword={setForgotPassword}></ForgotPassword>}
                         {logInForm && <LogIn setLogInForm={setLogInForm} setSignUpForm={setSignUpForm}></LogIn>}
                         {transferList && <TransferList />}
+                        {recoverPassword && <RecoverPassword ></RecoverPassword>}
                     </Box>
                 </Grid>
             </Grid>

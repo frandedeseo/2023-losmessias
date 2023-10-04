@@ -17,8 +17,9 @@ export async function getServerSideProps() {
 
 export default function Home({ data, subjects }) {
     const [logInForm, setLogInForm] = useState(false);
-    const [signUpForm, setSignUpForm] = useState(true);
+    const [signUpForm, setSignUpForm] = useState(false);
     const [transferList, setTransferList] = useState(false);
+    const [forgotPassword, setForgotPassword] = useState(false);
 
     return (
         <>
@@ -30,6 +31,8 @@ export default function Home({ data, subjects }) {
                 setLogInForm={setLogInForm}
                 signUpForm={signUpForm}
                 setSignUpForm={setSignUpForm}
+                forgotPassword={forgotPassword}
+                setForgotPassword={setForgotPassword}
             />
         </>
     );
