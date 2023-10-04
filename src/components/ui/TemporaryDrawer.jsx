@@ -1,4 +1,6 @@
 import { AutoStories, HomeMaxOutlined, Person } from '@mui/icons-material';
+import HomeIcon from '@mui/icons-material/Home';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemText, Stack, Typography } from '@mui/material';
 import router from 'next/router';
 
@@ -11,7 +13,7 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
     const drawerItems = [
         {
             href: '/student-landing',
-            icon: <HomeMaxOutlined />,
+            icon: <HomeIcon />,
             primary: 'Home',
         },
         // {
@@ -23,7 +25,12 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
         //     href: "/home",
         //     icon: <AutoStories />,
         //     primary: "Courses"
-        // }
+        // },
+        {
+            href: '/personal-data',
+            icon: <SettingsIcon />,
+            primary: 'Personal information',
+        },
     ];
 
     const drawerItem = (href, icon, primary, key) => {

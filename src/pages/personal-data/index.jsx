@@ -1,54 +1,67 @@
-import { Typography } from "@mui/material";
+import { Box, Fab, TextField, Typography } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import CheckIcon from '@mui/icons-material/Check';
 import { useApi } from "../hooks/useApi";
-import { useEffect } from "react";
-
-function PersonalItem({ name, value }) {
-    return <div style={{ flexDirection: "row", display: "flex" }}>
-        <Typography
-            variant='h6'
-            sx={{ margin: '1% 0% 1% 5%' }}
-        >
-            {name}:
-        </Typography>
-
-        <Typography
-            variant='h6'
-            sx={{
-                margin: '1% 5% 1% 1%',
-                fontStyle: "italic",
-            }}>
-            {value}
-        </Typography>
-    </div>;
-}
+import { useEffect, useState } from "react";
+import PersonalStudentDataDisplay from "./components/PersonalStudentDataDisplay";
+import PersonalStudentDataEdit from "./components/PersonalStudentDataEdit";
 
 
-export default function PersonalData() {
-    const { data, getStudentById } = useApi();
-    useEffect(() => {
-        getStudentById(1);
-    }, [])
-    console.log(data);
 
-    return (
-        <>
-            <Typography variant='h4' sx={{ margin: '2% 5%' }}>
-                My personal information
-            </Typography>
-            <div>
-                <PersonalItem name="First name" value={data.firstName} />
+export default function PersonalData({ personalData }) {
+    const [editMode, setEditMode] = useState(false);
+    if (personalData) {
+        return (
+            <>
+                <Box sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    mr: 3,
 
-                <PersonalItem name="Last name" value={data.lastName} />
-
-                <PersonalItem name="Email" value={data.email} />
-
-                {data.phone && (
-                    <PersonalItem name="Phone" value={data.phone} />
+                }}>
+                    <Typography variant='h4' sx={{ margin: '2% 3%' }}>
+                        My personal information
+                    </Typography>
+                    <Fab
+                        color={!editMode ? "primary" : "success"}
+                        aria-label="edit"
+                        onClick={() => setEditMode(!editMode)}
+                    >
+                        {editMode ? <CheckIcon /> : <EditIcon />}
+                    </Fab>
+                </Box>
+                {!editMode ? (
+                    <PersonalStudentDataDisplay data={personalData} />
+                ) : (
+                    <PersonalStudentDataEdit data={personalData} />
                 )}
 
-                <PersonalItem name="Location" value={data.location} />
-            </div>
+            </>
+        );
+    } else {
+        return (
+            <Box sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "left",
+                justifyContent: "space-between",
+                mr: 3,
 
-        </>
-    );
+            }}>
+                <Typography variant='h4' sx={{ margin: '2% 3%' }}>
+                    My personal information
+                </Typography>
+                <Box sx={{ flexDirection: "row", display: "flex" }}>
+                    <Typography variant='h6' sx={{ marginLeft:"3%", fontStyle: "italic", color: 'red' }}>
+                        Error:
+                    </Typography>
+                    <Typography variant='h6' sx={{ marginLeft: '1%', fontStyle: "italic" }}>
+                        no information to display
+                    </Typography>
+                </Box>
+            </Box>
+        );
+    }
 }

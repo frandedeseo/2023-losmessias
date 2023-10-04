@@ -2,10 +2,11 @@
 // import StudentsLandingPage from '@/pages/student-landing';
 // import ProfessorLandingPage from './professor-landing';
 import { useUser } from '@/context/UserContext';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import TopNav from './TopNav';
 import Page from './sign-up/Page';
 import PersonalData from './personal-data';
+import { useApi } from './hooks/useApi';
 
 export async function getServerSideProps() {
     const res = await fetch('http://localhost:8080/api/professor/all');
@@ -20,10 +21,15 @@ export default function Home({ data, subjects }) {
     const [logInForm, setLogInForm] = useState(false);
     const [signUpForm, setSignUpForm] = useState(true);
     const [transferList, setTransferList] = useState(false);
+    const { data: personalData, getStudentById } = useApi();
+    useEffect(() => {
+        getStudentById(1);
+    }, [])
+    console.log(personalData);
 
     return (
         <>
-            <PersonalData />
+            <PersonalData personalData={personalData} />
             {/* <Page
                 transferList={transferList}
                 setTransferList={setTransferList}
