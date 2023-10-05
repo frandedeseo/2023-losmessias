@@ -2,13 +2,13 @@ import { Box, Fab, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from '@mui/icons-material/Check';
 import { Cancel } from "@mui/icons-material";
-import { useApi } from "../hooks/useApi";
-import { useEffect, useState } from "react";
-import PersonalStudentDataDisplay from "./components/PersonalStudentDataDisplay";
-import PersonalStudentDataEdit from "./components/PersonalStudentDataEdit";
+import { useState } from "react";
+import PersonalDataDisplay from "./components/PersonalDataDisplay";
+import PersonalDataEdit from "./components/PersonalDataEdit";
 import { styles } from "./components/styles";
 import { useUser, useUserDispatch } from "@/context/UserContext";
 import useSWR from "swr";
+import { fetcher } from "@/helpers/FetchHelpers";
 
 
 
@@ -18,28 +18,21 @@ export default function PersonalData() {
     const [lastName, setLastName] = useState("");
     const [emailAddress, setEmailAddress] = useState("");
     const [location, setLocation] = useState("");
-    const fetcher = async (url) => {
-        try {
-            const res = await fetch(url);
-            return res.json();
-        } catch (error) {
-            console.log(error);
-        }
-    }
+    const [phone, setPhone] = useState("");
     const user = useUser();
-    const { data: studentData, isLoading, mutate } = useSWR(`http://localhost:8080/api/student/${user.id}`, fetcher);
+    const { data: studentData, isLoading, mutate } = useSWR(`http://localhost:8080/api/${user.role}/${user.id}`, fetcher);
 
     const handleSave = () => {
         if (editMode) {
             setEditMode(false)
-            fetch(`http://localhost:8080/api/${user.role}/update/${user.id}`, { // TODO: change id and type of user
+            fetch(`http://localhost:8080/api/${user.role}/update/${user.id}`, {
                 method: 'PATCH',
                 body: JSON.stringify({
                     firstName: (firstName ? firstName : null),
                     lastName: (lastName ? lastName : null),
                     email: (emailAddress ? emailAddress : null),
-                    location: (location ? location : null)
-                    // add field phone
+                    location: (location ? location : null),
+                    phone: (phone ? phone : null)
                 }),
                 headers: {
                     'Content-type': 'application/json; charset=UTF-8',
@@ -54,6 +47,7 @@ export default function PersonalData() {
             setLastName("")
             setEmailAddress("")
             setLocation("")
+            setPhone("")
         }
     }
 
@@ -95,14 +89,15 @@ export default function PersonalData() {
                     )}
                 </Box>
                 {!editMode ? (
-                    <PersonalStudentDataDisplay data={studentData} />
+                    <PersonalDataDisplay data={studentData} />
                 ) : (
-                    <PersonalStudentDataEdit
+                    <PersonalDataEdit
                         data={studentData}
                         setFirstName={setFirstName}
                         setLastName={setLastName}
                         setEmailAddress={setEmailAddress}
                         setLocation={setLocation}
+                        setPhone={setPhone}
                     />
                 )}
 

@@ -1,3 +1,4 @@
+import { useUser } from '@/context/UserContext';
 import { AutoStories, HomeMaxOutlined, Person } from '@mui/icons-material';
 import HomeIcon from '@mui/icons-material/Home';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -9,10 +10,11 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
         toggleDrawer();
         router.push(href);
     };
+    const user = useUser();
 
     const drawerItems = [
         {
-            href: '/student-landing',
+            href: `/${user.role}-landing`,
             icon: <HomeIcon />,
             primary: 'Home',
         },
