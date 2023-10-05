@@ -8,14 +8,14 @@ import Page from './sign-up/Page';
 import PersonalData from './personal-data';
 import { useApi } from './hooks/useApi';
 
-export async function getServerSideProps() {
-    const res = await fetch('http://localhost:8080/api/professor/all');
-    const data = await res.json();
+// export async function getServerSideProps() {
+//     const res = await fetch('http://localhost:8080/api/professor/all');
+//     const data = await res.json();
 
-    const subjectsRes = await fetch('http://localhost:8080/api/subject/all');
-    const subjects = await subjectsRes.json();
-    return { props: { data, subjects } };
-}
+//     const subjectsRes = await fetch('http://localhost:8080/api/subject/all');
+//     const subjects = await subjectsRes.json();
+//     return { props: { data, subjects } };
+// }
 
 export default function Home({ data, subjects }) {
     const [logInForm, setLogInForm] = useState(false);

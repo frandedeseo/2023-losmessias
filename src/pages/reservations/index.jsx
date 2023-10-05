@@ -23,6 +23,7 @@ import HorizontalProfessorCard from './components/HorizontalProfessorCard';
 
 // Utils
 import { order_and_group } from '@/utils/order_and_group';
+import { useUser } from '@/context/UserContext';
 
 // Consts
 const dayNumber = {
@@ -34,25 +35,22 @@ const dayNumber = {
 };
 
 export default function Reservation() {
-    const router = useRouter();
-
     const [selectedBlocks, setSelectedBlocks] = useState([]);
     const [professor, setProfessor] = useState({ subjects: [] });
     const [subject, setSubject] = useState(0);
     const [showConfirmReservation, setShowConfirmationReservation] = useState(false);
+    const user = useUser();
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
-        if (router.isReady) {
-            fetch(`http://localhost:8080/api/professor/${router.query.professorId}`).then(res =>
-                res.json().then(json => {
-                    setProfessor(json);
-                })
-            );
-        }
-    }, [router.isReady]);
+        fetch(`http://localhost:8080/api/professor/${user.id}`).then(res =>
+            res.json().then(json => {
+                setProfessor(json);
+            })
+        );
+    }, []);
 
     const handleCancel = () => {
         setSelectedBlocks([]);

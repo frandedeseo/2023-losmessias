@@ -10,6 +10,7 @@ import { getColor } from '@/utils/getColor';
 // Mui
 import { Box, Chip, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
+
 export async function getServerSideProps() {
     const res = await fetch('http://localhost:8080/api/professor/all');
     const data = await res.json();
@@ -20,9 +21,9 @@ export async function getServerSideProps() {
 }
 
 // export default function StudentsLandingPage({ data, subjects }) {
-export default function StudentsLandingPage({data, subjects}) {
-    const router = useRouter()
-    const id = router.query.id
+export default function StudentsLandingPage({ data, subjects }) {
+    const router = useRouter();
+    const id = router.query.id;
     const [professors, setProfessors] = useState(data);
     const [locationSelected, setLocationSelected] = useState([]);
     const [subjectSelected, setSubjectSelected] = useState([]);
@@ -131,19 +132,18 @@ export default function StudentsLandingPage({data, subjects}) {
                     {professors.map((profesor, index) => {
                         if (profesor.subjects.length > 0) {
                             return (
-
                                 <ProfessorCard
-                                key={index}
-                                professorId={profesor.id}
-                                studentId={id}
-                                name={profesor.firstName + ' ' + profesor.lastName}
-                                email={profesor.email}
-                                phone={profesor.phone}
-                                office={profesor.location}
-                                style={{ mr: 3, mt: 2 }}
-                                subjects={profesor.subjects}
+                                    key={index}
+                                    professorId={profesor.id}
+                                    studentId={id}
+                                    name={profesor.firstName + ' ' + profesor.lastName}
+                                    email={profesor.email}
+                                    phone={profesor.phone}
+                                    office={profesor.location}
+                                    style={{ mr: 3, mt: 2 }}
+                                    subjects={profesor.subjects}
                                 />
-                                )
+                            );
                         }
                     })}
                 </Box>
