@@ -5,11 +5,13 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
 import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
+import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useApi } from '../hooks/useApi.js';
-import { Alert, Snackbar } from '@mui/material';
+import {Alert} from '../../components/Alert.js';
+import { CssBaseline } from '@mui/material';
 
 const defaultTheme = createTheme();
 
@@ -17,28 +19,22 @@ export default function ForgotPassword( {setSignUpForm, setForgotPassword} ) {
 
   const { data, validateEmailForPasswordChange } = useApi();
   const [open, setOpen] = React.useState(false);
-
-  const handleClose = (event, reason) => {
-      if (reason === 'clickaway') {
-        return;
-      }
-      setOpen(false);
-  };
   
   const handleSubmit = (event) => {   
+    event.preventDefault();
     const datos = new FormData(event.currentTarget);
     
     const request = {
         email: datos.get('email')
     };
     validateEmailForPasswordChange(request);
-    {data && (
-        setOpen(true)
-    )}
+    setOpen(true);
+    
 };
 
   return (
-          <>
+    <>
+           {/* <Alert open={open} setOpen={setOpen} message={"Email was sent successfully"} severity={"success"}></Alert> */}
             <Typography component="h1" variant="h5">
                 Recover Password
             </Typography>
@@ -76,13 +72,9 @@ export default function ForgotPassword( {setSignUpForm, setForgotPassword} ) {
                   </Link>
                 </Grid>
               </Grid>
-                <Snackbar anchorOrigin={{vertical: 'top', horizontal: "center"}} open={open} autoHideDuration={6000} onClose={handleClose} message={"The email was sent successfully"}  key={'top' + 'center'}>
-                    <Alert onClose={handleClose} severity="success" sx={{ width: '100%' }}>
-                        The email was sent successfully
-                    </Alert>
-                </Snackbar>
+              
 
             </Box>
-          </>
+      </>
   );
 }

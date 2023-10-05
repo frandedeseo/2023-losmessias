@@ -19,7 +19,7 @@ export default function Home({ data, subjects }) {
     const [logInForm, setLogInForm] = useState(false);
     const [signUpForm, setSignUpForm] = useState(false);
     const [transferList, setTransferList] = useState(false);
-    const [forgotPassword, setForgotPassword] = useState(false);
+    const [forgotPassword, setForgotPassword] = useState(true);
 
     return (
         <>

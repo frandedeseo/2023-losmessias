@@ -1,9 +1,23 @@
 // React
 import { useState } from 'react';
 
+
 export function useApi() {
-    const [data, setData] = useState([]);
+    const [alertState, setAlertState] = useState([]);
     const [error, setError] = useState("");
+    const [data, setData] = useState([]);
+    const [open, setOpen] = useState(false);
+
+    const showAlert = (response) => {
+        var severity;
+        if (response.status == 200){
+            severity="success";
+        }else{
+            severity="error";
+        }
+        setOpen(true);
+        setAlertState(<Alert open={open} setOpen={setOpen} message={response.body} severity={severity}></Alert>);
+    }
 
     const getHomePageStudent = () => {
         return fetch('https://localhost:8080/student')
@@ -41,7 +55,7 @@ export function useApi() {
         fetch('http://localhost:8080/api/v1/registration', requestOptions)
             .then(response => response.json())
             .then(json => {
-                alert(json.status);
+                alertState(json.status);
             
                 if (json.status=="200"){
                     return json;
@@ -49,7 +63,7 @@ export function useApi() {
                 throw new Error (json.message);
             })
             .catch(res => {
-                alert(res);
+                alertState(res);
                 setError(res);
             });
     };
@@ -100,6 +114,16 @@ export function useApi() {
                 setError(res);
             });
     };
+    
+    const confirmTokenForgotPassword = token => {
+        fetch(`http://localhost:8080/api/forgot_password/confirm?token=${token}`)
+        .then(response => {
+            setAlertState(showAlert(response));
+        })
+        .catch(res => {
+            setError(res);
+        });
+    }
 
     const changePassword = request => {
         const requestOptions = {
@@ -113,9 +137,7 @@ export function useApi() {
 
         fetch(`http://localhost:8080/api/v1/changePassword`, requestOptions)
             .then(response => {
-                    setData(response);
-                
-                throw new Error (json.message);
+                setAlertState(showAlert(response));
             })
             .catch(res => {
                 setError(res);
@@ -127,6 +149,7 @@ export function useApi() {
     return {
         data,
         error,
+        alertState,
         getHomePageStudent,
         getHomePageTeacher,
         sendRequestForRegistration,
@@ -134,6 +157,7 @@ export function useApi() {
         getSubjects,
         addProfessorLecture,
         validateEmailForPasswordChange,
-        changePassword
+        changePassword,
+        confirmTokenForgotPassword
     };
 }

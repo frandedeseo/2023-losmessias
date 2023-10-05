@@ -8,13 +8,11 @@ import LogIn from './LogIn';
 import SignUp from './SignUp';
 import { TransferList } from './TransferList';
 import ForgotPassword from './ForgotPassword';
-import RecoverPassword from './RecoverPassword';
 
 const defaultTheme = createTheme();
 
 export default function Page({ transferList, setTransferList, logInForm, setLogInForm, signUpForm, setSignUpForm,  forgotPassword, setForgotPassword}) {
     
-    const [recoverPassword, setRecoverPassword] = React.useState(true);
     
     return (
         <ThemeProvider theme={defaultTheme}>
@@ -50,7 +48,6 @@ export default function Page({ transferList, setTransferList, logInForm, setLogI
                         {forgotPassword && <ForgotPassword setSignUpForm={setSignUpForm} setForgotPassword={setForgotPassword}></ForgotPassword>}
                         {logInForm && <LogIn setLogInForm={setLogInForm} setSignUpForm={setSignUpForm}></LogIn>}
                         {transferList && <TransferList />}
-                        {recoverPassword && <RecoverPassword ></RecoverPassword>}
                     </Box>
                 </Grid>
             </Grid>
