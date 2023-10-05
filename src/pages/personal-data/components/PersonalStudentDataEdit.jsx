@@ -9,8 +9,8 @@ export default function PersonalStudentDataEdit({ data, setFirstName, setLastNam
             <PersonalItemEdit name="Last name" value={data.lastName} handleEdit={setLastName} />
             <PersonalItemEdit name="Email" value={data.email} handleEdit={setEmailAddress} />
             <PersonalItemEdit name="Location" value={data.location} handleEdit={setLocation} />
-            // personal item for location
             
         </Box>
     );
+    // personal item for location
 }

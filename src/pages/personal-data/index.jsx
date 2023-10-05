@@ -7,38 +7,46 @@ import { useEffect, useState } from "react";
 import PersonalStudentDataDisplay from "./components/PersonalStudentDataDisplay";
 import PersonalStudentDataEdit from "./components/PersonalStudentDataEdit";
 import { styles } from "./components/styles";
+import { useUser, useUserDispatch } from "@/context/UserContext";
+import useSWR from "swr";
 
 
 
-export default function PersonalData({ personalData }) {
+export default function PersonalData() {
     const [editMode, setEditMode] = useState(false);
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [emailAddress, setEmailAddress] = useState("");
     const [location, setLocation] = useState("");
+    const fetcher = async (url) => {
+        try {
+            const res = await fetch(url);
+            return res.json();
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    const user = useUser();
+    const { data: studentData, isLoading, mutate } = useSWR(`http://localhost:8080/api/student/${user.id}`, fetcher);
 
     const handleSave = () => {
         if (editMode) {
             setEditMode(false)
-            fetch('http://localhost:8080/api/student/update/1', { // TODO: change id and type of user
+            fetch(`http://localhost:8080/api/${user.role}/update/${user.id}`, { // TODO: change id and type of user
                 method: 'PATCH',
                 body: JSON.stringify({
                     firstName: (firstName ? firstName : null),
                     lastName: (lastName ? lastName : null),
                     email: (emailAddress ? emailAddress : null),
                     location: (location ? location : null)
-                    // add fields 
+                    // add field phone
                 }),
                 headers: {
                     'Content-type': 'application/json; charset=UTF-8',
                 },
             })
-                .then((response) => {
-                    if (response.ok) {
-                        console.log("ok");
-                        //update personal data with context hook
-                    }
-                })
+                .then((res) => res.json())
+                .then((response) => mutate(response))
                 .catch((err) => console.log(err));
         } else {
             setEditMode(true)
@@ -49,7 +57,7 @@ export default function PersonalData({ personalData }) {
         }
     }
 
-    if (personalData) {
+    if (!isLoading) {
         return (
             <>
                 <Box sx={styles.globalContainer}>
@@ -58,7 +66,6 @@ export default function PersonalData({ personalData }) {
                     </Typography>
                     {editMode ? (
                         <Box>
-
                             <Fab
                                 color="error"
                                 aria-label="edit"
@@ -88,10 +95,10 @@ export default function PersonalData({ personalData }) {
                     )}
                 </Box>
                 {!editMode ? (
-                    <PersonalStudentDataDisplay data={personalData} />
+                    <PersonalStudentDataDisplay data={studentData} />
                 ) : (
                     <PersonalStudentDataEdit
-                        data={personalData}
+                        data={studentData}
                         setFirstName={setFirstName}
                         setLastName={setLastName}
                         setEmailAddress={setEmailAddress}
@@ -105,16 +112,9 @@ export default function PersonalData({ personalData }) {
         return (
             <Box sx={styles.noInformationGlobalContainer}>
                 <Typography variant='h4' sx={styles.typography}>
-                    My personal information
+                    LOADING...
                 </Typography>
-                <Box sx={styles.noInformationContainer}>
-                    <Typography variant='h6' sx={styles.errorTypography}>
-                        Error:
-                    </Typography>
-                    <Typography variant='h6' sx={styles.informationTypography}>
-                        no information to display
-                    </Typography>
-                </Box>
+
             </Box>
         );
     }
