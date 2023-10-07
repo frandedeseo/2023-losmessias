@@ -39,11 +39,13 @@ const styles = {
         cursor: 'pointer',
     },
     selected: {
-        backgroundColor: '#1565c0',
+        borderBlock: '1px solid #338aed70',
+        backgroundColor: '#338aed90',
         cursor: 'pointer',
     },
     disabled: {
-        backgroundColor: 'grey',
+        borderBlock: '1px solid #adadad70',
+        backgroundColor: '#adadad90',
     },
 };
 
