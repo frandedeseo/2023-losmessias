@@ -14,6 +14,7 @@ export function useApi() {
                 console.log(error);
             });
     };
+
     const getHomePageTeacher = () => {
         return fetch('https://localhost:8080/teacher')
             .then(response => response.json())
@@ -37,9 +38,7 @@ export function useApi() {
                 role: request.role,
             }),
         };
-        alert(requestOptions.body);
         fetch('http://localhost:8080/api/v1/registration', requestOptions).then(res => {
-            alert(res);
             if (res.status != 200) {
                 console.log('error status = ' + res.status);
             }
@@ -68,6 +67,17 @@ export function useApi() {
             });
     };
 
+    const getStudentById = (id) => {
+        fetch('http://localhost:8080/api/student/'+id)
+            .then(response => response.json())
+            .then(json => {
+                setData(json);
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
+
     const addProfessorLecture = request => {
         fetch(
             `http://localhost:8080/api/professor-subject/createAssociation?professorId=${request.professorId}&subjectId=${request.subjectId}`,
@@ -85,5 +95,6 @@ export function useApi() {
         sendRequestForLogIn,
         getSubjects,
         addProfessorLecture,
+        getStudentById
     };
 }
