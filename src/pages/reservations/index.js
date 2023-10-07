@@ -104,6 +104,8 @@ export default function Reservation() {
                 if (res.status !== 200) {
                     setAlertSeverity('error');
                     setAlertMessage('There was an error making the reservation!');
+                } else {
+                    router.push('/student-landing');
                 }
                 setAlert(true);
             });
