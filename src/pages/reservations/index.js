@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 
 // Hooks
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
 // Components
@@ -24,6 +24,7 @@ import HorizontalProfessorCard from './components/HorizontalProfessorCard';
 // Utils
 import { order_and_group } from '@/utils/order_and_group';
 import { useUser } from '@/context/UserContext';
+import CalendarPagination from '@/components/CalendarPagination';
 
 // Consts
 const dayNumber = {
@@ -32,25 +33,31 @@ const dayNumber = {
     Wednesday: 3,
     Thursday: 4,
     Friday: 5,
+    Saturday: 6,
+    Sunday: 7,
 };
 
 export default function Reservation() {
+    const router = useRouter();
     const [selectedBlocks, setSelectedBlocks] = useState([]);
     const [professor, setProfessor] = useState({ subjects: [] });
     const [subject, setSubject] = useState(0);
     const [showConfirmReservation, setShowConfirmationReservation] = useState(false);
+    const [week, setWeek] = useState(0);
     const user = useUser();
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
-        fetch(`http://localhost:8080/api/professor/${user.id}`).then(res =>
-            res.json().then(json => {
-                setProfessor(json);
-            })
-        );
-    }, []);
+        if (router.isReady) {
+            fetch(`http://localhost:8080/api/professor/${router.query.professorId}`).then(res =>
+                res.json().then(json => {
+                    setProfessor(json);
+                })
+            );
+        }
+    }, [router.isReady]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
@@ -63,26 +70,27 @@ export default function Reservation() {
         selectedBlocks.forEach(block => {
             const time = block.time.trim();
             const reservation = {
-                day: new Date(curr.setDate(first + dayNumber[block.day])).toISOString().split('T')[0],
+                day: new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0],
                 startingHour: time.split('-')[0],
                 endingHour: time.split('-')[1],
                 professorId: professor.id,
                 subjectId: professor.subjects[subject].id,
-                studentId: router.query.studentId,
+                studentId: user.id,
                 price: 250,
             };
 
-            fetch('http://localhost:8080/api/reservation/create', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    ...reservation,
-                }),
-            }).then(res => {
-                if (res.status !== 200) success = 0;
-            });
+            // fetch('http://localhost:8080/api/reservation/create', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify({
+            //         ...reservation,
+            //     }),
+            // }).then(res => {
+            //     if (res.status !== 200) success = 0;
+            // });
+            console.log(reservation);
         });
         handleCancel();
 
@@ -118,7 +126,10 @@ export default function Reservation() {
                 </FormControl>
             </div>
 
-            <Calendar selectedBlocks={selectedBlocks} setSelectedBlocks={setSelectedBlocks} />
+            <div style={{ width: '90%', margin: 'auto' }}>
+                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+                <Calendar selectedBlocks={selectedBlocks} setSelectedBlocks={setSelectedBlocks} week={week} />
+            </div>
 
             <div style={{ display: 'flex', justifyContent: 'right', margin: '1rem auto', width: '90%' }}>
                 <Button onClick={handleCancel}>Cancel</Button>
