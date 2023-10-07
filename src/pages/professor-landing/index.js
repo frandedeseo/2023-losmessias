@@ -78,10 +78,10 @@ export default function ProfessorLandingPage() {
 
         if (success === 1) {
             setAlertSeverity('success');
-            setAlertMessage('Reservation has been made successfully!');
+            setAlertMessage('Block has been disabled successfully!');
         } else {
             setAlertSeverity('error');
-            setAlertMessage('There was an error making the reservation!');
+            setAlertMessage('There was an error disabling the block!');
         }
 
         setAlert(true);
@@ -128,7 +128,7 @@ export default function ProfessorLandingPage() {
                 onClose={() => setAlert(false)}
                 anchorOrigin={{ vertical: 'top', horizontal: 'top' }}
             >
-                <Alert severity='success'>{alertMessage}</Alert>
+                <Alert severity={alertSeverity}>{alertMessage}</Alert>
             </Snackbar>
         </div>
     );

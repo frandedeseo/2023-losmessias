@@ -1,5 +1,6 @@
 // Mui
 import {
+    Alert,
     Button,
     Dialog,
     DialogActions,
@@ -10,6 +11,7 @@ import {
     InputLabel,
     MenuItem,
     Select,
+    Snackbar,
     Typography,
 } from '@mui/material';
 
@@ -46,6 +48,9 @@ export default function Reservation() {
     const [showConfirmReservation, setShowConfirmationReservation] = useState(false);
     const [week, setWeek] = useState(0);
     const user = useUser();
+    const [alert, setAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState('');
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
@@ -65,10 +70,10 @@ export default function Reservation() {
         setShowConfirmationReservation(false);
     };
 
-    const handleReserve = () => {
+    const handleReserve = async () => {
         let success = 1;
 
-        orderedSelectedBlocks.forEach(block => {
+        await orderedSelectedBlocks.forEach(block => {
             const reservation = {
                 day: new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0],
                 startingHour: block.startingHour,
@@ -89,13 +94,17 @@ export default function Reservation() {
                     ...reservation,
                 }),
             }).then(res => {
-                if (res.status !== 200) success = 0;
+                if (res.status !== 200) {
+                    setAlertSeverity('error');
+                    setAlertMessage('There was an error making the reservation!');
+                }
+                setAlert(true);
             });
         });
         handleCancel();
 
-        if (success === 1) alert('Reservation has been made successfully!');
-        else alert('There was an error making the reservation!');
+        setAlertSeverity('success');
+        setAlertMessage('Reservation has been made successfully!');
     };
 
     const handleSubjectChange = e => {
@@ -162,6 +171,15 @@ export default function Reservation() {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <Snackbar
+                open={alert}
+                autoHideDuration={3000}
+                onClose={() => setAlert(false)}
+                anchorOrigin={{ vertical: 'top', horizontal: 'top' }}
+            >
+                <Alert severity={alertSeverity}>{alertMessage}</Alert>
+            </Snackbar>
         </>
     );
 }
