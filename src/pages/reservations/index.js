@@ -80,18 +80,17 @@ export default function Reservation() {
                 price: 250,
             };
 
-            // fetch('http://localhost:8080/api/reservation/create', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify({
-            //         ...reservation,
-            //     }),
-            // }).then(res => {
-            //     if (res.status !== 200) success = 0;
-            // });
-            console.log(reservation);
+            fetch('http://localhost:8080/api/reservation/create', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ...reservation,
+                }),
+            }).then(res => {
+                if (res.status !== 200) success = 0;
+            });
         });
         handleCancel();
 
