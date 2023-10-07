@@ -1,5 +1,6 @@
 import Calendar from '@/components/Calendar';
 import CalendarPagination from '@/components/CalendarPagination';
+import { useUser } from '@/context/UserContext';
 import { order_and_group } from '@/utils/order_and_group';
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
@@ -26,7 +27,6 @@ export async function getServerSideProps() {
 }
 
 export default function ProfessorLandingPage() {
-    const router = useRouter();
     const [professor, setProfessor] = useState({});
     const [selectedBlocks, setSelectedBlocks] = useState([]);
     const [orderedSelectedBlocks, setOrderedSelectedBlocks] = useState([]);
@@ -35,9 +35,19 @@ export default function ProfessorLandingPage() {
     const [alert, setAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('');
+    const [disabledBlocks, setDisabledBlocks] = useState([]);
+    const user = useUser();
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
+
+    useEffect(() => {
+        fetch(`http://localhost:8080/api/reservation/findByProfessorAndSubject?professorId=${user.id}&subjectId=${3}`).then(res =>
+            res.json().then(json => {
+                setDisabledBlocks(json);
+            })
+        );
+    }, []);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
@@ -51,40 +61,45 @@ export default function ProfessorLandingPage() {
     };
 
     const handleDisable = () => {
-        let success = 1;
-
         orderedSelectedBlocks.forEach(block => {
             const reservation = {
                 day: new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0],
                 startingHour: block.startingHour,
                 endingHour: block.endingHour,
-                totalHours: block.totalHours,
-                professorId: professor.id,
+                duration: block.totalHours,
+                professorId: user.id,
             };
 
-            // fetch('http://localhost:8080/api/reservation/create', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify({
-            //         ...reservation,
-            //     }),
-            // }).then(res => {
-            //     if (res.status !== 200) success = 0;
-            // });
+            fetch('http://localhost:8080/api/reservation/createUnavailable', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ...reservation,
+                }),
+            }).then(res => {
+                if (res.status !== 200) {
+                    setAlertSeverity('error');
+                    setAlertMessage('There was an error disabling the block!');
+                } else {
+                    console.log(new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0].split('-'));
+                    setDisabledBlocks(prevDisabled => [
+                        ...prevDisabled,
+                        {
+                            day: new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0].split('-'),
+                            startingHour: block.startingHour.split(':'),
+                            endingHour: block.endingHour.split(':'),
+                        },
+                    ]);
+                }
+                setAlert(true);
+            });
         });
         handleCancel();
 
-        if (success === 1) {
-            setAlertSeverity('success');
-            setAlertMessage('Block has been disabled successfully!');
-        } else {
-            setAlertSeverity('error');
-            setAlertMessage('There was an error disabling the block!');
-        }
-
-        setAlert(true);
+        setAlertSeverity('success');
+        setAlertMessage('Block has been disabled successfully!');
     };
 
     return (
@@ -94,7 +109,7 @@ export default function ProfessorLandingPage() {
             </Typography>
 
             <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
-            <Calendar selectedBlocks={selectedBlocks} setSelectedBlocks={setSelectedBlocks} week={week} />
+            <Calendar selectedBlocks={selectedBlocks} setSelectedBlocks={setSelectedBlocks} disabledBlocks={disabledBlocks} week={week} />
 
             <div style={{ display: 'flex', justifyContent: 'right', margin: '1rem auto', width: '90%' }}>
                 <Button onClick={handleCancel}>Cancel</Button>
@@ -117,7 +132,7 @@ export default function ProfessorLandingPage() {
                 <DialogActions>
                     <Button onClick={handleCancel}>Cancel</Button>
                     <Button variant='contained' onClick={handleDisable}>
-                        Reserve
+                        Disable
                     </Button>
                 </DialogActions>
             </Dialog>
