@@ -40,6 +40,7 @@ const dayNumber = {
 export default function Reservation() {
     const router = useRouter();
     const [selectedBlocks, setSelectedBlocks] = useState([]);
+    const [orderedSelectedBlocks, setOrderedSelectedBlocks] = useState([]);
     const [professor, setProfessor] = useState({ subjects: [] });
     const [subject, setSubject] = useState(0);
     const [showConfirmReservation, setShowConfirmationReservation] = useState(false);
@@ -67,12 +68,12 @@ export default function Reservation() {
     const handleReserve = () => {
         let success = 1;
 
-        selectedBlocks.forEach(block => {
-            const time = block.time.trim();
+        orderedSelectedBlocks.forEach(block => {
             const reservation = {
                 day: new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0],
-                startingHour: time.split('-')[0],
-                endingHour: time.split('-')[1],
+                startingHour: block.startingHour,
+                endingHour: block.endingHour,
+                totalHours: block.totalHours,
                 professorId: professor.id,
                 subjectId: professor.subjects[subject].id,
                 studentId: user.id,
@@ -105,7 +106,7 @@ export default function Reservation() {
 
     const handleConfirmationOpen = () => {
         let orderedSelectedBlocks = order_and_group(selectedBlocks);
-        setSelectedBlocks(orderedSelectedBlocks);
+        setOrderedSelectedBlocks(orderedSelectedBlocks);
         setShowConfirmationReservation(true);
     };
 
@@ -143,8 +144,8 @@ export default function Reservation() {
                 <DialogContent dividers>
                     <div style={{ display: 'flex' }}>
                         <div style={{ paddingInline: '2rem' }}>
-                            {selectedBlocks.map(block => (
-                                <Typography key={block.time + block.day}>{block.day + ' ' + block.time}</Typography>
+                            {orderedSelectedBlocks.map((block, idx) => (
+                                <Typography key={idx}>{block.day + ' ' + block.startingHour + ' - ' + block.endingHour}</Typography>
                             ))}
                         </div>
                         <Divider orientation='vertical' flexItem />
