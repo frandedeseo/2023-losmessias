@@ -4,7 +4,7 @@ export const UserContext = createContext(null);
 export const UserDispatchContext = createContext(null);
 
 const initialUser = {
-    id: null,
+    id: 1,
     authenticated: false,
 };
 

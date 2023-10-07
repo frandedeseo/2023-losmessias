@@ -1,6 +1,8 @@
-import { Button, Typography } from '@mui/material';
-import { useState } from 'react';
-import CalendarPagination from './CalendarPagination';
+// Mui
+import { Typography } from '@mui/material';
+
+// Utils
+import { compare_time } from '@/utils/compareDate';
 
 const blocks = [
     '09:00 - 09:30',
@@ -47,13 +49,18 @@ const styles = {
         borderBlock: '1px solid #adadad70',
         backgroundColor: '#adadad90',
     },
+    reserved: {
+        borderBlock: '1px solid #e64b4b70',
+        backgroundColor: '#e64b4b90',
+    },
 };
 
-export default function Calendar({ selectedBlocks, setSelectedBlocks, week }) {
+export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBlocks, week }) {
     var curr_date = new Date();
+    var first = curr_date.getDate() - curr_date.getDay();
 
     const handleBlockSelection = (block, day) => {
-        if (!day_disable(day)) {
+        if (!block_disabled(block, day)) {
             if (selectedBlocks.find(element => element.time === block && element.day === day) !== undefined) {
                 setSelectedBlocks(prevBlocks =>
                     prevBlocks.filter(element => {
@@ -72,7 +79,20 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, week }) {
         return exists !== undefined;
     };
 
-    const day_disable = day => {
+    const block_disabled = (block, day) => {
+        if (block_reserved(block, day) || day_disabled(day)) return true;
+        return false;
+    };
+
+    const block_reserved = (block, day) => {
+        const blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toISOString().split('T')[0];
+        const blockDisabled = disabledBlocks.find(blk => blockDate === blk.day.join('-') && compare_time(block, blk));
+
+        if (blockDisabled) return true;
+        return false;
+    };
+
+    const day_disabled = day => {
         if (week === 0 && curr_date.getDay() > daysNumber[day]) {
             return true;
         }
@@ -83,7 +103,8 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, week }) {
     const style_of_block = (block, day) => {
         let style = styles.block;
         if (active(block, day)) style = styles.selected;
-        else if (day_disable(day)) style = styles.disabled;
+        else if (day_disabled(day)) style = styles.disabled;
+        else if (block_reserved(block, day)) style = styles.reserved;
 
         return style;
     };

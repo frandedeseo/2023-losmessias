@@ -51,6 +51,7 @@ export default function Reservation() {
     const [alert, setAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('');
+    const [disabledBlocks, setDisabledBlocks] = useState([]);
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
@@ -62,6 +63,14 @@ export default function Reservation() {
                     setProfessor(json);
                 })
             );
+
+            fetch(
+                `http://localhost:8080/api/reservation/findByProfessorAndSubject?professorId=${router.query.professorId}&subjectId=${3}`
+            ).then(res =>
+                res.json().then(json => {
+                    setDisabledBlocks(json);
+                })
+            );
         }
     }, [router.isReady]);
 
@@ -70,15 +79,13 @@ export default function Reservation() {
         setShowConfirmationReservation(false);
     };
 
-    const handleReserve = async () => {
-        let success = 1;
-
-        await orderedSelectedBlocks.forEach(block => {
+    const handleReserve = () => {
+        orderedSelectedBlocks.forEach(block => {
             const reservation = {
                 day: new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0],
                 startingHour: block.startingHour,
                 endingHour: block.endingHour,
-                totalHours: block.totalHours,
+                duration: block.totalHours,
                 professorId: professor.id,
                 subjectId: professor.subjects[subject].id,
                 studentId: user.id,
@@ -137,7 +144,12 @@ export default function Reservation() {
 
             <div style={{ width: '90%', margin: 'auto' }}>
                 <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
-                <Calendar selectedBlocks={selectedBlocks} setSelectedBlocks={setSelectedBlocks} week={week} />
+                <Calendar
+                    selectedBlocks={selectedBlocks}
+                    setSelectedBlocks={setSelectedBlocks}
+                    disabledBlocks={disabledBlocks}
+                    week={week}
+                />
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'right', margin: '1rem auto', width: '90%' }}>
