@@ -6,9 +6,11 @@ export default function Home({ data, subjects }) {
     const [logInForm, setLogInForm] = useState(false);
     const [signUpForm, setSignUpForm] = useState(true);
     const [transferList, setTransferList] = useState(false);
+    const [forgotPassword, setForgotPassword] = useState(false);
 
     return (
         <>
+            <TopNav setLogInForm={setLogInForm} setSignUpForm={setSignUpForm} setTransferList={setTransferList} />
             <Page
                 transferList={transferList}
                 setTransferList={setTransferList}
@@ -16,6 +18,8 @@ export default function Home({ data, subjects }) {
                 setLogInForm={setLogInForm}
                 signUpForm={signUpForm}
                 setSignUpForm={setSignUpForm}
+                forgotPassword={forgotPassword}
+                setForgotPassword={setForgotPassword}
             />
         </>
     );
