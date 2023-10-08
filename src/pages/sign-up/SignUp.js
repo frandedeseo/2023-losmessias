@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -14,45 +13,62 @@ import { useApi } from '../hooks/useApi.js';
 import { Snackbar } from '@mui/material';
 import { Password } from '@mui/icons-material';
 import Alert from '../../components/Alert.js';
+import { useEffect, useState } from 'react';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
 const defaultTheme = createTheme();
+const REG_ONLY_LETTERS = /^[ a-zA-ZÀ-ÿ\u00f1\u00d1]*$/;
+const REG_ONLY_NUM = /^[0-9]*$/;
+const REG_EMAIL = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+const REG_PASSWORD = /.{8,}/;
 
-export default function SignUp( {setLogInForm, setTransferList, setSignUpForm, setForgotPassword} ) {
+export default function SignUp( {setRequest, setLogInForm, setTransferList, setSignUpForm, setForgotPassword} ) {
     
-    const { sendRequestForRegistration } = useApi();
+    const { sendRequestForRegistration , validateEmailNotTaken} = useApi();
     
-    const [error, setError] = React.useState("");
-    const [errorPassword, setErrorPassword] = React.useState("");
-    const [open, setOpen] = React.useState(false);
-
-    const REG_ONLY_LETTERS = /^[ a-zA-ZÀ-ÿ\u00f1\u00d1]*$/;
-    const REG_ONLY_NUM = /^[0-9]*$/;
-    const REG_EMAIL = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-    const REG_PASSWORD = /.{8,}/;
+    const [error, setError] = useState("");
+    const [errorPassword, setErrorPassword] = useState("");
+    const [role, setRole] = useState('Student');
+    const [sex, setSex] = useState('Male');
 
     const handleSubmit = (event) => {
-        
+        event.preventDefault();
+        var returnValue;
         const data = new FormData(event.currentTarget);
         
-        const request = {
+        const req = {
             firstName: data.get('firstName'),
             lastName: data.get('lastName'),
             email: data.get('email'),
             password: data.get('password'),
+            sex: sex,
             location: data.get('location'),
             phone: data.get('phone'),
-            role: alignment
+            role: role
         };
-
-        sendRequestForRegistration(request);
-    };
-
-    const [alignment, setAlignment] = React.useState('Student');
-
-    const handleChange = (event, newAlignment) => {
-        setAlignment(newAlignment);
+        setRequest({
+            firstName: data.get('firstName'),
+            lastName: data.get('lastName'),
+            email: data.get('email'),
+            password: data.get('password'),
+            sex: sex,
+            location: data.get('location'),
+            phone: data.get('phone'),
+            role: role
+        });
+        if (role == "Student"){
+            sendRequestForRegistration(req);
+        }else {
+            returnValue = validateEmailNotTaken(req);
+            
+         //   useEffect(()=> {
+           //     if (returnValue){
+                    setTransferList(true);
+                    setSignUpForm(false);
+             //   }
+          //  },[returnValue])
+        }
     };
 
     return (
@@ -64,16 +80,29 @@ export default function SignUp( {setLogInForm, setTransferList, setSignUpForm, s
         <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
 
             <Grid container spacing={2} >
-                <Grid container xs={12} sx={{marginTop: 2}} justifyContent={'center'}>
+                <Grid container xs={6} sx={{marginTop: 2}} justifyContent={'center'}>
                     <ToggleButtonGroup
                         color="primary"
-                        value={alignment}
+                        value={role}
                         exclusive
-                        onChange={handleChange}
+                        onChange={(event, newAlignment) => setRole(newAlignment)}
                         aria-label="Platform"
                         >
                         <ToggleButton value="Student">Student</ToggleButton>
                         <ToggleButton value="Teacher">Teacher</ToggleButton>
+                    </ToggleButtonGroup>
+                </Grid>
+
+                <Grid container xs={6} sx={{marginTop: 2}} justifyContent={'center'}>
+                    <ToggleButtonGroup
+                        color="primary"
+                        value={sex}
+                        exclusive
+                        onChange={(event, newAlignment) => setSex(newAlignment)}
+                        aria-label="Platform"
+                        >
+                        <ToggleButton value="Male">Male</ToggleButton>
+                        <ToggleButton value="Female">Female</ToggleButton>
                     </ToggleButtonGroup>
                 </Grid>
 
@@ -129,8 +158,6 @@ export default function SignUp( {setLogInForm, setTransferList, setSignUpForm, s
                     />
                 </Grid>
                 
-                
-                <Alert severity={"success"}></Alert>
                 <Grid item xs={12} sm={6}>
                     <TextField
                         autoComplete="location"

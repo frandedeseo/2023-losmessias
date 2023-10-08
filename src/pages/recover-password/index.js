@@ -25,9 +25,11 @@ export default function RecoverPassword() {
   var token = router.query.token;
   var email = router.query.email;
 
-  const { alertState, changePassword, confirmTokenForgotPassword} = useApi();
+  const { severity, open, setOpen, message, changePassword, confirmTokenForgotPassword} = useApi();
   
-  useEffect(confirmTokenForgotPassword(token));
+  useEffect(() => {
+    confirmTokenForgotPassword(token);
+  }, [token]);
   
   const handleSubmit = (event) => {   
     event.preventDefault();
@@ -41,9 +43,12 @@ export default function RecoverPassword() {
 };
 
   return (
+    
     <ThemeProvider theme={defaultTheme}>
+        
     <Grid container component='main' justifyContent='center' direction='row' sx={{ height: '91vh' }}>
         <CssBaseline />
+        <Alert open={open} setOpen={setOpen} message={message} severity={severity}/>
         <Grid
             item
             xs={false}

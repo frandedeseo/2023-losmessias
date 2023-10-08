@@ -17,13 +17,13 @@ import Page from './sign-up/Page';
 
 export default function Home({ data, subjects }) {
     const [logInForm, setLogInForm] = useState(false);
-    const [signUpForm, setSignUpForm] = useState(false);
+    const [signUpForm, setSignUpForm] = useState(true);
     const [transferList, setTransferList] = useState(false);
-    const [forgotPassword, setForgotPassword] = useState(true);
+    const [forgotPassword, setForgotPassword] = useState(false);
 
     return (
         <>
-            {/* <TopNav setLogInForm={setLogInForm} setSignUpForm={setSignUpForm} setTransferList={setTransferList} /> */}
+            <TopNav setLogInForm={setLogInForm} setSignUpForm={setSignUpForm} setTransferList={setTransferList} />
             <Page
                 transferList={transferList}
                 setTransferList={setTransferList}
