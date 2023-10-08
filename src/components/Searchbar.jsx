@@ -10,7 +10,7 @@ import { getColor } from '@/utils/getColor';
 import { subjects } from '@/constants';
 
 // Styles
-import { styles } from '../styles';
+import { styles } from '../pages/validator/styles';
 
 export default function Searchbar({ search }) {
     const [searchValue, setSearchValue] = useState('');
