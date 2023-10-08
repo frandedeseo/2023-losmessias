@@ -35,6 +35,7 @@ export function useApi() {
                 console.log(error);
             });
     };
+
     const getHomePageTeacher = () => {
         return fetch('https://localhost:8080/teacher')
             .then(response => response.json())
@@ -117,6 +118,17 @@ export function useApi() {
                 console.log(error);
             });
     };
+
+    const getStudentById = (id) => {
+        fetch('http://localhost:8080/api/student/'+id)
+            .then(response => response.json())
+            .then(json => {
+                setData(json);
+            })
+            .catch(error => {
+                console.log(error);
+            });
+    }
 
     const addProfessorLecture = request => {
         fetch(
@@ -210,6 +222,7 @@ export function useApi() {
         changePassword,
         confirmTokenForgotPassword,
         validateEmailNotTaken,
-        sendRequestForRegistrationProfessor
+        sendRequestForRegistrationProfessor,
+        getStudentById
     };
 }

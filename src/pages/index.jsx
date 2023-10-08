@@ -1,19 +1,6 @@
 // Components
-// import StudentsLandingPage from '@/pages/student-landing';
-// import ProfessorLandingPage from './professor-landing';
-import { useUser } from '@/context/UserContext';
 import { useState } from 'react';
-import TopNav from './TopNav';
 import Page from './sign-up/Page';
-
-// export async function getServerSideProps() {
-//     const res = await fetch('http://localhost:8080/api/professor/all');
-//     const data = await res.json();
-
-//     const subjectsRes = await fetch('http://localhost:8080/api/subject/all');
-//     const subjects = await subjectsRes.json();
-//     return { props: { data, subjects } };
-// }
 
 export default function Home({ data, subjects }) {
     const [logInForm, setLogInForm] = useState(false);
@@ -36,7 +23,6 @@ export default function Home({ data, subjects }) {
             />
         </>
     );
-    const user = useUser();
 
     // return <StudentsLandingPage data={data} subjects={subjects} />;
     //return <ProfessorLandingPage />;
