@@ -28,11 +28,17 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
         //     icon: <AutoStories />,
         //     primary: "Courses"
         // },
-        {
-            href: '/personal-data',
-            icon: <SettingsIcon />,
-            primary: 'Personal information',
-        },
+        user.role !== 'admin'
+            ? {
+                  href: '/personal-data',
+                  icon: <SettingsIcon />,
+                  primary: 'Personal information',
+              }
+            : {
+                  href: '/validator',
+                  icon: <SettingsIcon />,
+                  primary: 'Validator',
+              },
     ];
 
     const drawerItem = (href, icon, primary, key) => {

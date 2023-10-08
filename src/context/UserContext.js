@@ -6,7 +6,7 @@ export const UserDispatchContext = createContext(null);
 const initialUser = {
     id: null,
     authenticated: true,
-    role: 'ADMIN',
+    role: 'admin',
 };
 
 export function useUser() {
