@@ -25,16 +25,16 @@ const REG_PASSWORD = /.{8,}/;
 
 export default function SignUp( {setRequest, setLogInForm, setTransferList, setSignUpForm, setForgotPassword} ) {
     
-    const { sendRequestForRegistration , validateEmailNotTaken} = useApi();
+    const { open, showAlert, setOpen, message, severity, sendRequestForRegistration , validateEmailNotTaken} = useApi();
     
     const [error, setError] = useState("");
     const [errorPassword, setErrorPassword] = useState("");
     const [role, setRole] = useState('Student');
     const [sex, setSex] = useState('Male');
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
-        var returnValue;
+        var returnValue = false;
         const data = new FormData(event.currentTarget);
         
         const req = {
@@ -47,32 +47,26 @@ export default function SignUp( {setRequest, setLogInForm, setTransferList, setS
             phone: data.get('phone'),
             role: role
         };
-        setRequest({
-            firstName: data.get('firstName'),
-            lastName: data.get('lastName'),
-            email: data.get('email'),
-            password: data.get('password'),
-            sex: sex,
-            location: data.get('location'),
-            phone: data.get('phone'),
-            role: role
-        });
+        setRequest(req);
         if (role == "Student"){
             sendRequestForRegistration(req);
         }else {
-            returnValue = validateEmailNotTaken(req);
-            
-         //   useEffect(()=> {
-           //     if (returnValue){
-                    setTransferList(true);
+
+            fetch(`http://localhost:8080/api/v1/validate-email?email=${req.email}`, { method: 'POST' })
+            .then(response => {
+                if (response.status===200){
                     setSignUpForm(false);
-             //   }
-          //  },[returnValue])
+                    setTransferList(true);
+                }else{
+                    showAlert({message: "Email already taken", status: 500});
+                }
+            })
         }
     };
 
     return (
     <>
+        <Alert open={open} setOpen={setOpen} message={message} severity={severity}/>
         <Typography component="h1" variant="h5">
             Sign up
         </Typography>

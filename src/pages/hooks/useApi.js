@@ -21,7 +21,8 @@ export function useApi() {
         }
         setOpen(true);
         setSeverity(severity);
-        response.json().then(json => setMessage(json.message));
+        setMessage(response.message);
+        //response.json().then(json => setMessage(json.message));
     }
 
     const getHomePageStudent = () => {
@@ -61,18 +62,14 @@ export function useApi() {
             }),
         };
         fetch('http://localhost:8080/api/v1/registration', requestOptions)
-            .then(response => response.json())
-            .then(json => {
+            .then(response => {
             
-                if (json.status!="200"){
-                    throw new Error (json.message);
+                if (response.status!=200){
+                    showAlert({message: "Email is already taken", status: 500});
+                }else{
+                    location.assign('http://localhost:8080/login');
                 }
-                
             })
-            .catch(res => {
-                showAlert(res);
-                setError(res);
-            });
     };
 
     const sendRequestForRegistrationProfessor = (request, subjects) => {
@@ -91,21 +88,12 @@ export function useApi() {
                 subjects: subjects
             }),
         };
-        console.log(requestOptions);
         fetch('http://localhost:8080/api/v1/registration-professor', requestOptions)
-            .then(response => response.json())
-            .then(json => {
-            
-                if (json.status!=200){
-                    showAlert(res);
-                    //throw new Error (json.message);
+            .then(response => {
+                if (response.status==200){
+                    location.assign('http://localhost:8080/login');
                 }
-                
             })
-            .catch(res => {
-                
-                setError(res);
-            });
     };
 
     const sendRequestForLogIn = () => {
@@ -143,32 +131,31 @@ export function useApi() {
 
         fetch(`http://localhost:8080/api/v1/loadEmailForPasswordChange?email=${request.email}`,
             { method: 'POST' })
-            .then(response => response.json())
-            .then(json => {
-                if (json.status=="200"){
-                    setData(json);
+            .then(response => {
+                if (response.status==200){
+                    showAlert({message: "Email has been sent for validation", status: 200});
+                }else{
+                    showAlert({message: "Email not exists", status: 500});
                 }
-                throw new Error (json.message);
+
             })
-            .catch(res => {
-                setError(res);
-            });
+
     };
 
-    const validateEmailNotTaken = request => {
-
-        fetch(`http://localhost:8080/api/v1/validate-email?email=${request.email}`,
-            { method: 'POST' })
-            .then(response => response.json())
-            .then(json => {
-                if (json.status==200){
-                    return true;
-                }
-                throw new Error (json.message);
-            })
-            .catch(res => {
-                setError(res);
-            });
+    const validateEmailNotTaken = async request => {
+        try {
+            let response = await fetch(`http://localhost:8080/api/v1/validate-email?email=${request.email}`, { method: 'POST' })
+            let json = await response.json();
+            console.log(response);
+            if (response.status===200){
+                return true;
+            }else{
+                showAlert({message: "Email is already taken", status: 500});
+                return false;
+            }
+        }catch( error){
+            return false;
+        }
     };
     
     const confirmTokenForgotPassword = token => {
@@ -193,14 +180,12 @@ export function useApi() {
 
         fetch(`http://localhost:8080/api/v1/changePassword`, requestOptions)
             .then(response => {
-                showAlert(response);
                 if (response.status === 200) {
-                    router.push("/student-landing")
+                    location.assign('http://localhost:8080/login');
                 }
             })
             .catch(res => {
-                console.log(res)
-                setError(res);
+                console.log(res);
             });
     };
 
@@ -213,6 +198,7 @@ export function useApi() {
         message,
         severity,
         open,
+        showAlert,
         setOpen,
         getHomePageStudent,
         getHomePageTeacher,

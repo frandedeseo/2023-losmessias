@@ -18,10 +18,10 @@ function intersection(a, b) {
     return a.filter(value => b.indexOf(value) !== -1);
 }
 
-export default function TransferList( request ) {
-    const { data, addProfessorLecture } = useApi();
+export default function TransferList( { request } ) {
+    
     const [checked, setChecked] = useState([]);
-    const [left, setLeft] = useState(data);
+    const [left, setLeft] = useState([]);
     const [right, setRight] = useState([]);
 
     const { sendRequestForRegistrationProfessor } = useApi();
@@ -162,7 +162,7 @@ export default function TransferList( request ) {
                 </Grid>
             </Grid>
             <Grid item>{customList(right)}</Grid>
-            <Button type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
+            <Button disabled={right.length==0} type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
                 Finish
             </Button>
         </Grid>
