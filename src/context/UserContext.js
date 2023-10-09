@@ -4,8 +4,9 @@ export const UserContext = createContext(null);
 export const UserDispatchContext = createContext(null);
 
 const initialUser = {
-    id: 1,
-    authenticated: false,
+    id: null,
+    authenticated: true,
+    role: 'admin',
 };
 
 export function useUser() {

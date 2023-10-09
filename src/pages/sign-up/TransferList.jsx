@@ -18,16 +18,19 @@ function intersection(a, b) {
     return a.filter(value => b.indexOf(value) !== -1);
 }
 
-export default function TransferList() {
-    const { data, addProfessorLecture } = useApi();
+export default function TransferList( { request } ) {
+    
     const [checked, setChecked] = useState([]);
-    const [left, setLeft] = useState(data);
+    const [left, setLeft] = useState([]);
     const [right, setRight] = useState([]);
+
+    const { sendRequestForRegistrationProfessor } = useApi();
 
     useEffect(() => {
         fetch('http://localhost:8080/api/subject/all')
             .then(response => response.json())
             .then(json => {
+                console.log(json);
                 setLeft(json);
             })
             .catch(error => {
@@ -70,10 +73,11 @@ export default function TransferList() {
 
     const handleSubmit = e => {
         e.preventDefault();
-
-        right.forEach(subject => {
-            addProfessorLecture({ professorId: 1, subjectId: subject.id });
-        });
+        const obj = {};
+        right.forEach((element, index) => {
+            obj[`${index}`] = element;
+          });
+        sendRequestForRegistrationProfessor(request, right);
     };
 
     const handleAllLeft = () => {
@@ -158,7 +162,7 @@ export default function TransferList() {
                 </Grid>
             </Grid>
             <Grid item>{customList(right)}</Grid>
-            <Button type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
+            <Button disabled={right.length==0} type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
                 Finish
             </Button>
         </Grid>
