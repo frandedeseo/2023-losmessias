@@ -25,6 +25,7 @@ export default function adminLandingPage() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [shownProfessors, setShownProfessors] = useState([]);
+    const [allProfessors, setAllProfessors] = useState([]);
     const [professors, setProfessors] = useState([]);
     const [open, setOpen] = useState(false);
     const [subject, setSubject] = useState('');
@@ -33,6 +34,7 @@ export default function adminLandingPage() {
     useEffect(() => {
         fetch('http://localhost:8080/api/reservation/todaySummary').then(res =>
             res.json().then(json => {
+                setAllProfessors(json);
                 setProfessors(json);
                 setShownProfessors(json.slice(0, rowsPerPage));
             })
@@ -46,29 +48,33 @@ export default function adminLandingPage() {
     }, []);
 
     const handleSearch = (searchValue, filterValues) => {
-        if (searchValue !== '' && filterValues.length === 0) {
-            setProfessors(
-                data.filter(
-                    prevTeacherSubject =>
-                        prevTeacherSubject.professor.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
-                        prevTeacherSubject.professor.lastName.toLowerCase().includes(searchValue.toLowerCase())
-                )
-            );
-        } else if (searchValue === '' && filterValues.length > 0) {
-            setProfessors(data.filter(prevTeacherSubject => filterValues.includes(prevTeacherSubject.subject.name)));
-        } else if (searchValue !== '' && filterValues.length > 0) {
-            setProfessors(
-                data.filter(
-                    prevTeacherSubject =>
-                        (prevTeacherSubject.professor.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
-                            prevTeacherSubject.professor.lastName.toLowerCase().includes(searchValue.toLowerCase())) &&
-                        filterValues.includes(prevTeacherSubject.subject.name)
-                )
-            );
-        } else setProfessors(data);
-
         setPage(0);
-        setShownProfessors(professors.slice(0, rowsPerPage));
+
+        if (searchValue !== '' && filterValues.length === 0) {
+            const filterProfessors = allProfessors.filter(
+                prevTeacherSubject =>
+                    prevTeacherSubject.professor.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+                    prevTeacherSubject.professor.lastName.toLowerCase().includes(searchValue.toLowerCase())
+            );
+            setProfessors(filterProfessors);
+            setShownProfessors(filterProfessors.slice(0, rowsPerPage));
+        } else if (searchValue === '' && filterValues.length > 0) {
+            const filterProfessors = allProfessors.filter(prevTeacherSubject => filterValues.includes(prevTeacherSubject.subject.name));
+            setProfessors(filterProfessors);
+            setShownProfessors(filterProfessors.slice(0, rowsPerPage));
+        } else if (searchValue !== '' && filterValues.length > 0) {
+            const filterProfessors = allProfessors.filter(
+                prevTeacherSubject =>
+                    (prevTeacherSubject.professor.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+                        prevTeacherSubject.professor.lastName.toLowerCase().includes(searchValue.toLowerCase())) &&
+                    filterValues.includes(prevTeacherSubject.subject.name)
+            );
+            setProfessors(filterProfessors);
+            setShownProfessors(filterProfessors.slice(0, rowsPerPage));
+        } else {
+            setProfessors(allProfessors);
+            setShownProfessors(allProfessors.slice(0, rowsPerPage));
+        }
     };
 
     const handleChangePage = (event, newPage) => {
@@ -128,9 +134,9 @@ export default function adminLandingPage() {
                     </TableHead>
 
                     <TableBody>
-                        {shownProfessors.map(prof => (
-                            <TableRow key={prof.id}>
-                                {/* <TableCell>{`${prof.professor.firstName} ${prof.professor.lastName}`}</TableCell>
+                        {shownProfessors.map((prof, idx) => (
+                            <TableRow key={idx}>
+                                <TableCell>{`${prof.professor.firstName} ${prof.professor.lastName}`}</TableCell>
                                 <TableCell>
                                     <Chip
                                         label={prof.subject.name}
@@ -138,7 +144,7 @@ export default function adminLandingPage() {
                                             backgroundColor: getColor(prof.subject.name),
                                         }}
                                     />
-                                </TableCell> */}
+                                </TableCell>
                                 <TableCell>{prof.totalHours} hs</TableCell>
                                 <TableCell>${prof.totalIncome}</TableCell>
                             </TableRow>
