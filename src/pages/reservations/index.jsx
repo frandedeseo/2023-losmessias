@@ -1,5 +1,6 @@
 // Mui
 import {
+    Alert,
     Button,
     Dialog,
     DialogActions,
@@ -10,11 +11,12 @@ import {
     InputLabel,
     MenuItem,
     Select,
+    Snackbar,
     Typography,
 } from '@mui/material';
 
 // Hooks
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 
 // Components
@@ -24,6 +26,7 @@ import HorizontalProfessorCard from './components/HorizontalProfessorCard';
 // Utils
 import { order_and_group } from '@/utils/order_and_group';
 import { useUser } from '@/context/UserContext';
+import CalendarPagination from '@/components/CalendarPagination';
 
 // Consts
 const dayNumber = {
@@ -32,25 +35,47 @@ const dayNumber = {
     Wednesday: 3,
     Thursday: 4,
     Friday: 5,
+    Saturday: 6,
+    Sunday: 7,
 };
 
 export default function Reservation() {
+    const router = useRouter();
     const [selectedBlocks, setSelectedBlocks] = useState([]);
+    const [orderedSelectedBlocks, setOrderedSelectedBlocks] = useState([]);
     const [professor, setProfessor] = useState({ subjects: [] });
     const [subject, setSubject] = useState(0);
     const [showConfirmReservation, setShowConfirmationReservation] = useState(false);
+    const [week, setWeek] = useState(0);
     const user = useUser();
+    const [alert, setAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState('');
+    const [disabledBlocks, setDisabledBlocks] = useState([]);
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
-        fetch(`http://localhost:8080/api/professor/${user.id}`).then(res =>
-            res.json().then(json => {
-                setProfessor(json);
-            })
-        );
-    }, []);
+        if (router.isReady) {
+            fetch(`http://localhost:8080/api/professor/${router.query.professorId}`).then(res =>
+                res.json().then(json => {
+                    setProfessor(json);
+                })
+            );
+
+            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${router.query.professorId}`).then(res =>
+                res.json().then(json => {
+                    setDisabledBlocks(
+                        json.map(e => {
+                            if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                            return e;
+                        })
+                    );
+                })
+            );
+        }
+    }, [router.isReady]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
@@ -58,17 +83,15 @@ export default function Reservation() {
     };
 
     const handleReserve = () => {
-        let success = 1;
-
-        selectedBlocks.forEach(block => {
-            const time = block.time.trim();
+        orderedSelectedBlocks.forEach(block => {
             const reservation = {
-                day: new Date(curr.setDate(first + dayNumber[block.day])).toISOString().split('T')[0],
-                startingHour: time.split('-')[0],
-                endingHour: time.split('-')[1],
+                day: new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0],
+                startingHour: block.startingHour,
+                endingHour: block.endingHour,
+                duration: block.totalHours,
                 professorId: professor.id,
                 subjectId: professor.subjects[subject].id,
-                studentId: router.query.studentId,
+                studentId: user.id,
                 price: 250,
             };
 
@@ -81,13 +104,19 @@ export default function Reservation() {
                     ...reservation,
                 }),
             }).then(res => {
-                if (res.status !== 200) success = 0;
+                if (res.status !== 200) {
+                    setAlertSeverity('error');
+                    setAlertMessage('There was an error making the reservation!');
+                } else {
+                    router.push('/student-landing');
+                }
+                setAlert(true);
             });
         });
         handleCancel();
 
-        if (success === 1) alert('Reservation has been made successfully!');
-        else alert('There was an error making the reservation!');
+        setAlertSeverity('success');
+        setAlertMessage('Reservation has been made successfully!');
     };
 
     const handleSubjectChange = e => {
@@ -97,7 +126,7 @@ export default function Reservation() {
 
     const handleConfirmationOpen = () => {
         let orderedSelectedBlocks = order_and_group(selectedBlocks);
-        setSelectedBlocks(orderedSelectedBlocks);
+        setOrderedSelectedBlocks(orderedSelectedBlocks);
         setShowConfirmationReservation(true);
     };
 
@@ -118,7 +147,15 @@ export default function Reservation() {
                 </FormControl>
             </div>
 
-            <Calendar selectedBlocks={selectedBlocks} setSelectedBlocks={setSelectedBlocks} />
+            <div style={{ width: '90%', margin: 'auto' }}>
+                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+                <Calendar
+                    selectedBlocks={selectedBlocks}
+                    setSelectedBlocks={setSelectedBlocks}
+                    disabledBlocks={disabledBlocks}
+                    week={week}
+                />
+            </div>
 
             <div style={{ display: 'flex', justifyContent: 'right', margin: '1rem auto', width: '90%' }}>
                 <Button onClick={handleCancel}>Cancel</Button>
@@ -132,8 +169,8 @@ export default function Reservation() {
                 <DialogContent dividers>
                     <div style={{ display: 'flex' }}>
                         <div style={{ paddingInline: '2rem' }}>
-                            {selectedBlocks.map(block => (
-                                <Typography key={block.time + block.day}>{block.day + ' ' + block.time}</Typography>
+                            {orderedSelectedBlocks.map((block, idx) => (
+                                <Typography key={idx}>{block.day + ' ' + block.startingHour + ' - ' + block.endingHour}</Typography>
                             ))}
                         </div>
                         <Divider orientation='vertical' flexItem />
@@ -151,6 +188,15 @@ export default function Reservation() {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <Snackbar
+                open={alert}
+                autoHideDuration={3000}
+                onClose={() => setAlert(false)}
+                anchorOrigin={{ vertical: 'top', horizontal: 'top' }}
+            >
+                <Alert severity={alertSeverity}>{alertMessage}</Alert>
+            </Snackbar>
         </>
     );
 }
