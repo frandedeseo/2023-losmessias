@@ -64,11 +64,14 @@ export default function Reservation() {
                 })
             );
 
-            fetch(
-                `http://localhost:8080/api/reservation/findByProfessorAndSubject?professorId=${router.query.professorId}&subjectId=${3}`
-            ).then(res =>
+            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${router.query.professorId}`).then(res =>
                 res.json().then(json => {
-                    setDisabledBlocks(json);
+                    setDisabledBlocks(
+                        json.map(e => {
+                            if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                            return e;
+                        })
+                    );
                 })
             );
         }

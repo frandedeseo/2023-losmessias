@@ -42,9 +42,14 @@ export default function ProfessorLandingPage() {
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
-        fetch(`http://localhost:8080/api/reservation/findByProfessorAndSubject?professorId=${user.id}&subjectId=${3}`).then(res =>
+        fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${user.id}`).then(res =>
             res.json().then(json => {
-                setDisabledBlocks(json);
+                setDisabledBlocks(
+                    json.map(e => {
+                        if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                        return e;
+                    })
+                );
             })
         );
     }, []);
@@ -90,6 +95,7 @@ export default function ProfessorLandingPage() {
                             day: new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0].split('-'),
                             startingHour: block.startingHour.split(':'),
                             endingHour: block.endingHour.split(':'),
+                            status: 'NOT_AVAILABLE',
                         },
                     ]);
                 }

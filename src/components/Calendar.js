@@ -80,13 +80,25 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
     };
 
     const block_disabled = (block, day) => {
-        if (block_reserved(block, day) || day_disabled(day)) return true;
+        if (day_disabled(day) || block_reserved(block, day) || block_not_available(block, day)) return true;
         return false;
     };
 
     const block_reserved = (block, day) => {
         const blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toISOString().split('T')[0];
-        const blockDisabled = disabledBlocks.find(blk => blockDate === blk.day.join('-') && compare_time(block, blk));
+        const blockDisabled = disabledBlocks.find(
+            blk => blockDate === blk.day.join('-') && blk.status === 'CONFIRMED' && compare_time(block, blk)
+        );
+
+        if (blockDisabled) return true;
+        return false;
+    };
+
+    const block_not_available = (block, day) => {
+        const blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toISOString().split('T')[0];
+        const blockDisabled = disabledBlocks.find(
+            blk => blockDate === blk.day.join('-') && blk.status === 'NOT_AVAILABLE' && compare_time(block, blk)
+        );
 
         if (blockDisabled) return true;
         return false;
@@ -105,6 +117,7 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
         if (active(block, day)) style = styles.selected;
         else if (day_disabled(day)) style = styles.disabled;
         else if (block_reserved(block, day)) style = styles.reserved;
+        else if (block_not_available(block, day)) style = styles.disabled;
 
         return style;
     };
