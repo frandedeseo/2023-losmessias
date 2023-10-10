@@ -130,6 +130,7 @@ export default function StudentsLandingPage({ data, subjects }) {
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
                     {professors.map((profesor, index) => {
                         if (profesor.subjects.length > 0) {
+                            console.log(profesor);
                             return (
                                 <ProfessorCard
                                     key={index}
@@ -138,6 +139,7 @@ export default function StudentsLandingPage({ data, subjects }) {
                                     name={profesor.firstName + ' ' + profesor.lastName}
                                     email={profesor.email}
                                     phone={profesor.phone}
+                                    sex={profesor.sex}
                                     office={profesor.location}
                                     style={{ mr: 3, mt: 2 }}
                                     subjects={profesor.subjects}
