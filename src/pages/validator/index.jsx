@@ -1,13 +1,12 @@
 // components
 import TeachersTable from './components/TeachersTable';
-import Searchbar from './components/Searchbar';
+import Searchbar from '../../components/Searchbar';
 
 // Hooks
 import { useState } from 'react';
 
 // styles
 import { styles } from './styles.js';
-import { Alert } from '@mui/material';
 
 export async function getServerSideProps() {
     const res = await fetch('http://localhost:8080/api/professor-subject/findByStatus?status=PENDING');

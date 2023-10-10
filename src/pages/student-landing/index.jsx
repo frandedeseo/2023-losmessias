@@ -20,7 +20,6 @@ export async function getServerSideProps() {
     return { props: { data, subjects } };
 }
 
-// export default function StudentsLandingPage({ data, subjects }) {
 export default function StudentsLandingPage({ data, subjects }) {
     const router = useRouter();
     const id = router.query.id;

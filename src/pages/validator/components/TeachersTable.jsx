@@ -72,7 +72,7 @@ export default function TeachersTable({ data, approve, reject }) {
                     <TableHead>
                         <TableRow>
                             <TableCell>Name</TableCell>
-                            <TableCell>Subjects</TableCell>
+                            <TableCell>Subject</TableCell>
                             <TableCell align='right'>Approve</TableCell>
                         </TableRow>
                     </TableHead>
