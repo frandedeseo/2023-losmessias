@@ -14,7 +14,7 @@ import { CssBaseline } from '@mui/material';
 
 const defaultTheme = createTheme();
 
-export default function ForgotPassword( {setSignUpForm, setForgotPassword} ) {
+export default function ForgotPassword( {setPage} ) {
 
   const { message, severity, open, setOpen, validateEmailForPasswordChange } = useApi();
   
@@ -61,12 +61,7 @@ export default function ForgotPassword( {setSignUpForm, setForgotPassword} ) {
               </Button>
               <Grid container justifyContent="flex-end">
                 <Grid item>
-                  <Link href="#" variant="body2"
-                    onClick={() => {
-                      setSignUpForm(true);
-                      setForgotPassword(false);
-                  }}
-                  >
+                  <Link href="#" variant="body2" onClick={() => setPage("signup")} >
                     {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>

@@ -1,30 +1,33 @@
 // Components
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Page from './sign-up/Page';
 import TopNav from './TopNav';
+import { useRouter } from 'next/router';
+import { useApi } from './hooks/useApi.js';
 
 export default function Home({ data, subjects }) {
-    const [logInForm, setLogInForm] = useState(false);
-    const [signUpForm, setSignUpForm] = useState(true);
-    const [transferList, setTransferList] = useState(false);
-    const [forgotPassword, setForgotPassword] = useState(false);
+    
+    const [page, setPage] = useState("login");
+
+    const { confirmToken } = useApi();
+
+    const router = useRouter()
+    var token = router.query.token;
+
+    useEffect(() => {
+        if (token!=undefined){
+            confirmToken(token);
+        }
+      }, [token]);
 
     return (
         <>
-            <TopNav setLogInForm={setLogInForm} setSignUpForm={setSignUpForm} setTransferList={setTransferList} />
+            <TopNav setPage={setPage} />
             <Page
-                transferList={transferList}
-                setTransferList={setTransferList}
-                logInForm={logInForm}
-                setLogInForm={setLogInForm}
-                signUpForm={signUpForm}
-                setSignUpForm={setSignUpForm}
-                forgotPassword={forgotPassword}
-                setForgotPassword={setForgotPassword}
+                page={page}
+                setPage={setPage}
             />
         </>
     );
 
-    // return <StudentsLandingPage data={data} subjects={subjects} />;
-    //return <ProfessorLandingPage />;
 }

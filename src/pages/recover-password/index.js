@@ -11,11 +11,10 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useApi } from '../hooks/useApi.js';
 import { CssBaseline, Snackbar } from '@mui/material';
-import MuiAlert from '@mui/material/Alert';
-import Alert from '../../components/Alert.js';
 
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
+import TopNav from '../TopNav.jsx';
 
 const defaultTheme = createTheme();
 

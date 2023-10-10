@@ -9,20 +9,22 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useApi } from '../hooks/useApi.js';
+import Alert from '../../components/Alert.js';
 
 const defaultTheme = createTheme();
 
-export default function LogIn( {setSignUpForm, setLogInForm} ) {
+export default function LogIn( {setPage} ) {
 
-  const { data, getHomePageStudent, getHomePageTeacher, sendRequestForRegistration, sendRequestForLogIn } = useApi();
+  const {error, setError, open, showAlert, setOpen, message, severity, sendRequestForLogIn } = useApi();
 
   const handleSubmit = (event) => {
         
+    event.preventDefault();
     const data = new FormData(event.currentTarget);
     
     const request = {
         email: data.get('email'),
-        password: data.get('password'),
+        password: data.get('password')
     };
 
     sendRequestForLogIn(request);
@@ -30,11 +32,14 @@ export default function LogIn( {setSignUpForm, setLogInForm} ) {
 
   return (
           <>
+          <Alert open={open} setOpen={setOpen} message={message} severity={severity}/>
+
             <Typography component="h1" variant="h5">
               Log In
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
               <TextField
+                error= {error!=""}
                 margin="normal"
                 required
                 fullWidth
@@ -43,8 +48,10 @@ export default function LogIn( {setSignUpForm, setLogInForm} ) {
                 name="email"
                 autoComplete="email"
                 autoFocus
+                onBlur={(event) => setError("")}
               />
               <TextField
+                error= {error!=""}
                 margin="normal"
                 required
                 fullWidth
@@ -52,6 +59,7 @@ export default function LogIn( {setSignUpForm, setLogInForm} ) {
                 label="Password"
                 type="password"
                 id="password"
+                onBlur={(event) => setError("")}
                 autoComplete="current-password"
               />
               <FormControlLabel
@@ -68,17 +76,16 @@ export default function LogIn( {setSignUpForm, setLogInForm} ) {
               </Button>
               <Grid container>
                 <Grid item xs>
-                  <Link href="#" variant="body2">
+                  <Link href="#" variant="body2"
+                    onClick={() => {
+                      setPage("forgot-password");
+                  }}
+                  >
                     Forgot password?
                   </Link>
                 </Grid>
                 <Grid item>
-                  <Link href="#" variant="body2"
-                    onClick={() => {
-                      setSignUpForm(true);
-                      setLogInForm(false);
-                  }}
-                  >
+                  <Link href="#" variant="body2" onClick={() => setPage("signup")} >
                     {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>

@@ -19,9 +19,9 @@ export function useApi() {
         }else{
             severity="error";
         }
-        setOpen(true);
         setSeverity(severity);
         setMessage(response.message);
+        setOpen(true);
         //response.json().then(json => setMessage(json.message));
     }
 
@@ -62,13 +62,13 @@ export function useApi() {
                 phone: request.phone
             }),
         };
-        fetch('http://localhost:8080/api/v1/registration', requestOptions)
+        fetch('http://localhost:8080/api/registration', requestOptions)
             .then(response => {
             
                 if (response.status!=200){
                     showAlert({message: "Email is already taken", status: 500});
                 }else{
-                    location.assign('http://localhost:8080/login');
+                    showAlert({message: "We have sent you an email. Please confirm email adress", status: 200});
                 }
             })
     };
@@ -89,22 +89,35 @@ export function useApi() {
                 subjects: subjects
             }),
         };
-        fetch('http://localhost:8080/api/v1/registration-professor', requestOptions)
+        fetch('http://localhost:8080/api/registration-professor', requestOptions)
             .then(response => {
                 if (response.status==200){
-                    location.assign('http://localhost:8080/login');
+                    showAlert({message: "We have sent you an email. Please confirm email adress", status: 200});
                 }
             })
     };
-
-    const sendRequestForLogIn = () => {
-        fetch('http://localhost:8080/login')
-            .then(response => response.json())
-            .then(json => {
-                setData(json);
+    const sendRequestForLogIn = ( request ) => {
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: request.email,
+                password: request.password,
+            }),
+        };
+        fetch('http://localhost:8080/api/authentication', requestOptions)
+            .then(response => {
+                console.log(response.status);
+                if (response.status!=200){
+                    throw new Error();
+                }else{
+                    return response.json();
+                }
             })
+            .then(json => json.token)
             .catch(error => {
-                console.log(error);
+                showAlert({message: "Error Log In", status: 403})
+                setError(error);
             });
     };
 
@@ -141,7 +154,7 @@ export function useApi() {
 
     const validateEmailForPasswordChange = request => {
 
-        fetch(`http://localhost:8080/api/v1/loadEmailForPasswordChange?email=${request.email}`,
+        fetch(`http://localhost:8080/api/loadEmailForPasswordChange?email=${request.email}`,
             { method: 'POST' })
             .then(response => {
                 if (response.status==200){
@@ -156,7 +169,7 @@ export function useApi() {
 
     const validateEmailNotTaken = async request => {
         try {
-            let response = await fetch(`http://localhost:8080/api/v1/validate-email?email=${request.email}`, { method: 'POST' })
+            let response = await fetch(`http://localhost:8080/api/validate-email?email=${request.email}`, { method: 'POST' })
             let json = await response.json();
             console.log(response);
             if (response.status===200){
@@ -179,7 +192,21 @@ export function useApi() {
             setError(res);
         });
     }
-
+    
+    const confirmToken = token => {
+        fetch(`http://localhost:8080/api/registration/confirm?token=${token}`)
+        .then(response => response.json())
+        .then(json => {
+            if (json.status!=200){
+                showAlert({message: "The token was not validate", status: 403});
+            }else{
+                return json.token;
+            }
+        })
+        .catch(res => {
+            setError(res);
+        });
+    }
     const changePassword = request => {
         const requestOptions = {
             method: 'POST',
@@ -190,7 +217,7 @@ export function useApi() {
             }),
         };
 
-        fetch(`http://localhost:8080/api/v1/changePassword`, requestOptions)
+        fetch(`http://localhost:8080/api/changePassword`, requestOptions)
             .then(response => {
                 if (response.status === 200) {
                     location.assign('http://localhost:8080/login');
@@ -206,6 +233,7 @@ export function useApi() {
     return {
         data,
         error,
+        setError,
         alertState,
         message,
         severity,
@@ -221,6 +249,7 @@ export function useApi() {
         validateEmailForPasswordChange,
         changePassword,
         confirmTokenForgotPassword,
+        confirmToken,
         validateEmailNotTaken,
         sendRequestForRegistrationProfessor,
         getStudentById
