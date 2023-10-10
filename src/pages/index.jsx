@@ -1,6 +1,7 @@
 // Components
 import { useState } from 'react';
 import Page from './sign-up/Page';
+import TopNav from './TopNav';
 
 export default function Home({ data, subjects }) {
     const [logInForm, setLogInForm] = useState(false);
