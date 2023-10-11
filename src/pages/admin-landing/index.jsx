@@ -1,4 +1,5 @@
 import Searchbar from '@/components/Searchbar';
+import { useUserDispatch } from '@/context/UserContext';
 import { getColor } from '@/utils/getColor';
 import {
     Button,
@@ -19,9 +20,12 @@ import {
     TableRow,
     TextField,
 } from '@mui/material';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
 export default function adminLandingPage() {
+    const router = useRouter();
+    const dispatch = useUserDispatch();
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [shownProfessors, setShownProfessors] = useState([]);
@@ -46,6 +50,10 @@ export default function adminLandingPage() {
             })
         );
     }, []);
+
+    useEffect(() => {
+        dispatch({ type: 'login', payload: { id: router.query.id, role: router.query.role } });
+    });
 
     const handleSearch = (searchValue, filterValues) => {
         setPage(0);

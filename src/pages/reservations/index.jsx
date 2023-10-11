@@ -91,8 +91,8 @@ export default function Reservation() {
                 duration: block.totalHours,
                 professorId: professor.id,
                 subjectId: professor.subjects[subject].id,
-                studentId: user.id,
-                price: 250,
+                studentId: parseInt(user.id),
+                price: 250 * block.totalHours,
             };
 
             fetch('http://localhost:8080/api/reservation/create', {
