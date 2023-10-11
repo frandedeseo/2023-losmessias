@@ -2,7 +2,7 @@
 import ProfessorCard from '@/components/cards/ProfessorCard';
 
 // Hooks
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // Utils
 import { getColor } from '@/utils/getColor';
@@ -10,23 +10,40 @@ import { getColor } from '@/utils/getColor';
 // Mui
 import { Box, Chip, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
+import { useUserDispatch } from '@/context/UserContext';
 
-export async function getServerSideProps() {
-    const res = await fetch('http://localhost:8080/api/professor/all');
-    const data = await res.json();
+// export async function getServerSideProps() {
+//     const res = await fetch('http://localhost:8080/api/professor/all');
+//     const data = await res.json();
 
-    const subjectsRes = await fetch('http://localhost:8080/api/subject/all');
-    const subjects = await subjectsRes.json();
-    return { props: { data, subjects } };
-}
+//     const subjectsRes = await fetch('http://localhost:8080/api/subject/all');
+//     const subjects = await subjectsRes.json();
+//     return { props: { data, subjects } };
+// }
 
-// export default function StudentsLandingPage({ data, subjects }) {
-export default function StudentsLandingPage({ data, subjects }) {
+export default function StudentsLandingPage() {
+    const [data, setData] = useState([]);
+    const [subjects, setSubjects] = useState([]);
     const router = useRouter();
     const id = router.query.id;
-    const [professors, setProfessors] = useState(data);
+    const role = router.query.role;
+    const [professors, setProfessors] = useState([]);
     const [locationSelected, setLocationSelected] = useState([]);
     const [subjectSelected, setSubjectSelected] = useState([]);
+    const dispatch = useUserDispatch();
+
+    useEffect(() => {
+        if (router.isReady) {
+            dispatch({ type: 'login', payload: { id, role } });
+            fetch('http://localhost:8080/api/professor/all').then(res =>
+                res.json().then(json => {
+                    setData(json);
+                    setProfessors(json);
+                })
+            );
+            fetch('http://localhost:8080/api/subject/all').then(res => res.json().then(json => setSubjects(json)));
+        }
+    }, [router.isReady]);
 
     const handleFilter = () => {
         if (locationSelected.length > 0 && subjectSelected.length === 0) {
