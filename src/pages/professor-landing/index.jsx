@@ -1,6 +1,6 @@
 import Calendar from '@/components/Calendar';
 import CalendarPagination from '@/components/CalendarPagination';
-import { useUser } from '@/context/UserContext';
+import { useUser, useUserDispatch } from '@/context/UserContext';
 import { order_and_group } from '@/utils/order_and_group';
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
@@ -27,7 +27,7 @@ export async function getServerSideProps() {
 }
 
 export default function ProfessorLandingPage() {
-    const [professor, setProfessor] = useState({});
+    const router = useRouter();
     const [selectedBlocks, setSelectedBlocks] = useState([]);
     const [orderedSelectedBlocks, setOrderedSelectedBlocks] = useState([]);
     const [week, setWeek] = useState(0);
@@ -36,23 +36,28 @@ export default function ProfessorLandingPage() {
     const [alertMessage, setAlertMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('');
     const [disabledBlocks, setDisabledBlocks] = useState([]);
+    const dispatch = useUserDispatch();
     const user = useUser();
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
-        fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${user.id}`).then(res =>
-            res.json().then(json => {
-                setDisabledBlocks(
-                    json.map(e => {
-                        if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                        return e;
-                    })
-                );
-            })
-        );
-    }, []);
+        if (router.isReady) {
+            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${router.query.id}`).then(res =>
+                res.json().then(json => {
+                    setDisabledBlocks(
+                        json.map(e => {
+                            if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                            return e;
+                        })
+                    );
+                })
+            );
+
+            dispatch({ type: 'login', payload: { id: router.query.id, role: router.query.role } });
+        }
+    }, [router.isReady]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
@@ -72,7 +77,7 @@ export default function ProfessorLandingPage() {
                 startingHour: block.startingHour,
                 endingHour: block.endingHour,
                 duration: block.totalHours,
-                professorId: user.id,
+                professorId: parseInt(user.id),
             };
 
             fetch('http://localhost:8080/api/reservation/createUnavailable', {
