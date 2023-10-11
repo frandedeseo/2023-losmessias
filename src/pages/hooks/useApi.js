@@ -1,6 +1,7 @@
 // React
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import jwt_decode from "jwt-decode";
 
 
 export function useApi() {
@@ -25,28 +26,14 @@ export function useApi() {
         //response.json().then(json => setMessage(json.message));
     }
 
-    const getHomePageStudent = () => {
-        return fetch('https://localhost:8080/student')
-            .then(response => response.json())
-            .then(json => {
-                setData(json);
-            })
-            .catch(error => {
-                console.log(error);
-            });
-    };
-
-    const getHomePageTeacher = () => {
-        return fetch('https://localhost:8080/teacher')
-            .then(response => response.json())
-            .then(json => {
-                setData(json);
-            })
-            .catch(error => {
-                console.log(error);
-            });
-    };
-
+    const getTokenValues = token => {
+        const decoded = jwt_decode(token);
+        const id = decoded.id;
+        const email = decoded.sub;
+        const role = decoded.role;
+        
+    }
+    
     const sendRequestForRegistration = request => {
         const requestOptions = {
             method: 'POST',
@@ -108,21 +95,27 @@ export function useApi() {
         fetch('http://localhost:8080/api/authentication', requestOptions)
             .then(response => {
                 console.log(response.status);
-                if (response.status!=200){
-                    throw new Error();
-                }else{
+                if (response.status===200){
                     return response.json();
+                }else{
+                   // throw new Error();
                 }
             })
-            .then(json => json.token)
+            .then(json => {getTokenValues(json.token)})
             .catch(error => {
-                showAlert({message: "Error Log In", status: 403})
+              //  showAlert({message: "Error Log In", status: 403})
                 setError(error);
             });
     };
 
     const getSubjects = () => {
-        fetch('http://localhost:8080/api/subject/all')
+        const requestOptions = {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' ,
+                    'Authentication' : `Bearer ${this.state.token}`
+            }
+        };
+        fetch('http://localhost:8080/api/subject/all', requestOptions)
             .then(response => response.json())
             .then(json => {
                 setData(json);
@@ -200,7 +193,7 @@ export function useApi() {
             if (json.status!=200){
                 showAlert({message: "The token was not validate", status: 403});
             }else{
-                return json.token;
+                getTokenValues(json.token);
             }
         })
         .catch(res => {
@@ -220,7 +213,7 @@ export function useApi() {
         fetch(`http://localhost:8080/api/changePassword`, requestOptions)
             .then(response => {
                 if (response.status === 200) {
-                    location.assign('http://localhost:8080/login');
+                    router.push("http://localhost:3000");
                 }
             })
             .catch(res => {
@@ -240,8 +233,6 @@ export function useApi() {
         open,
         showAlert,
         setOpen,
-        getHomePageStudent,
-        getHomePageTeacher,
         sendRequestForRegistration,
         sendRequestForLogIn,
         getSubjects,
