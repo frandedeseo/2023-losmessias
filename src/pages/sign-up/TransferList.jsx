@@ -25,7 +25,7 @@ export default function TransferList( { request } ) {
     const [left, setLeft] = useState([]);
     const [right, setRight] = useState([]);
 
-    const {open, setOpen, message, severity, sendRequestForRegistrationProfessor } = useApi();
+    const {open, setOpen, alertState, sendRequestForRegistrationProfessor } = useApi();
 
     useEffect(() => {
         fetch('http://localhost:8080/api/subject/all')
@@ -119,7 +119,7 @@ export default function TransferList( { request } ) {
                 Choose the subjects your are capable of teaching:
             </Typography>
 
-            <Alert open={open} setOpen={setOpen} message={message} severity={severity}/>
+            <Alert open={open} setOpen={setOpen} message={alertState.message} severity={alertState.severity}/>
 
             <Grid item>{customList(left)}</Grid>
             <Grid item>

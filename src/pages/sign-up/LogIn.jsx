@@ -15,7 +15,7 @@ const defaultTheme = createTheme();
 
 export default function LogIn( {setPage} ) {
 
-  const {error, setError, open, showAlert, setOpen, message, severity, sendRequestForLogIn } = useApi();
+  const {error, setError, open, showAlert, alertState, setOpen, sendRequestForLogIn } = useApi();
 
   const handleSubmit = (event) => {
         
@@ -32,7 +32,7 @@ export default function LogIn( {setPage} ) {
 
   return (
           <>
-          <Alert open={open} setOpen={setOpen} message={message} severity={severity}/>
+          <Alert open={open} setOpen={setOpen} message={alertState.message} severity={alertState.severity}/>
 
             <Typography component="h1" variant="h5">
               Log In

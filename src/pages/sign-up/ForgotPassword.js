@@ -16,7 +16,7 @@ const defaultTheme = createTheme();
 
 export default function ForgotPassword( {setPage} ) {
 
-  const { message, severity, open, setOpen, validateEmailForPasswordChange } = useApi();
+  const { alertState, open, setOpen, validateEmailForPasswordChange } = useApi();
   
   const handleSubmit = (event) => {   
     event.preventDefault();
@@ -37,7 +37,7 @@ export default function ForgotPassword( {setPage} ) {
                 Recover Password
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 , marginTop: 5}}>
-            <Alert open={open} setOpen={setOpen} message={message} severity={severity}/> 
+            <Alert open={open} setOpen={setOpen} message={alertState.message} severity={alertState.severity}/> 
                 <Typography component="h7" variant="h7">
                     We will send you an email for confirmation
                 </Typography>

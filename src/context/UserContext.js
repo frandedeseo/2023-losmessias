@@ -6,6 +6,7 @@ export const UserDispatchContext = createContext(null);
 const initialUser = {
     id: null,
     authenticated: false,
+    token: '',
     role: '',
 };
 
@@ -18,7 +19,7 @@ export function useUserDispatch() {
 }
 
 function userReducer(user, action) {
-    console.log(action);
+
     switch (action.type) {
         case 'login': {
             return { ...action.payload, authenticated: true };

@@ -2,16 +2,16 @@
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import jwt_decode from "jwt-decode";
+import { useUserDispatch } from '@/context/UserContext';
 
 
 export function useApi() {
-    const [alertState, setAlertState] = useState([]);
+    const [alertState, setAlertState] = useState({severity: "", message: ""});
     const router = useRouter();
     const [error, setError] = useState("");
     const [data, setData] = useState([]);
     const [open, setOpen] = useState(false);
-    const [severity, setSeverity] = useState("");
-    const [message, setMessage] = useState("");
+    const dispatch = useUserDispatch();
 
     const showAlert = (response) => {
         var severity;
@@ -20,8 +20,7 @@ export function useApi() {
         }else{
             severity="error";
         }
-        setSeverity(severity);
-        setMessage(response.message);
+        setAlertState({severity: severity, message: response.message})
         setOpen(true);
         //response.json().then(json => setMessage(json.message));
     }
@@ -30,8 +29,15 @@ export function useApi() {
         const decoded = jwt_decode(token);
         const id = decoded.id;
         const email = decoded.sub;
-        const role = decoded.role;
-        
+        const role = decoded.role.toLowerCase();
+        dispatch({ type: 'login', payload: { id: id, token: token, role: role } });
+        if (role=="professor"){
+            router.push("http://localhost:3000/professor-landing");
+        }else if (role=="student"){
+            router.push("http://localhost:3000/student-landing");
+        }else{
+            router.push("http://localhost:3000/admin-landing");
+        }
     }
     
     const sendRequestForRegistration = request => {
@@ -98,12 +104,12 @@ export function useApi() {
                 if (response.status===200){
                     return response.json();
                 }else{
-                   // throw new Error();
+                    throw new Error();
                 }
             })
             .then(json => {getTokenValues(json.token)})
             .catch(error => {
-              //  showAlert({message: "Error Log In", status: 403})
+                showAlert({message: "Error Log In", status: 403})
                 setError(error);
             });
     };
@@ -188,16 +194,18 @@ export function useApi() {
     
     const confirmToken = token => {
         fetch(`http://localhost:8080/api/registration/confirm?token=${token}`)
-        .then(response => response.json())
-        .then(json => {
-            if (json.status!=200){
-                showAlert({message: "The token was not validate", status: 403});
+        .then(response => {
+            console.log(response.status);
+            if (response.status===200){
+                return response.json();
             }else{
-                getTokenValues(json.token);
+                throw new Error();
             }
         })
-        .catch(res => {
-            setError(res);
+        .then(json => {getTokenValues(json.token)})
+        .catch(error => {
+            showAlert({message: "The token was not validated", status: 403});
+            setError(error);
         });
     }
     const changePassword = request => {
@@ -228,8 +236,7 @@ export function useApi() {
         error,
         setError,
         alertState,
-        message,
-        severity,
+        setAlertState,
         open,
         showAlert,
         setOpen,

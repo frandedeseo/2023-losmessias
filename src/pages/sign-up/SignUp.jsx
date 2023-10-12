@@ -25,7 +25,7 @@ const REG_PASSWORD = /.{8,}/;
 
 export default function SignUp( {setRequest, setPage} ) {
     
-    const { open, showAlert, setOpen, message, severity, sendRequestForRegistration , validateEmailNotTaken} = useApi();
+    const { open, showAlert, setOpen, alertState, sendRequestForRegistration , validateEmailNotTaken} = useApi();
     
     const [error, setError] = useState("");
     const [errorPassword, setErrorPassword] = useState("");
@@ -65,7 +65,7 @@ export default function SignUp( {setRequest, setPage} ) {
 
     return (
     <>
-        <Alert open={open} setOpen={setOpen} message={message} severity={severity}/>
+        <Alert open={open} setOpen={setOpen} message={alertState.message} severity={alertState.severity}/>
         <Typography component="h1" variant="h5">
             Sign up
         </Typography>
