@@ -10,7 +10,8 @@ import { getColor } from '@/utils/getColor';
 // Mui
 import { Box, Chip, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
-import { useUserDispatch } from '@/context/UserContext';
+
+import { useUser } from "@/context/UserContext";
 
 // export async function getServerSideProps() {
 //     const res = await fetch('http://localhost:8080/api/professor/all');
@@ -25,17 +26,20 @@ export default function StudentsLandingPage() {
     const [data, setData] = useState([]);
     const [subjects, setSubjects] = useState([]);
     const router = useRouter();
-    const id = router.query.id;
-    const role = router.query.role;
     const [professors, setProfessors] = useState([]);
     const [locationSelected, setLocationSelected] = useState([]);
     const [subjectSelected, setSubjectSelected] = useState([]);
-    const dispatch = useUserDispatch();
+    const user = useUser();
 
     useEffect(() => {
         if (router.isReady) {
-            dispatch({ type: 'login', payload: { id, role } });
-            fetch('http://localhost:8080/api/professor/all').then(res =>
+            console.log(user.token);
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization : `Bearer ${user.token}`}
+            };
+            fetch('http://localhost:8080/api/professor/all', requestOptions)
+            .then(res =>
                 res.json().then(json => {
                     setData(json);
                     setProfessors(json);
@@ -153,7 +157,7 @@ export default function StudentsLandingPage() {
                                 <ProfessorCard
                                     key={index}
                                     professorId={profesor.id}
-                                    studentId={id}
+                                    studentId={user.id}
                                     name={profesor.firstName + ' ' + profesor.lastName}
                                     email={profesor.email}
                                     phone={profesor.phone}

@@ -9,6 +9,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 import { useApi } from '../hooks/useApi';
+import Alert from '../../components/Alert.js';
 
 function not(a, b) {
     return a.filter(value => b.indexOf(value) === -1);
@@ -24,7 +25,7 @@ export default function TransferList( { request } ) {
     const [left, setLeft] = useState([]);
     const [right, setRight] = useState([]);
 
-    const { sendRequestForRegistrationProfessor } = useApi();
+    const {open, setOpen, alertState, sendRequestForRegistrationProfessor } = useApi();
 
     useEffect(() => {
         fetch('http://localhost:8080/api/subject/all')
@@ -112,10 +113,14 @@ export default function TransferList( { request } ) {
     );
 
     return (
+        
         <Grid component='form' onSubmit={handleSubmit} container spacing={2} justifyContent='center' alignItems='center'>
             <Typography component='h4' variant='h5'>
                 Choose the subjects your are capable of teaching:
             </Typography>
+
+            <Alert open={open} setOpen={setOpen} message={alertState.message} severity={alertState.severity}/>
+
             <Grid item>{customList(left)}</Grid>
             <Grid item>
                 <Grid container direction='column' alignItems='center'>

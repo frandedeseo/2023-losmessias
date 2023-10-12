@@ -1,6 +1,6 @@
 import Calendar from '@/components/Calendar';
 import CalendarPagination from '@/components/CalendarPagination';
-import { useUser, useUserDispatch } from '@/context/UserContext';
+import { useUser } from '@/context/UserContext';
 import { order_and_group } from '@/utils/order_and_group';
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
@@ -36,7 +36,6 @@ export default function ProfessorLandingPage() {
     const [alertMessage, setAlertMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('');
     const [disabledBlocks, setDisabledBlocks] = useState([]);
-    const dispatch = useUserDispatch();
     const user = useUser();
 
     var curr = new Date();
@@ -44,7 +43,7 @@ export default function ProfessorLandingPage() {
 
     useEffect(() => {
         if (router.isReady) {
-            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${router.query.id}`).then(res =>
+            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${user.id}`).then(res =>
                 res.json().then(json => {
                     setDisabledBlocks(
                         json.map(e => {
@@ -54,8 +53,6 @@ export default function ProfessorLandingPage() {
                     );
                 })
             );
-
-            dispatch({ type: 'login', payload: { id: router.query.id, role: router.query.role } });
         }
     }, [router.isReady]);
 

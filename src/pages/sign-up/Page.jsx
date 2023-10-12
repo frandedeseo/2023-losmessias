@@ -11,7 +11,7 @@ import { useState } from 'react';
 
 const defaultTheme = createTheme();
 
-export default function Page({ transferList, setTransferList, logInForm, setLogInForm, signUpForm, setSignUpForm,  forgotPassword, setForgotPassword}) {
+export default function Page({ page, setPage }) {
     
     const [request, setRequest] = useState({});
 
@@ -43,12 +43,12 @@ export default function Page({ transferList, setTransferList, logInForm, setLogI
                             alignItems: 'center',
                         }}
                     >
-                        {signUpForm && (
-                            <SignUp setRequest={setRequest} setTransferList={setTransferList} setLogInForm={setLogInForm} setSignUpForm={setSignUpForm} setForgotPassword={setForgotPassword}></SignUp>
+                        {page=="signup" && (
+                            <SignUp setRequest={setRequest} setPage={setPage}></SignUp>
                         )}
-                        {forgotPassword && <ForgotPassword setSignUpForm={setSignUpForm} setForgotPassword={setForgotPassword}></ForgotPassword>}
-                        {logInForm && <LogIn setLogInForm={setLogInForm} setSignUpForm={setSignUpForm}></LogIn>}
-                        {transferList && <TransferList request={request} ></TransferList>}
+                        {page=="forgot-password" && <ForgotPassword setPage={setPage}></ForgotPassword>}
+                        {page=="login"  && <LogIn setPage={setPage}></LogIn>}
+                        {page=="transferlist"  && <TransferList request={request} ></TransferList>}
                     </Box>
                 </Grid>
             </Grid>

@@ -1,16 +1,17 @@
 // React
 import { useRouter } from 'next/router';
 import { useState } from 'react';
+import jwt_decode from "jwt-decode";
+import { useUserDispatch } from '@/context/UserContext';
 
 
 export function useApi() {
-    const [alertState, setAlertState] = useState([]);
+    const [alertState, setAlertState] = useState({severity: "", message: ""});
     const router = useRouter();
     const [error, setError] = useState("");
     const [data, setData] = useState([]);
     const [open, setOpen] = useState(false);
-    const [severity, setSeverity] = useState("");
-    const [message, setMessage] = useState("");
+    const dispatch = useUserDispatch();
 
     const showAlert = (response) => {
         var severity;
@@ -19,34 +20,26 @@ export function useApi() {
         }else{
             severity="error";
         }
+        setAlertState({severity: severity, message: response.message})
         setOpen(true);
-        setSeverity(severity);
-        setMessage(response.message);
         //response.json().then(json => setMessage(json.message));
     }
 
-    const getHomePageStudent = () => {
-        return fetch('https://localhost:8080/student')
-            .then(response => response.json())
-            .then(json => {
-                setData(json);
-            })
-            .catch(error => {
-                console.log(error);
-            });
-    };
-
-    const getHomePageTeacher = () => {
-        return fetch('https://localhost:8080/teacher')
-            .then(response => response.json())
-            .then(json => {
-                setData(json);
-            })
-            .catch(error => {
-                console.log(error);
-            });
-    };
-
+    const getTokenValues = token => {
+        const decoded = jwt_decode(token);
+        const id = decoded.id;
+        const email = decoded.sub;
+        const role = decoded.role.toLowerCase();
+        dispatch({ type: 'login', payload: { id: id, token: token, role: role } });
+        if (role=="professor"){
+            router.push("http://localhost:3000/professor-landing");
+        }else if (role=="student"){
+            router.push("http://localhost:3000/student-landing");
+        }else{
+            router.push("http://localhost:3000/admin-landing");
+        }
+    }
+    
     const sendRequestForRegistration = request => {
         const requestOptions = {
             method: 'POST',
@@ -62,13 +55,13 @@ export function useApi() {
                 phone: request.phone
             }),
         };
-        fetch('http://localhost:8080/api/v1/registration', requestOptions)
+        fetch('http://localhost:8080/api/registration', requestOptions)
             .then(response => {
             
                 if (response.status!=200){
                     showAlert({message: "Email is already taken", status: 500});
                 }else{
-                    location.assign('http://localhost:8080/login');
+                    showAlert({message: "We have sent you an email. Please confirm email adress", status: 200});
                 }
             })
     };
@@ -89,27 +82,46 @@ export function useApi() {
                 subjects: subjects
             }),
         };
-        fetch('http://localhost:8080/api/v1/registration-professor', requestOptions)
+        fetch('http://localhost:8080/api/registration-professor', requestOptions)
             .then(response => {
                 if (response.status==200){
-                    location.assign('http://localhost:8080/login');
+                    showAlert({message: "We have sent you an email. Please confirm email adress", status: 200});
                 }
             })
     };
-
-    const sendRequestForLogIn = () => {
-        fetch('http://localhost:8080/login')
-            .then(response => response.json())
-            .then(json => {
-                setData(json);
+    const sendRequestForLogIn = ( request ) => {
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: request.email,
+                password: request.password,
+            }),
+        };
+        fetch('http://localhost:8080/api/authentication', requestOptions)
+            .then(response => {
+                console.log(response.status);
+                if (response.status===200){
+                    return response.json();
+                }else{
+                    throw new Error();
+                }
             })
+            .then(json => {getTokenValues(json.token)})
             .catch(error => {
-                console.log(error);
+                showAlert({message: "Error Log In", status: 403})
+                setError(error);
             });
     };
 
     const getSubjects = () => {
-        fetch('http://localhost:8080/api/subject/all')
+        const requestOptions = {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' ,
+                    'Authentication' : `Bearer ${this.state.token}`
+            }
+        };
+        fetch('http://localhost:8080/api/subject/all', requestOptions)
             .then(response => response.json())
             .then(json => {
                 setData(json);
@@ -141,7 +153,7 @@ export function useApi() {
 
     const validateEmailForPasswordChange = request => {
 
-        fetch(`http://localhost:8080/api/v1/loadEmailForPasswordChange?email=${request.email}`,
+        fetch(`http://localhost:8080/api/loadEmailForPasswordChange?email=${request.email}`,
             { method: 'POST' })
             .then(response => {
                 if (response.status==200){
@@ -156,7 +168,7 @@ export function useApi() {
 
     const validateEmailNotTaken = async request => {
         try {
-            let response = await fetch(`http://localhost:8080/api/v1/validate-email?email=${request.email}`, { method: 'POST' })
+            let response = await fetch(`http://localhost:8080/api/validate-email?email=${request.email}`, { method: 'POST' })
             let json = await response.json();
             console.log(response);
             if (response.status===200){
@@ -179,7 +191,23 @@ export function useApi() {
             setError(res);
         });
     }
-
+    
+    const confirmToken = token => {
+        fetch(`http://localhost:8080/api/registration/confirm?token=${token}`)
+        .then(response => {
+            console.log(response.status);
+            if (response.status===200){
+                return response.json();
+            }else{
+                throw new Error();
+            }
+        })
+        .then(json => {getTokenValues(json.token)})
+        .catch(error => {
+            showAlert({message: "The token was not validated", status: 403});
+            setError(error);
+        });
+    }
     const changePassword = request => {
         const requestOptions = {
             method: 'POST',
@@ -190,10 +218,10 @@ export function useApi() {
             }),
         };
 
-        fetch(`http://localhost:8080/api/v1/changePassword`, requestOptions)
+        fetch(`http://localhost:8080/api/changePassword`, requestOptions)
             .then(response => {
                 if (response.status === 200) {
-                    location.assign('http://localhost:8080/login');
+                    router.push("http://localhost:3000");
                 }
             })
             .catch(res => {
@@ -206,14 +234,12 @@ export function useApi() {
     return {
         data,
         error,
+        setError,
         alertState,
-        message,
-        severity,
+        setAlertState,
         open,
         showAlert,
         setOpen,
-        getHomePageStudent,
-        getHomePageTeacher,
         sendRequestForRegistration,
         sendRequestForLogIn,
         getSubjects,
@@ -221,6 +247,7 @@ export function useApi() {
         validateEmailForPasswordChange,
         changePassword,
         confirmTokenForgotPassword,
+        confirmToken,
         validateEmailNotTaken,
         sendRequestForRegistrationProfessor,
         getStudentById

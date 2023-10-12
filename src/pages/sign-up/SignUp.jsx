@@ -23,9 +23,9 @@ const REG_ONLY_NUM = /^[0-9]*$/;
 const REG_EMAIL = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
 const REG_PASSWORD = /.{8,}/;
 
-export default function SignUp( {setRequest, setLogInForm, setTransferList, setSignUpForm, setForgotPassword} ) {
+export default function SignUp( {setRequest, setPage} ) {
     
-    const { open, showAlert, setOpen, message, severity, sendRequestForRegistration , validateEmailNotTaken} = useApi();
+    const { open, showAlert, setOpen, alertState, sendRequestForRegistration , validateEmailNotTaken} = useApi();
     
     const [error, setError] = useState("");
     const [errorPassword, setErrorPassword] = useState("");
@@ -52,11 +52,10 @@ export default function SignUp( {setRequest, setLogInForm, setTransferList, setS
             sendRequestForRegistration(req);
         }else {
 
-            fetch(`http://localhost:8080/api/v1/validate-email?email=${req.email}`, { method: 'POST' })
+            fetch(`http://localhost:8080/api/validate-email?email=${req.email}`, { method: 'POST' })
             .then(response => {
                 if (response.status===200){
-                    setSignUpForm(false);
-                    setTransferList(true);
+                    setPage("transferlist");
                 }else{
                     showAlert({message: "Email already taken", status: 500});
                 }
@@ -66,7 +65,7 @@ export default function SignUp( {setRequest, setLogInForm, setTransferList, setS
 
     return (
     <>
-        <Alert open={open} setOpen={setOpen} message={message} severity={severity}/>
+        <Alert open={open} setOpen={setOpen} message={alertState.message} severity={alertState.severity}/>
         <Typography component="h1" variant="h5">
             Sign up
         </Typography>
@@ -221,18 +220,12 @@ export default function SignUp( {setRequest, setLogInForm, setTransferList, setS
             </Button>
             <Grid container justifyContent="flex-end">
                 <Grid item xs>
-                  <Link href="#" variant="body2"
-                    onClick={() => {
-                        setSignUpForm(false);
-                        setForgotPassword(true);
-                    }}
-                  >
+                  <Link href="#" variant="body2" onClick={() => setPage("forgot-password")} >
                     Forgot password?
                   </Link>
                 </Grid>
                 <Grid item>
-                    <Link href="http://localhost:8080/login" variant="body2"
-                    >
+                    <Link href="#" variant="body2" onClick={() => setPage("login")} >
                         Already have an account? Log in
                     </Link>
                 </Grid>

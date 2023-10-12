@@ -6,7 +6,7 @@ import { useState } from "react";
 import PersonalDataDisplay from "./components/PersonalDataDisplay";
 import PersonalDataEdit from "./components/PersonalDataEdit";
 import { styles } from "./components/styles";
-import { useUser, useUserDispatch } from "@/context/UserContext";
+import { useUser } from "@/context/UserContext";
 import useSWR from "swr";
 import { fetcher } from "@/helpers/FetchHelpers";
 

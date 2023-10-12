@@ -1,4 +1,3 @@
-import * as React from 'react';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -11,19 +10,22 @@ import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useApi } from '../hooks/useApi.js';
 import { CssBaseline, Snackbar } from '@mui/material';
-import MuiAlert from '@mui/material/Alert';
-import Alert from '../../components/Alert.js';
 
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import TopNav from '../TopNav.jsx';
 
 const defaultTheme = createTheme();
+
+const REG_PASSWORD = /.{8,}/;
 
 export default function RecoverPassword() {
 
   const router = useRouter()
   var token = router.query.token;
   var email = router.query.email;
+
+  const [errorPassword, setErrorPassword] = useState("");
 
   const { changePassword, confirmTokenForgotPassword} = useApi();
   
@@ -46,7 +48,7 @@ export default function RecoverPassword() {
     
     <ThemeProvider theme={defaultTheme}>
         
-    <Grid container component='main' justifyContent='center' direction='row' sx={{ height: '91vh' }}>
+    <Grid container component='main' justifyContent='center' direction='row' sx={{ height: '100vh' }}>
         <CssBaseline />
         <Grid
             item
@@ -89,6 +91,15 @@ export default function RecoverPassword() {
                     type="password"
                     id="password"
                     autoComplete="current-password"
+                    error= {errorPassword!=""}
+                    onBlur={(event) => {
+                        if (!REG_PASSWORD.test(event.target.value)){
+                            setErrorPassword("Password must be longer than 8 characters");
+                        }else{
+                            setErrorPassword("");
+                        }
+                    }}
+                    helperText={errorPassword}
                 />
               <Button
                 type="submit"
