@@ -43,7 +43,11 @@ export default function ProfessorLandingPage() {
 
     useEffect(() => {
         if (router.isReady) {
-            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${user.id}`).then(res =>
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization : `Bearer ${user.token}`}
+            };
+            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res =>
                 res.json().then(json => {
                     setDisabledBlocks(
                         json.map(e => {
@@ -81,6 +85,7 @@ export default function ProfessorLandingPage() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    Authorization : `Bearer ${user.token}`
                 },
                 body: JSON.stringify({
                     ...reservation,

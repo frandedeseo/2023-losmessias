@@ -26,8 +26,6 @@ export default function ForgotPassword( {setPage} ) {
         email: datos.get('email')
     };
     validateEmailForPasswordChange(request);
-    setOpen(true);
-    
 };
 
   return (

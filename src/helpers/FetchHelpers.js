@@ -6,13 +6,14 @@ export const fetcher = async (url) => {
         console.log(error);
     }
 }
-export const postFetcher = async (url, data) => {
+export const postFetcher = async (url, token, data) => {
     try {
         const res = await fetch(url, {
             method: 'POST',
             body: JSON.stringify(data),
             headers: {
                 'Content-type': 'application/json; charset=UTF-8',
+                Authorization : `Bearer ${token}`
             },
         });
         return res.json();
@@ -21,13 +22,14 @@ export const postFetcher = async (url, data) => {
     }
 }
 
-export const patchFetcher = async (url, data) => {
+export const patchFetcher = async (url, token, data) => {
     try {
         const res = await fetch(url, {
             method: 'PATCH',
             body: JSON.stringify(data),
             headers: {
                 'Content-type': 'application/json; charset=UTF-8',
+                Authorization : `Bearer ${token}`
             },
         });
         return res.json();

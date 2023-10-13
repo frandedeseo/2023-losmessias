@@ -158,8 +158,10 @@ export function useApi() {
             .then(response => {
                 if (response.status==200){
                     showAlert({message: "Email has been sent for validation", status: 200});
+                    return true;
                 }else{
                     showAlert({message: "Email not exists", status: 500});
+                    return false;
                 }
 
             })

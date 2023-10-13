@@ -10,9 +10,10 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { useApi } from '../hooks/useApi.js';
-import { Snackbar } from '@mui/material';
-import { Password } from '@mui/icons-material';
+import { IconButton, InputAdornment, OutlinedInput, Snackbar } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import Alert from '../../components/Alert.js';
+import PasswordComponent from '../../components/PasswordComponent.js';
 import { useEffect, useState } from 'react';
 
 // TODO remove, this demo shouldn't need to reset the theme.
@@ -21,14 +22,12 @@ const defaultTheme = createTheme();
 const REG_ONLY_LETTERS = /^[ a-zA-ZÀ-ÿ\u00f1\u00d1]*$/;
 const REG_ONLY_NUM = /^[0-9]*$/;
 const REG_EMAIL = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-const REG_PASSWORD = /.{8,}/;
 
 export default function SignUp( {setRequest, setPage} ) {
     
     const { open, showAlert, setOpen, alertState, sendRequestForRegistration , validateEmailNotTaken} = useApi();
     
     const [error, setError] = useState("");
-    const [errorPassword, setErrorPassword] = useState("");
     const [role, setRole] = useState('Student');
     const [sex, setSex] = useState('Male');
 
@@ -183,24 +182,7 @@ export default function SignUp( {setRequest, setPage} ) {
                     />
                 </Grid>
                 <Grid item xs={12}>
-                    <TextField
-                        required
-                        fullWidth
-                        name="password"
-                        label="Password"
-                        type="password"
-                        id="password"
-                        autoComplete="new-password"
-                        error= {errorPassword!=""}
-                        onBlur={(event) => {
-                            if (!REG_PASSWORD.test(event.target.value)){
-                                setErrorPassword("Password must be longer than 8 characters");
-                            }else{
-                                setErrorPassword("");
-                            }
-                        }}
-                        helperText={errorPassword}
-                    />
+                    <PasswordComponent/>
                 </Grid>
 
                 <Grid item xs={12}>

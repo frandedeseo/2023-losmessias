@@ -33,7 +33,6 @@ export default function StudentsLandingPage() {
 
     useEffect(() => {
         if (router.isReady) {
-            console.log(user.token);
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization : `Bearer ${user.token}`}

@@ -27,7 +27,7 @@ export default function SearchAppBar() {
                         >
                             <MenuIcon />
                         </IconButton>
-                        <Typography variant='h6' noWrap component='div'>
+                        <Typography variant='h4' noWrap component='div'>
                             Leherer
                         </Typography>
                     </Toolbar>

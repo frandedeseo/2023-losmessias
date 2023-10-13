@@ -48,7 +48,7 @@ export default function Page({ page, setPage }) {
                         )}
                         {page=="forgot-password" && <ForgotPassword setPage={setPage}></ForgotPassword>}
                         {page=="login"  && <LogIn setPage={setPage}></LogIn>}
-                        {page=="transferlist"  && <TransferList request={request} ></TransferList>}
+                        {page=="transferlist"  && <TransferList request={request} setPage={setPage}></TransferList>}
                     </Box>
                 </Grid>
             </Grid>

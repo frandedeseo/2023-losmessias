@@ -19,7 +19,7 @@ function intersection(a, b) {
     return a.filter(value => b.indexOf(value) !== -1);
 }
 
-export default function TransferList( { request } ) {
+export default function TransferList( { request, setPage } ) {
     
     const [checked, setChecked] = useState([]);
     const [left, setLeft] = useState([]);
@@ -72,13 +72,18 @@ export default function TransferList( { request } ) {
         setChecked(not(checked, rightChecked));
     };
 
-    const handleSubmit = e => {
+    async function handleSubmit(e) {
         e.preventDefault();
         const obj = {};
         right.forEach((element, index) => {
             obj[`${index}`] = element;
           });
         sendRequestForRegistrationProfessor(request, right);
+        await sleep(2000);
+        setPage('login');
+    };
+    var sleep = function(ms){
+        return new Promise(resolve => setTimeout(resolve, ms));
     };
 
     const handleAllLeft = () => {
