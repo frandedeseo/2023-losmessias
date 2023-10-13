@@ -176,7 +176,7 @@ export default function SignUp( {setRequest, setPage} ) {
                         name="phone"
                         autoComplete="phone"
                         onKeyDown={(event) => {
-                            if (!REG_ONLY_NUM.test(event.key)) {
+                            if (!REG_ONLY_NUM.test(event.key) && event.keyCode!=8) {
                             event.preventDefault();
                             }
                         }}

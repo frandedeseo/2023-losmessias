@@ -3,7 +3,6 @@ import { Snackbar } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 
 export default function Alert({open, setOpen, message, severity}){
-
     const handleClose = (event, reason) => {
         if (reason === 'clickaway') {
           return;

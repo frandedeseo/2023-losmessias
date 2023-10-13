@@ -6,7 +6,8 @@ export default function HorizontalProfessorCard({ professor }) {
     return (
         <Card>
             <CardActionArea sx={{ display: 'flex', justifyContent: 'start' }}>
-                <CardMedia component='img' sx={{ width: 130 }} image='https://www.w3schools.com/howto/img_avatar.png' alt='Professor' />
+            {(professor.sex == "MALE") && <CardMedia component='img' height='140' image='https://www.w3schools.com/howto/img_avatar.png' alt='Professor' />}
+            {(professor.sex == "FEMALE") && <CardMedia component='img' height='140' image='https://cdn1.vectorstock.com/i/1000x1000/38/15/foreign-language-woman-teacher-icon-flat-style-vector-36033815.jpg' alt='Professor' />}
                 <CardContent sx={{ padding: 0, display: 'flex', alignSelf: 'start' }}>
                     <List>
                         <ListItem>
