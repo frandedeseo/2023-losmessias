@@ -1,15 +1,22 @@
 // components
 import TeachersTable from './components/TeachersTable';
-import Searchbar from './components/Searchbar';
+import Searchbar from '../../components/Searchbar';
 
 // Hooks
 import { useState } from 'react';
 
 // styles
 import { styles } from './styles.js';
-import { Alert } from '@mui/material';
+import { Alert, Snackbar } from '@mui/material';
+
+import { useUser } from "@/context/UserContext";
 
 export async function getServerSideProps() {
+   // const user = useUser();
+  //  const requestOptions = {
+  //      method: 'GET',
+  //      headers: { Authorization : `Bearer ${user.token}`}
+  //  };
     const res = await fetch('http://localhost:8080/api/professor-subject/findByStatus?status=PENDING');
     const data = await res.json();
     return { props: { data } };
@@ -18,6 +25,10 @@ export async function getServerSideProps() {
 export default function Validator({ data }) {
     const [allTeachersSubjects, setAllTeachersSubjects] = useState(data);
     const [teachersSubjects, setTeachersSubjects] = useState(data);
+    const [alert, setAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState('');
+    const user = useUser();
 
     const handleSearch = (searchValue, filterValues) => {
         if (searchValue !== '' && filterValues.length === 0) {
@@ -48,6 +59,7 @@ export default function Validator({ data }) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                Authorization : `Bearer ${user.token}`
             },
             body: JSON.stringify({
                 professorId: teacherSubject.professor.id,
@@ -55,7 +67,6 @@ export default function Validator({ data }) {
             }),
         }).then(res => {
             if (res.status === 200) {
-                alert(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} has been approved!`);
                 setAllTeachersSubjects(prevTeachers =>
                     prevTeachers.filter(prevTeacherSubject => {
                         if (
@@ -79,11 +90,14 @@ export default function Validator({ data }) {
                         return true;
                     })
                 );
+                setAlertSeverity('success');
+                setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} has been approved!`);
             } else {
-                alert(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} approval failed!`);
-                console.log('error status = ' + res.status);
+                setAlertSeverity('error');
+                setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} approval failed!`);
             }
         });
+        setAlert(true);
     };
 
     const handleReject = teacherSubject => {
@@ -91,6 +105,7 @@ export default function Validator({ data }) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                Authorization : `Bearer ${user.token}`
             },
             body: JSON.stringify({
                 professorId: teacherSubject.professor.id,
@@ -98,7 +113,6 @@ export default function Validator({ data }) {
             }),
         }).then(res => {
             if (res.status === 200) {
-                alert(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} has been rejected!`);
                 setAllTeachersSubjects(prevTeachers =>
                     prevTeachers.filter(prevTeacherSubject => {
                         if (
@@ -122,10 +136,13 @@ export default function Validator({ data }) {
                         return true;
                     })
                 );
+                setAlertSeverity('success');
+                setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} has been rejected!`);
             } else {
-                alert(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} rejection failed!`);
-                console.log('error status = ' + res.status);
+                setAlertSeverity('error');
+                setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} rejection failed!`);
             }
+            setAlert(true);
         });
     };
 
@@ -134,6 +151,14 @@ export default function Validator({ data }) {
             <Searchbar search={handleSearch} />
             <div style={styles.divPadding} />
             <TeachersTable data={teachersSubjects} approve={handleApprove} reject={handleReject} />
+            <Snackbar
+                open={alert}
+                autoHideDuration={3000}
+                onClose={() => setAlert(false)}
+                anchorOrigin={{ vertical: 'top', horizontal: 'top' }}
+            >
+                <Alert severity={alertSeverity}>{alertMessage}</Alert>
+            </Snackbar>
         </div>
     );
 }

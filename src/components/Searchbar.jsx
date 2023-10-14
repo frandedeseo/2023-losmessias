@@ -3,18 +3,26 @@ import { Box, Button, Chip, FormControl, InputLabel, MenuItem, OutlinedInput, Se
 import SearchIcon from '@mui/icons-material/Search';
 
 // Hooks
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // Utils
 import { getColor } from '@/utils/getColor';
-import { subjects } from '@/constants';
 
 // Styles
-import { styles } from '../styles';
+import { styles } from '../pages/validator/styles';
 
 export default function Searchbar({ search }) {
     const [searchValue, setSearchValue] = useState('');
     const [filterValues, setFilterValues] = useState([]);
+    const [subjects, setSubjects] = useState([]);
+
+    useEffect(() => {
+        fetch('http://localhost:8080/api/subject/all').then(res =>
+            res.json().then(json => {
+                setSubjects(json);
+            })
+        );
+    }, []);
 
     const handleSubmit = e => {
         e.preventDefault();
@@ -59,8 +67,8 @@ export default function Searchbar({ search }) {
                     )}
                 >
                     {subjects.map(subject => (
-                        <MenuItem key={subject} value={subject}>
-                            {subject}
+                        <MenuItem key={subject.id} value={subject.name}>
+                            {subject.name}
                         </MenuItem>
                     ))}
                 </Select>

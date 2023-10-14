@@ -1,4 +1,3 @@
-import * as React from 'react';
 import CssBaseline from '@mui/material/CssBaseline';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
@@ -6,11 +5,16 @@ import Grid from '@mui/material/Grid';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import LogIn from './LogIn';
 import SignUp from './SignUp';
-import { TransferList } from './TransferList';
+import TransferList from './TransferList';
+import ForgotPassword from './ForgotPassword';
+import { useState } from 'react';
 
 const defaultTheme = createTheme();
 
-export default function Page({ transferList, setTransferList, logInForm, setLogInForm, signUpForm, setSignUpForm }) {
+export default function Page({ page, setPage }) {
+    
+    const [request, setRequest] = useState({});
+
     return (
         <ThemeProvider theme={defaultTheme}>
             <Grid container component='main' justifyContent='center' direction='row' sx={{ height: '91vh' }}>
@@ -39,11 +43,12 @@ export default function Page({ transferList, setTransferList, logInForm, setLogI
                             alignItems: 'center',
                         }}
                     >
-                        {signUpForm && (
-                            <SignUp setTransferList={setTransferList} setLogInForm={setLogInForm} setSignUpForm={setSignUpForm}></SignUp>
+                        {page=="signup" && (
+                            <SignUp setRequest={setRequest} setPage={setPage}></SignUp>
                         )}
-                        {logInForm && <LogIn setLogInForm={setLogInForm} setSignUpForm={setSignUpForm}></LogIn>}
-                        {transferList && <TransferList />}
+                        {page=="forgot-password" && <ForgotPassword setPage={setPage}></ForgotPassword>}
+                        {page=="login"  && <LogIn setPage={setPage}></LogIn>}
+                        {page=="transferlist"  && <TransferList request={request} setPage={setPage}></TransferList>}
                     </Box>
                 </Grid>
             </Grid>

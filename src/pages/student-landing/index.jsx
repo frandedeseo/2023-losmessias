@@ -2,7 +2,7 @@
 import ProfessorCard from '@/components/cards/ProfessorCard';
 
 // Hooks
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // Utils
 import { getColor } from '@/utils/getColor';
@@ -10,22 +10,43 @@ import { getColor } from '@/utils/getColor';
 // Mui
 import { Box, Chip, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
-export async function getServerSideProps() {
-    const res = await fetch('http://localhost:8080/api/professor/all');
-    const data = await res.json();
 
-    const subjectsRes = await fetch('http://localhost:8080/api/subject/all');
-    const subjects = await subjectsRes.json();
-    return { props: { data, subjects } };
-}
+import { useUser } from "@/context/UserContext";
 
-// export default function StudentsLandingPage({ data, subjects }) {
-export default function StudentsLandingPage({data, subjects}) {
-    const router = useRouter()
-    const id = router.query.id
-    const [professors, setProfessors] = useState(data);
+// export async function getServerSideProps() {
+//     const res = await fetch('http://localhost:8080/api/professor/all');
+//     const data = await res.json();
+
+//     const subjectsRes = await fetch('http://localhost:8080/api/subject/all');
+//     const subjects = await subjectsRes.json();
+//     return { props: { data, subjects } };
+// }
+
+export default function StudentsLandingPage() {
+    const [data, setData] = useState([]);
+    const [subjects, setSubjects] = useState([]);
+    const router = useRouter();
+    const [professors, setProfessors] = useState([]);
     const [locationSelected, setLocationSelected] = useState([]);
     const [subjectSelected, setSubjectSelected] = useState([]);
+    const user = useUser();
+
+    useEffect(() => {
+        if (user.id) {
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization : `Bearer ${user.token}`}
+            };
+            fetch('http://localhost:8080/api/professor/all', requestOptions)
+            .then(res =>
+                res.json().then(json => {
+                    setData(json);
+                    setProfessors(json);
+                })
+            );
+            fetch('http://localhost:8080/api/subject/all').then(res => res.json().then(json => setSubjects(json)));
+        }
+    }, [user]);
 
     const handleFilter = () => {
         if (locationSelected.length > 0 && subjectSelected.length === 0) {
@@ -130,20 +151,21 @@ export default function StudentsLandingPage({data, subjects}) {
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
                     {professors.map((profesor, index) => {
                         if (profesor.subjects.length > 0) {
+                            console.log(profesor);
                             return (
-
                                 <ProfessorCard
-                                key={index}
-                                professorId={profesor.id}
-                                studentId={id}
-                                name={profesor.firstName + ' ' + profesor.lastName}
-                                email={profesor.email}
-                                phone={profesor.phone}
-                                office={profesor.location}
-                                style={{ mr: 3, mt: 2 }}
-                                subjects={profesor.subjects}
+                                    key={index}
+                                    professorId={profesor.id}
+                                    studentId={user.id}
+                                    name={profesor.firstName + ' ' + profesor.lastName}
+                                    email={profesor.email}
+                                    phone={profesor.phone}
+                                    sex={profesor.sex}
+                                    office={profesor.location}
+                                    style={{ mr: 3, mt: 2 }}
+                                    subjects={profesor.subjects}
                                 />
-                                )
+                            );
                         }
                     })}
                 </Box>
