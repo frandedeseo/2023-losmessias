@@ -6,7 +6,7 @@ import { useUserDispatch } from '@/context/UserContext';
 
 
 export function useApi() {
-    const [alertState, setAlertState] = useState({severity: "", message: ""});
+    const [alertState, setAlertState] = useState({ severity: "", message: "" });
     const router = useRouter();
     const [error, setError] = useState("");
     const [data, setData] = useState([]);
@@ -15,37 +15,37 @@ export function useApi() {
 
     const showAlert = (response) => {
         var severity;
-        if (response.status == 200){
-            severity="success";
-        }else{
-            severity="error";
+        if (response.status == 200) {
+            severity = "success";
+        } else {
+            severity = "error";
         }
-        setAlertState({severity: severity, message: response.message})
+        setAlertState({ severity: severity, message: response.message })
         setOpen(true);
         //response.json().then(json => setMessage(json.message));
     }
 
     const getTokenValues = token => {
         const loggedInUser = localStorage.getItem("user");
-        if (loggedInUser!=null) {
+        if (loggedInUser != null) {
             console.log(loggedInUser);
             throw Error("User already logged in");
-        }else{
+        } else {
             const decoded = jwt_decode(token);
             const id = decoded.id;
             const email = decoded.sub;
             const role = decoded.role.toLowerCase();
             dispatch({ type: 'login', payload: { id: id, token: token, role: role } });
-            if (role=="professor"){
+            if (role == "professor") {
                 router.push("http://localhost:3000/professor-landing");
-            }else if (role=="student"){
+            } else if (role == "student") {
                 router.push("http://localhost:3000/student-landing");
-            }else{
+            } else {
                 router.push("http://localhost:3000/admin-landing");
             }
         }
     }
-    
+
     const sendRequestForRegistration = request => {
         const requestOptions = {
             method: 'POST',
@@ -63,11 +63,10 @@ export function useApi() {
         };
         fetch('http://localhost:8080/api/registration', requestOptions)
             .then(response => {
-            
-                if (response.status!=200){
-                    showAlert({message: "Email is already taken", status: 500});
-                }else{
-                    showAlert({message: "We have sent you an email. Please confirm email adress", status: 200});
+                if (response.status != 200) {
+                    showAlert({ message: "Email is already taken", status: 500 });
+                } else {
+                    showAlert({ message: "We have sent you an email. Please confirm email adress", status: 200 });
                 }
             })
     };
@@ -90,12 +89,12 @@ export function useApi() {
         };
         fetch('http://localhost:8080/api/registration-professor', requestOptions)
             .then(response => {
-                if (response.status==200){
-                    showAlert({message: "We have sent you an email. Please confirm email adress", status: 200});
+                if (response.status == 200) {
+                    showAlert({ message: "We have sent you an email. Please confirm email adress", status: 200 });
                 }
             })
     };
-    const sendRequestForLogIn = ( request ) => {
+    const sendRequestForLogIn = (request) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -107,15 +106,16 @@ export function useApi() {
         fetch('http://localhost:8080/api/authentication', requestOptions)
             .then(response => {
                 console.log(response.status);
-                if (response.status===200){
+                console.log(response);
+                if (response.status === 200) {
                     return response.json();
-                }else{
+                } else {
                     throw new Error();
                 }
             })
-            .then(json => {getTokenValues(json.token)})
+            .then(json => { getTokenValues(json.token) })
             .catch(error => {
-                showAlert({message: "Error Log In", status: 403})
+                showAlert({ message: "Error Log In", status: 403 })
                 setError(error);
             });
     };
@@ -123,8 +123,9 @@ export function useApi() {
     const getSubjects = () => {
         const requestOptions = {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' ,
-                    'Authentication' : `Bearer ${this.state.token}`
+            headers: {
+                'Content-Type': 'application/json',
+                'Authentication': `Bearer ${this.state.token}`
             }
         };
         fetch('http://localhost:8080/api/subject/all', requestOptions)
@@ -138,7 +139,14 @@ export function useApi() {
     };
 
     const getStudentById = (id) => {
-        fetch('http://localhost:8080/api/student/'+id)
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authentication': `Bearer ${this.state.token}`
+            }
+        };
+        fetch('http://localhost:8080/api/student/' + id, requestOptions)
             .then(response => response.json())
             .then(json => {
                 setData(json);
@@ -149,11 +157,18 @@ export function useApi() {
     }
 
     const addProfessorLecture = request => {
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authentication': `Bearer ${this.state.token}`
+            }
+        };
         fetch(
             `http://localhost:8080/api/professor-subject/createAssociation?professorId=${request.professorId}&subjectId=${request.subjectId}`,
-            { method: 'POST' }
+            requestOptions
         ).catch(error => {
-                console.log(error);
+            console.log(error);
         });
     };
 
@@ -162,11 +177,11 @@ export function useApi() {
         fetch(`http://localhost:8080/api/loadEmailForPasswordChange?email=${request.email}`,
             { method: 'POST' })
             .then(response => {
-                if (response.status==200){
-                    showAlert({message: "Email has been sent for validation", status: 200});
+                if (response.status == 200) {
+                    showAlert({ message: "Email has been sent for validation", status: 200 });
                     return true;
-                }else{
-                    showAlert({message: "Email not exists", status: 500});
+                } else {
+                    showAlert({ message: "Email not exists", status: 500 });
                     return false;
                 }
 
@@ -179,42 +194,42 @@ export function useApi() {
             let response = await fetch(`http://localhost:8080/api/validate-email?email=${request.email}`, { method: 'POST' })
             let json = await response.json();
             console.log(response);
-            if (response.status===200){
+            if (response.status === 200) {
                 return true;
-            }else{
-                showAlert({message: "Email is already taken", status: 500});
+            } else {
+                showAlert({ message: "Email is already taken", status: 500 });
                 return false;
             }
-        }catch( error){
+        } catch (error) {
             return false;
         }
     };
-    
+
     const confirmTokenForgotPassword = token => {
         fetch(`http://localhost:8080/api/forgot_password/confirm?token=${token}`)
-        .then(response => {
-            showAlert(response);
-        })
-        .catch(res => {
-            setError(res);
-        });
+            .then(response => {
+                showAlert(response);
+            })
+            .catch(res => {
+                setError(res);
+            });
     }
-    
+
     const confirmToken = token => {
         fetch(`http://localhost:8080/api/registration/confirm?token=${token}`)
-        .then(response => {
-            console.log(response.status);
-            if (response.status===200){
-                return response.json();
-            }else{
-                throw new Error();
-            }
-        })
-        .then(json => {getTokenValues(json.token)})
-        .catch(error => {
-            showAlert({message: "The token was not validated", status: 403});
-            setError(error);
-        });
+            .then(response => {
+                console.log(response.status);
+                if (response.status === 200) {
+                    return response.json();
+                } else {
+                    throw new Error();
+                }
+            })
+            .then(json => { getTokenValues(json.token) })
+            .catch(error => {
+                showAlert({ message: "The token was not validated", status: 403 });
+                setError(error);
+            });
     }
     const changePassword = request => {
         const requestOptions = {
@@ -237,7 +252,7 @@ export function useApi() {
             });
     };
 
-    
+
 
     return {
         data,

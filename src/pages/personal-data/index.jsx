@@ -8,45 +8,44 @@ import PersonalDataEdit from "./components/PersonalDataEdit";
 import { styles } from "./components/styles";
 import { useUser } from "@/context/UserContext";
 import useSWR from "swr";
-import { fetcher } from "@/helpers/FetchHelpers";
+import { fetcherGetWithToken } from "@/helpers/FetchHelpers";
 
 
 
 export default function PersonalData() {
     const [editMode, setEditMode] = useState(false);
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
     const [emailAddress, setEmailAddress] = useState("");
     const [location, setLocation] = useState("");
     const [phone, setPhone] = useState("");
     const user = useUser();
 
-  //  const { data: studentData, isLoading, mutate } = useSWR([`http://localhost:8080/api/${user.role}/${user.id}`, user.token], fetcher);
-  const { data: studentData, isLoading, mutate } = useSWR(`http://localhost:8080/api/${user.role}/${user.id}`, fetcher);
+
+    const { data: studentData, isLoading, mutate } = useSWR(
+        [`http://localhost:8080/api/${user.role}/${user.id}`, user.token],
+        fetcherGetWithToken);
     const handleSave = () => {
         if (editMode) {
             setEditMode(false)
             fetch(`http://localhost:8080/api/${user.role}/update/${user.id}`, {
                 method: 'PATCH',
                 body: JSON.stringify({
-                    firstName: (firstName ? firstName : null),
-                    lastName: (lastName ? lastName : null),
                     email: (emailAddress ? emailAddress : null),
                     location: (location ? location : null),
                     phone: (phone ? phone : null)
                 }),
                 headers: {
                     'Content-type': 'application/json; charset=UTF-8',
-                    Authorization : `Bearer ${user.token}`
+                    Authorization: `Bearer ${user.token}`
                 },
             })
-                .then((res) => res.json())
+                .then((res) => {
+                    if (!res.ok) throw Error(res.status);
+                    res.json()
+                })
                 .then((response) => mutate(response))
                 .catch((err) => console.log(err));
         } else {
             setEditMode(true)
-            setFirstName("")
-            setLastName("")
             setEmailAddress("")
             setLocation("")
             setPhone("")
@@ -95,8 +94,6 @@ export default function PersonalData() {
                 ) : (
                     <PersonalDataEdit
                         data={studentData}
-                        setFirstName={setFirstName}
-                        setLastName={setLastName}
                         setEmailAddress={setEmailAddress}
                         setLocation={setLocation}
                         setPhone={setPhone}

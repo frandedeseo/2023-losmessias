@@ -30,21 +30,31 @@ export default function StudentsLandingPage() {
     const [locationSelected, setLocationSelected] = useState([]);
     const [subjectSelected, setSubjectSelected] = useState([]);
     const user = useUser();
+    const [userName, setUserName] = useState('');
 
     useEffect(() => {
         if (user.id) {
             const requestOptions = {
                 method: 'GET',
-                headers: { Authorization : `Bearer ${user.token}`}
+                headers: { Authorization: `Bearer ${user.token}` }
             };
             fetch('http://localhost:8080/api/professor/all', requestOptions)
-            .then(res =>
-                res.json().then(json => {
-                    setData(json);
-                    setProfessors(json);
-                })
-            );
+                .then(res => {
+                    if(res.status === 200)
+                        console.log(res);
+                    res.json().then(json => {
+                        setData(json);
+                        setProfessors(json);
+                    })
+                });
             fetch('http://localhost:8080/api/subject/all').then(res => res.json().then(json => setSubjects(json)));
+            fetch(`http://localhost:8080/api/student/${user.id}`, requestOptions)
+                .then(res => {
+                    if (res.status === 401) {
+                        router.push('/');
+                    }
+                    res.json().then(json => setUserName(json.firstName + ' ' + json.lastName))
+                });
         }
     }, [user]);
 
@@ -149,9 +159,13 @@ export default function StudentsLandingPage() {
                     </FormControl>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
+                    <Box sx={{ width: "100%", justifyContent: "center", display: "flex" }}>
+                        <Typography variant='h4' sx={{ mt: 2, mb: 2 }} >
+                            Hi {userName}, welcome back!
+                        </Typography>
+                    </Box>
                     {professors.map((profesor, index) => {
                         if (profesor.subjects.length > 0) {
-                            console.log(profesor);
                             return (
                                 <ProfessorCard
                                     key={index}
