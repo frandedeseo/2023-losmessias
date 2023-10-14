@@ -42,7 +42,7 @@ export default function ProfessorLandingPage() {
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
-        if (router.isReady) {
+        if (user.id!=null) {
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization : `Bearer ${user.token}`}
@@ -58,7 +58,7 @@ export default function ProfessorLandingPage() {
                 })
             );
         }
-    }, [router.isReady]);
+    }, [user]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);

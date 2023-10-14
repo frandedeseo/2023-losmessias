@@ -26,17 +26,23 @@ export function useApi() {
     }
 
     const getTokenValues = token => {
-        const decoded = jwt_decode(token);
-        const id = decoded.id;
-        const email = decoded.sub;
-        const role = decoded.role.toLowerCase();
-        dispatch({ type: 'login', payload: { id: id, token: token, role: role } });
-        if (role=="professor"){
-            router.push("http://localhost:3000/professor-landing");
-        }else if (role=="student"){
-            router.push("http://localhost:3000/student-landing");
+        const loggedInUser = localStorage.getItem("user");
+        if (loggedInUser!=null) {
+            console.log(loggedInUser);
+            throw Error("User already logged in");
         }else{
-            router.push("http://localhost:3000/admin-landing");
+            const decoded = jwt_decode(token);
+            const id = decoded.id;
+            const email = decoded.sub;
+            const role = decoded.role.toLowerCase();
+            dispatch({ type: 'login', payload: { id: id, token: token, role: role } });
+            if (role=="professor"){
+                router.push("http://localhost:3000/professor-landing");
+            }else if (role=="student"){
+                router.push("http://localhost:3000/student-landing");
+            }else{
+                router.push("http://localhost:3000/admin-landing");
+            }
         }
     }
     

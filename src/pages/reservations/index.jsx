@@ -57,7 +57,7 @@ export default function Reservation() {
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
-        if (router.isReady) {
+        if (user.id!=null && router.isReady) {
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization : `Bearer ${user.token}`}
@@ -79,7 +79,7 @@ export default function Reservation() {
                 })
             );
         }
-    }, [router.isReady]);
+    }, [user, router]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);

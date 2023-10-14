@@ -34,26 +34,28 @@ export default function adminLandingPage() {
     const [subject, setSubject] = useState('');
     const [subjects, setSubjects] = useState([]);
     const user = useUser();
-
+  
     useEffect(() => {
-        const requestOptions = {
-            method: 'GET',
-            headers: { Authorization : `Bearer ${user.token}`}
-        };
-        fetch('http://localhost:8080/api/reservation/todaySummary', requestOptions).then(res =>
-            res.json().then(json => {
-                setAllProfessors(json);
-                setProfessors(json);
-                setShownProfessors(json.slice(0, rowsPerPage));
-            })
-        );
+        if (user.id!=null){
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization : `Bearer ${user.token}`}
+            };
+            fetch('http://localhost:8080/api/reservation/todaySummary', requestOptions).then(res =>
+                res.json().then(json => {
+                    setAllProfessors(json);
+                    setProfessors(json);
+                    setShownProfessors(json.slice(0, rowsPerPage));
+                })
+            );
 
-        fetch('http://localhost:8080/api/subject/all').then(res =>
-            res.json().then(json => {
-                setSubjects(json);
-            })
-        );
-    }, []);
+            fetch('http://localhost:8080/api/subject/all').then(res =>
+                res.json().then(json => {
+                    setSubjects(json);
+                })
+            );
+        }
+    }, [user]);
 
     const handleSearch = (searchValue, filterValues) => {
         setPage(0);
