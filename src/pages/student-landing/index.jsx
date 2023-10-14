@@ -32,8 +32,7 @@ export default function StudentsLandingPage() {
     const user = useUser();
 
     useEffect(() => {
-        if (router.isReady) {
-            console.log(user.token);
+        if (user.id) {
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization : `Bearer ${user.token}`}
@@ -47,7 +46,7 @@ export default function StudentsLandingPage() {
             );
             fetch('http://localhost:8080/api/subject/all').then(res => res.json().then(json => setSubjects(json)));
         }
-    }, [router.isReady]);
+    }, [user]);
 
     const handleFilter = () => {
         if (locationSelected.length > 0 && subjectSelected.length === 0) {

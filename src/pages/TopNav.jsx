@@ -14,7 +14,11 @@ export default function TopNav( {setPage} ) {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <img
+          width={40}
+            src={'https://icons.iconarchive.com/icons/paomedia/small-n-flat/512/book-bookmark-icon.png'}
+          />
+          <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
             Leherer
           </Typography>
 

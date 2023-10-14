@@ -21,6 +21,7 @@ import {
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { useUser } from "@/context/UserContext";
 
 export default function adminLandingPage() {
     const router = useRouter();
@@ -32,22 +33,29 @@ export default function adminLandingPage() {
     const [open, setOpen] = useState(false);
     const [subject, setSubject] = useState('');
     const [subjects, setSubjects] = useState([]);
-
+    const user = useUser();
+  
     useEffect(() => {
-        fetch('http://localhost:8080/api/reservation/todaySummary').then(res =>
-            res.json().then(json => {
-                setAllProfessors(json);
-                setProfessors(json);
-                setShownProfessors(json.slice(0, rowsPerPage));
-            })
-        );
+        if (user.id){
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization : `Bearer ${user.token}`}
+            };
+            fetch('http://localhost:8080/api/reservation/todaySummary', requestOptions).then(res =>
+                res.json().then(json => {
+                    setAllProfessors(json);
+                    setProfessors(json);
+                    setShownProfessors(json.slice(0, rowsPerPage));
+                })
+            );
 
-        fetch('http://localhost:8080/api/subject/all').then(res =>
-            res.json().then(json => {
-                setSubjects(json);
-            })
-        );
-    }, []);
+            fetch('http://localhost:8080/api/subject/all').then(res =>
+                res.json().then(json => {
+                    setSubjects(json);
+                })
+            );
+        }
+    }, [user]);
 
     const handleSearch = (searchValue, filterValues) => {
         setPage(0);
@@ -99,6 +107,7 @@ export default function adminLandingPage() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                Authorization : `Bearer ${user.token}`
             },
             body: JSON.stringify({
                 name: subject,

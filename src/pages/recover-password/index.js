@@ -14,6 +14,7 @@ import { CssBaseline, Snackbar } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import TopNav from '../TopNav.jsx';
+import PasswordComponent from '@/components/PasswordComponent.js';
 
 const defaultTheme = createTheme();
 
@@ -79,28 +80,10 @@ export default function RecoverPassword() {
                 Recover Password
             </Typography>
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 , marginTop: 5}}>
-                <Typography component="h7" variant="h7">
+                <Typography  component="h7" variant="h7">
                     Write the new password
                 </Typography>
-                <TextField
-                    margin="normal"
-                    required
-                    fullWidth
-                    name="password"
-                    label="Password"
-                    type="password"
-                    id="password"
-                    autoComplete="current-password"
-                    error= {errorPassword!=""}
-                    onBlur={(event) => {
-                        if (!REG_PASSWORD.test(event.target.value)){
-                            setErrorPassword("Password must be longer than 8 characters");
-                        }else{
-                            setErrorPassword("");
-                        }
-                    }}
-                    helperText={errorPassword}
-                />
+                <PasswordComponent />
               <Button
                 type="submit"
                 fullWidth

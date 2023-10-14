@@ -20,8 +20,9 @@ export default function PersonalData() {
     const [location, setLocation] = useState("");
     const [phone, setPhone] = useState("");
     const user = useUser();
-    const { data: studentData, isLoading, mutate } = useSWR(`http://localhost:8080/api/${user.role}/${user.id}`, fetcher);
 
+  //  const { data: studentData, isLoading, mutate } = useSWR([`http://localhost:8080/api/${user.role}/${user.id}`, user.token], fetcher);
+  const { data: studentData, isLoading, mutate } = useSWR(`http://localhost:8080/api/${user.role}/${user.id}`, fetcher);
     const handleSave = () => {
         if (editMode) {
             setEditMode(false)
@@ -36,6 +37,7 @@ export default function PersonalData() {
                 }),
                 headers: {
                     'Content-type': 'application/json; charset=UTF-8',
+                    Authorization : `Bearer ${user.token}`
                 },
             })
                 .then((res) => res.json())

@@ -57,14 +57,18 @@ export default function Reservation() {
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
-        if (router.isReady) {
-            fetch(`http://localhost:8080/api/professor/${router.query.professorId}`).then(res =>
+        if (user.id && router.isReady) {
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization : `Bearer ${user.token}`}
+            };
+            fetch(`http://localhost:8080/api/professor/${router.query.professorId}`, requestOptions).then(res =>
                 res.json().then(json => {
                     setProfessor(json);
                 })
             );
 
-            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${router.query.professorId}`).then(res =>
+            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${router.query.professorId}`, requestOptions).then(res =>
                 res.json().then(json => {
                     setDisabledBlocks(
                         json.map(e => {
@@ -75,7 +79,7 @@ export default function Reservation() {
                 })
             );
         }
-    }, [router.isReady]);
+    }, [user, router]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
@@ -99,6 +103,7 @@ export default function Reservation() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    Authorization : `Bearer ${user.token}`
                 },
                 body: JSON.stringify({
                     ...reservation,
