@@ -57,7 +57,7 @@ export default function Reservation() {
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
-        if (user.id!=null && router.isReady) {
+        if (user.id && router.isReady) {
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization : `Bearer ${user.token}`}

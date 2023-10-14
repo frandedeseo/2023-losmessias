@@ -42,7 +42,7 @@ export default function ProfessorLandingPage() {
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
-        if (user.id!=null) {
+        if (user.id) {
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization : `Bearer ${user.token}`}

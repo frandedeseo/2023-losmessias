@@ -36,7 +36,7 @@ export default function adminLandingPage() {
     const user = useUser();
   
     useEffect(() => {
-        if (user.id!=null){
+        if (user.id){
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization : `Bearer ${user.token}`}
