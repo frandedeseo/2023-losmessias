@@ -17,15 +17,6 @@ const dayNumber = {
     Sunday: 7,
 };
 
-export async function getServerSideProps() {
-    const res = await fetch('http://localhost:8080/api/professor/all');
-    const data = await res.json();
-
-    const subjectsRes = await fetch('http://localhost:8080/api/subject/all');
-    const subjects = await subjectsRes.json();
-    return { props: { data, subjects } };
-}
-
 export default function ProfessorLandingPage() {
     const router = useRouter();
     const [selectedBlocks, setSelectedBlocks] = useState([]);
@@ -37,6 +28,7 @@ export default function ProfessorLandingPage() {
     const [alertSeverity, setAlertSeverity] = useState('');
     const [disabledBlocks, setDisabledBlocks] = useState([]);
     const user = useUser();
+    const [userName, setUserName] = useState('');
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
@@ -45,9 +37,10 @@ export default function ProfessorLandingPage() {
         if (user.id) {
             const requestOptions = {
                 method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` },
+                headers: { Authorization: `Bearer ${user.token}` }
             };
-            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res =>
+            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
+                console.log(res);
                 res.json().then(json => {
                     setDisabledBlocks(
                         json.map(e => {
@@ -56,6 +49,14 @@ export default function ProfessorLandingPage() {
                         })
                     );
                 })
+            }
+            );
+            fetch(`http://localhost:8080/api/professor/${user.id}`, requestOptions).then(res =>
+                res.json()
+                    .then(json => {
+                        console.log(json)
+                        setUserName(json.firstName + " " + json.lastName)
+                    })
             );
         }
     }, [user]);
@@ -85,7 +86,7 @@ export default function ProfessorLandingPage() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${user.token}`,
+                    Authorization: `Bearer ${user.token}`
                 },
                 body: JSON.stringify({
                     ...reservation,
@@ -118,7 +119,7 @@ export default function ProfessorLandingPage() {
     return (
         <div style={{ width: '95%', margin: 'auto' }}>
             <Typography variant='h4' sx={{ margin: '2% 0' }}>
-                Hi, welcome back!
+                Hi {userName}, welcome back!
             </Typography>
 
             <Typography variant='h4'>Agenda</Typography>
@@ -136,7 +137,7 @@ export default function ProfessorLandingPage() {
                                     textAlign: 'center',
                                 }}
                             >
-                                <Typography>Block Selected</Typography>
+                                <Typography>Selected time</Typography>
                             </td>
                             <td
                                 style={{
@@ -146,7 +147,7 @@ export default function ProfessorLandingPage() {
                                     backgroundColor: '#e64b4b90',
                                 }}
                             >
-                                <Typography>Block Reserved</Typography>
+                                <Typography>Reserved Class</Typography>
                             </td>
                             <td
                                 style={{
@@ -156,7 +157,7 @@ export default function ProfessorLandingPage() {
                                     backgroundColor: '#adadad90',
                                 }}
                             >
-                                <Typography>Block Disabled</Typography>
+                                <Typography>Unavailable</Typography>
                             </td>
                         </tr>
                     </tbody>

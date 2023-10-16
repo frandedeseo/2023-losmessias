@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { styles } from "./styles";
 
 const { Typography, TextField } = require("@mui/material");
 
 export default function PersonalItemEdit({ name, value, handleEdit }) {
+    const [tempValue, setTempValue] = useState(value);
     return (
         <div style={{ flexDirection: "row", display: "flex" }}>
             <Typography
@@ -16,7 +18,13 @@ export default function PersonalItemEdit({ name, value, handleEdit }) {
                 variant="standard"
                 defaultValue={value}
                 sx={styles.itemEditTextField}
-                onChange={(e) => handleEdit(e.target.value)}
+                onChange={(e) => {
+                    handleEdit(e.target.value)
+                    setTempValue(e.target.value)
+                }}
+                error={tempValue === ""}
+                helperText={tempValue === "" ? "This field is required" : ""}
             />
-        </div>);
+        </div>
+    );
 }

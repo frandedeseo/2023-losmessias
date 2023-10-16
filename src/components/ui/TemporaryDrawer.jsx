@@ -31,20 +31,20 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
         // },
         user.role !== 'admin'
             ? {
-                  href: '/personal-data',
-                  icon: <SettingsIcon />,
-                  primary: 'Personal information',
-              }
-            : {
-                  href: '/validator',
-                  icon: <SettingsIcon />,
-                  primary: 'Validator',
-              },
-            {
-                href: "/logout",
-                icon: <LogoutIcon />,
-                primary: 'Log out',
+                href: '/personal-data',
+                icon: <SettingsIcon />,
+                primary: 'Personal information',
             }
+            : {
+                href: '/validator',
+                icon: <SettingsIcon />,
+                primary: 'Validator',
+            },
+        {
+            href: "/logout",
+            icon: <LogoutIcon />,
+            primary: 'Log out',
+        }
     ];
 
     const drawerItem = (href, icon, primary, key) => {
