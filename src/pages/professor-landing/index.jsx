@@ -137,7 +137,7 @@ export default function ProfessorLandingPage() {
                                     textAlign: 'center',
                                 }}
                             >
-                                <Typography>Block Selected</Typography>
+                                <Typography>Selected time</Typography>
                             </td>
                             <td
                                 style={{
@@ -147,7 +147,7 @@ export default function ProfessorLandingPage() {
                                     backgroundColor: '#e64b4b90',
                                 }}
                             >
-                                <Typography>Block Reserved</Typography>
+                                <Typography>Reserved Class</Typography>
                             </td>
                             <td
                                 style={{
@@ -157,7 +157,7 @@ export default function ProfessorLandingPage() {
                                     backgroundColor: '#adadad90',
                                 }}
                             >
-                                <Typography>Block Disabled</Typography>
+                                <Typography>Unavailable</Typography>
                             </td>
                         </tr>
                     </tbody>
