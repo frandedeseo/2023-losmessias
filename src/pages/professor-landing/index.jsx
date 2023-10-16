@@ -2,7 +2,7 @@ import Calendar from '@/components/Calendar';
 import CalendarPagination from '@/components/CalendarPagination';
 import { useUser } from '@/context/UserContext';
 import { order_and_group } from '@/utils/order_and_group';
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Typography } from '@mui/material';
+import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Snackbar, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -122,7 +122,48 @@ export default function ProfessorLandingPage() {
                 Hi {userName}, welcome back!
             </Typography>
 
-            <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+            <Typography variant='h4'>Agenda</Typography>
+            <Divider />
+            <div style={{ paddingBlock: '0.75rem' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <table style={{ height: '35px' }}>
+                    <tbody>
+                        <tr>
+                            <td
+                                style={{
+                                    width: '130px',
+                                    borderBlock: '1px solid #338aed70',
+                                    backgroundColor: '#338aed90',
+                                    textAlign: 'center',
+                                }}
+                            >
+                                <Typography>Block Selected</Typography>
+                            </td>
+                            <td
+                                style={{
+                                    textAlign: 'center',
+                                    width: '130px',
+                                    borderBlock: '1px solid #e64b4b70',
+                                    backgroundColor: '#e64b4b90',
+                                }}
+                            >
+                                <Typography>Block Reserved</Typography>
+                            </td>
+                            <td
+                                style={{
+                                    textAlign: 'center',
+                                    width: '130px',
+                                    borderBlock: '1px solid #adadad70',
+                                    backgroundColor: '#adadad90',
+                                }}
+                            >
+                                <Typography>Block Disabled</Typography>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+            </div>
             <Calendar selectedBlocks={selectedBlocks} setSelectedBlocks={setSelectedBlocks} disabledBlocks={disabledBlocks} week={week} />
 
             <div style={{ display: 'flex', justifyContent: 'right', margin: '1rem auto', width: '90%' }}>
