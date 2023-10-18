@@ -37,11 +37,11 @@ export const useApi = () => {
             const role = decoded.role.toLowerCase();
             dispatch({ type: 'login', payload: { id: id, token: token, role: role } });
             if (role == "professor") {
-                router.push("http://localhost:3000/professor-landing");
+                router.push("/professor-landing");
             } else if (role == "student") {
-                router.push("http://localhost:3000/student-landing");
+                router.push("/student-landing");
             } else {
-                router.push("http://localhost:3000/admin-landing");
+                router.push("/admin-landing");
             }
         }
     }
@@ -244,7 +244,7 @@ export const useApi = () => {
         fetch(`http://localhost:8080/api/changePassword`, requestOptions)
             .then(response => {
                 if (response.status === 200) {
-                    router.push("http://localhost:3000");
+                    router.push("/");
                 }
             })
             .catch(res => {

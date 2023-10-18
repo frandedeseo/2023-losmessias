@@ -9,7 +9,7 @@ export default function Logout() {
     useEffect(() => {
         if (router.isReady) {
             dispatch({ type: 'logout' } );
-            router.push("http://localhost:3000");
+            router.push("/")
         }
     }, [router.isReady, dispatch, router]);
 }
