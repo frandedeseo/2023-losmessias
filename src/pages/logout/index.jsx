@@ -11,5 +11,5 @@ export default function Logout() {
             dispatch({ type: 'logout' } );
             router.push("http://localhost:3000");
         }
-    }, [router.isReady]);
+    }, [router.isReady, dispatch, router]);
 }

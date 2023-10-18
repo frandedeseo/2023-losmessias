@@ -4,32 +4,31 @@ import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import { Avatar } from '@mui/material';
+import Image from 'next/image';
 
 
-export default function TopNav( {setPage} ) {
+export default function TopNav({ setPage }) {
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          <img
-          width={40}
+          <Image
+            width={40}
             src={'https://icons.iconarchive.com/icons/paomedia/small-n-flat/512/book-bookmark-icon.png'}
+            alt="logo"
           />
           <Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>
             Leherer
           </Typography>
 
-          <Button color="inherit"                        
-          onClick={() => {
+          <Button color="inherit"
+            onClick={() => {
               setPage("login")
-          }}>LogIn</Button>
-          <Button color="inherit"                        
-          onClick={() => {
+            }}>LogIn</Button>
+          <Button color="inherit"
+            onClick={() => {
               setPage("signup")
-          }}>SignUp</Button>
+            }}>SignUp</Button>
 
         </Toolbar>
       </AppBar>

@@ -5,7 +5,7 @@ import jwt_decode from "jwt-decode";
 import { useUserDispatch } from '@/context/UserContext';
 
 
-export function useApi() {
+export const useApi = () => {
     const [alertState, setAlertState] = useState({ severity: "", message: "" });
     const router = useRouter();
     const [error, setError] = useState("");

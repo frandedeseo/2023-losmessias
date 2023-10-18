@@ -5,7 +5,7 @@ import { Cancel } from "@mui/icons-material";
 import { useState } from "react";
 import PersonalDataDisplay from "./components/PersonalDataDisplay";
 import PersonalDataEdit from "./components/PersonalDataEdit";
-import { styles } from "./components/styles";
+import { styles } from "../../styles/personal-data-styles";
 import { useUser } from "@/context/UserContext";
 import useSWR from "swr";
 import { fetcherGetWithToken } from "@/helpers/FetchHelpers";

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { styles } from "./styles";
+import { styles } from "../../../styles/personal-data-styles";
 
 const { Typography, TextField } = require("@mui/material");
 

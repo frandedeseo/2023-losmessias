@@ -6,7 +6,7 @@ import Searchbar from '../../components/Searchbar';
 import { useState } from 'react';
 
 // styles
-import { styles } from './styles.js';
+import { styles } from '../../styles/validator-styles.js';
 import { Alert, Snackbar } from '@mui/material';
 
 import { useUser } from "@/context/UserContext";

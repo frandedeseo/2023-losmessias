@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { getColor } from '@/utils/getColor';
 
 // Styles
-import { styles } from '../pages/validator/styles';
+import { styles } from '../styles/validator-styles';
 
 export default function Searchbar({ search }) {
     const [searchValue, setSearchValue] = useState('');

@@ -138,7 +138,7 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
                     <tr>
                         <th style={{ borderBottom: '1px solid #f0f0f0', width: '10%' }}></th>
                         {days.map(day => (
-                            <th style={{ borderBottom: '1px solid #f0f0f0' }}>
+                            <th style={{ borderBottom: '1px solid #f0f0f0' }} key={day}>
                                 <Typography variant='h6'>{day}</Typography>
                             </th>
                         ))}
@@ -153,7 +153,7 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
                             </td>
 
                             {days.map(day => (
-                                <td style={style_of_block(block, day)} onClick={() => handleBlockSelection(block, day)} />
+                                <td style={style_of_block(block, day)} onClick={() => handleBlockSelection(block, day)} key={day} />
                             ))}
                         </tr>
                     ))}

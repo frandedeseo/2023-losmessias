@@ -4,15 +4,12 @@ import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import TransferList from './TransferList';
-import { useApi } from './hooks/useApi';
+import TransferList from './sign-up/TransferList';
 
 const defaultTheme = createTheme();
 
-export default function PutSubjects({}) {
+export default function PutSubjects({ }) {
 
-    
-  
   return (
     <ThemeProvider theme={defaultTheme}>
       <Grid container component="main" justifyContent='center' direction='row' sx={{ height: '91vh' }}>
@@ -41,12 +38,12 @@ export default function PutSubjects({}) {
               alignItems: 'center',
             }}
           >
-                <TransferList></TransferList>
-            
+            <TransferList></TransferList>
+
 
           </Box>
         </Grid>
       </Grid>
     </ThemeProvider>
-      );
-    }
+  );
+}

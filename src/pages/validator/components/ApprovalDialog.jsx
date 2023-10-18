@@ -1,33 +1,21 @@
 // Mui
 import {
     Button,
-    Checkbox,
     Dialog,
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle,
-    FormControl,
-    InputLabel,
-    ListItemText,
-    MenuItem,
-    OutlinedInput,
-    Select,
+    DialogTitle
 } from '@mui/material';
 
 // Hooks
 import { useState } from 'react';
 
 // Styles
-import { styles } from '../styles';
+import { styles } from '../../../styles/validator-styles';
 
 export default function ApprovalDialog({ open, setOpen, approve, teacher }) {
-    const [selectedSubjects, setSelectedSubjects] = useState(teacher.subjects);
-
-    const handleChange = e => {
-        setSelectedSubjects(typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value);
-    };
-
+    const teacherName = teacher ? teacher.name : 'Loading...';
     const handleApprove = () => {
         approve();
     };
@@ -40,7 +28,7 @@ export default function ApprovalDialog({ open, setOpen, approve, teacher }) {
             <DialogTitle>Do you want to approve this teacher?</DialogTitle>
 
             <DialogContent>
-                <DialogContentText>{teacher.name}</DialogContentText>
+                <DialogContentText>{teacherName}</DialogContentText>
             </DialogContent>
 
             <DialogActions sx={styles.dialogButtons}>
