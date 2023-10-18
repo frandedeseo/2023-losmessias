@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useUserDispatch } from '@/context/UserContext';
 
 export default function Logout() {
@@ -8,7 +8,7 @@ export default function Logout() {
 
     useEffect(() => {
         if (router.isReady) {
-            dispatch({ type: 'logout' } );
+            dispatch({ type: 'logout' });
             router.push("/")
         }
     }, [router.isReady, dispatch, router]);

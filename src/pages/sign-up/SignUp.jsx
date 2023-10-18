@@ -8,13 +8,10 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import { useApi } from '../../hooks/useApi.js';
-import { IconButton, InputAdornment, OutlinedInput, Snackbar } from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useApi } from '../hooks/useApi.js';
-import Alert from '../../components/Alert.jsx';
 import PasswordComponent from '@/components/PasswordComponent.jsx';
 import { useState } from 'react';
+import { useApi } from '@/hooks/useApi.js';
+import Alert from '@/components/Alert';
 
 const REG_ONLY_LETTERS = /^[ a-zA-ZÀ-ÿ\u00f1\u00d1]*$/;
 const REG_ONLY_NUM = /^[0-9]*$/;
