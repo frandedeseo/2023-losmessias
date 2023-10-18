@@ -14,6 +14,7 @@ export default function TopNav({ setPage }) {
         <Toolbar>
           <Image
             width={40}
+            height={40}
             src={'https://icons.iconarchive.com/icons/paomedia/small-n-flat/512/book-bookmark-icon.png'}
             alt="logo"
           />
