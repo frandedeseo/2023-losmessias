@@ -6,7 +6,6 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
-    DialogContentText,
     DialogTitle,
     Divider,
     Paper,
@@ -19,12 +18,10 @@ import {
     TableRow,
     TextField,
 } from '@mui/material';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { useUser } from "@/context/UserContext";
 
-export default function adminLandingPage() {
-    const router = useRouter();
+export default function AdminLandingPage() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [shownProfessors, setShownProfessors] = useState([]);
@@ -34,12 +31,12 @@ export default function adminLandingPage() {
     const [subject, setSubject] = useState('');
     const [subjects, setSubjects] = useState([]);
     const user = useUser();
-  
+
     useEffect(() => {
-        if (user.id){
+        if (user.id) {
             const requestOptions = {
                 method: 'GET',
-                headers: { Authorization : `Bearer ${user.token}`}
+                headers: { Authorization: `Bearer ${user.token}` }
             };
             fetch('http://localhost:8080/api/reservation/todaySummary', requestOptions).then(res =>
                 res.json().then(json => {
@@ -55,7 +52,7 @@ export default function adminLandingPage() {
                 })
             );
         }
-    }, [user]);
+    }, [user, rowsPerPage]);
 
     const handleSearch = (searchValue, filterValues) => {
         setPage(0);
@@ -107,7 +104,7 @@ export default function adminLandingPage() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization : `Bearer ${user.token}`
+                Authorization: `Bearer ${user.token}`
             },
             body: JSON.stringify({
                 name: subject,

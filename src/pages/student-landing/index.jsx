@@ -40,7 +40,7 @@ export default function StudentsLandingPage() {
             };
             fetch('http://localhost:8080/api/professor/all', requestOptions)
                 .then(res => {
-                    if(res.status === 200)
+                    if (res.status === 200)
                         console.log(res);
                     res.json().then(json => {
                         setData(json);
@@ -56,7 +56,7 @@ export default function StudentsLandingPage() {
                     res.json().then(json => setUserName(json.firstName + ' ' + json.lastName))
                 });
         }
-    }, [user]);
+    }, [user, router]);
 
     const handleFilter = () => {
         if (locationSelected.length > 0 && subjectSelected.length === 0) {

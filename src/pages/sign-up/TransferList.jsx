@@ -8,7 +8,7 @@ import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
-import { useApi } from '../hooks/useApi';
+import { useApi } from '../../hooks/useApi';
 import Alert from '../../components/Alert.jsx';
 
 function not(a, b) {

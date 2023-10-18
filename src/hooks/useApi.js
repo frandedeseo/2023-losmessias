@@ -5,7 +5,7 @@ import jwt_decode from "jwt-decode";
 import { useUserDispatch } from '@/context/UserContext';
 
 
-export function useApi() {
+export const useApi = () => {
     const [alertState, setAlertState] = useState({ severity: "", message: "" });
     const router = useRouter();
     const [error, setError] = useState("");
@@ -37,11 +37,11 @@ export function useApi() {
             const role = decoded.role.toLowerCase();
             dispatch({ type: 'login', payload: { id: id, token: token, role: role } });
             if (role == "professor") {
-                router.push("http://localhost:3000/professor-landing");
+                router.push("/professor-landing");
             } else if (role == "student") {
-                router.push("http://localhost:3000/student-landing");
+                router.push("/student-landing");
             } else {
-                router.push("http://localhost:3000/admin-landing");
+                router.push("/admin-landing");
             }
         }
     }
@@ -244,7 +244,7 @@ export function useApi() {
         fetch(`http://localhost:8080/api/changePassword`, requestOptions)
             .then(response => {
                 if (response.status === 200) {
-                    router.push("http://localhost:3000");
+                    router.push("/");
                 }
             })
             .catch(res => {
