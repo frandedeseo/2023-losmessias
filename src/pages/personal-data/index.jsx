@@ -21,12 +21,12 @@ export default function PersonalData() {
 
 
     const { data: studentData, isLoading, mutate } = useSWR(
-        [`http://localhost:8080/api/${user.role}/${user.id}`, user.token],
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/${user.role}/${user.id}`, user.token],
         fetcherGetWithToken);
     const handleSave = () => {
         if (editMode) {
             setEditMode(false)
-            fetch(`http://localhost:8080/api/${user.role}/update/${user.id}`, {
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/${user.role}/update/${user.id}`, {
                 method: 'PATCH',
                 body: JSON.stringify({
                     email: (emailAddress ? emailAddress : null),

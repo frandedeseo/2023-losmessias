@@ -38,7 +38,7 @@ export default function AdminLandingPage() {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` }
             };
-            fetch('http://localhost:8080/api/reservation/todaySummary', requestOptions).then(res =>
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/todaySummary`, requestOptions).then(res =>
                 res.json().then(json => {
                     setAllProfessors(json);
                     setProfessors(json);
@@ -46,7 +46,7 @@ export default function AdminLandingPage() {
                 })
             );
 
-            fetch('http://localhost:8080/api/subject/all').then(res =>
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
                 res.json().then(json => {
                     setSubjects(json);
                 })
@@ -100,7 +100,7 @@ export default function AdminLandingPage() {
     };
 
     const handleCreate = () => {
-        fetch('http://localhost:8080/api/subject/create', {
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/create`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

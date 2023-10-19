@@ -28,7 +28,7 @@ export default function TransferList( { request, setPage } ) {
     const {open, setOpen, alertState, sendRequestForRegistrationProfessor } = useApi();
 
     useEffect(() => {
-        fetch('http://localhost:8080/api/subject/all')
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`)
             .then(response => response.json())
             .then(json => {
                 console.log(json);

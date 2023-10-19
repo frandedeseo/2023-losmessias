@@ -38,7 +38,7 @@ export default function StudentsLandingPage() {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` }
             };
-            fetch('http://localhost:8080/api/professor/all', requestOptions)
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, requestOptions)
                 .then(res => {
                     if (res.status === 200)
                         console.log(res);
@@ -47,8 +47,8 @@ export default function StudentsLandingPage() {
                         setProfessors(json);
                     })
                 });
-            fetch('http://localhost:8080/api/subject/all').then(res => res.json().then(json => setSubjects(json)));
-            fetch(`http://localhost:8080/api/student/${user.id}`, requestOptions)
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res => res.json().then(json => setSubjects(json)));
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions)
                 .then(res => {
                     if (res.status === 401) {
                         router.push('/');

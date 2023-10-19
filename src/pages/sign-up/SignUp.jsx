@@ -45,7 +45,7 @@ export default function SignUp({ setRequest, setPage }) {
             sendRequestForRegistration(req);
         } else {
 
-            fetch(`http://localhost:8080/api/validate-email?email=${req.email}`, { method: 'POST' })
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/validate-email?email=${req.email}`, { method: 'POST' })
                 .then(response => {
                     if (response.status === 200) {
                         setPage("transferlist");
