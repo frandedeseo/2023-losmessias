@@ -3,32 +3,27 @@ import TeachersTable from './components/TeachersTable';
 import Searchbar from '../../components/Searchbar';
 
 // Hooks
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 // styles
 import { styles } from '../../styles/validator-styles.js';
 import { Alert, Snackbar } from '@mui/material';
 
 import { useUser } from "@/context/UserContext";
+import useSWR from 'swr';
+import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 
-export async function getServerSideProps() {
-   // const user = useUser();
-  //  const requestOptions = {
-  //      method: 'GET',
-  //      headers: { Authorization : `Bearer ${user.token}`}
-  //  };
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`);
-    const data = await res.json();
-    return { props: { data } };
-}
-
-export default function Validator({ data }) {
-    const [allTeachersSubjects, setAllTeachersSubjects] = useState(data);
-    const [teachersSubjects, setTeachersSubjects] = useState(data);
+export default function Validator() {
+    const [allTeachersSubjects, setAllTeachersSubjects] = useState([]);
+    const [teachersSubjects, setTeachersSubjects] = useState([]);
     const [alert, setAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('');
     const user = useUser();
+    const { data, isLoading, mutate } = useSWR([
+        `${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`,
+        user.token],
+        fetcherGetWithToken)
 
     const handleSearch = (searchValue, filterValues) => {
         if (searchValue !== '' && filterValues.length === 0) {
@@ -59,7 +54,7 @@ export default function Validator({ data }) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization : `Bearer ${user.token}`
+                Authorization: `Bearer ${user.token}`
             },
             body: JSON.stringify({
                 professorId: teacherSubject.professor.id,
@@ -105,7 +100,7 @@ export default function Validator({ data }) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization : `Bearer ${user.token}`
+                Authorization: `Bearer ${user.token}`
             },
             body: JSON.stringify({
                 professorId: teacherSubject.professor.id,
@@ -150,7 +145,13 @@ export default function Validator({ data }) {
         <div style={styles.container}>
             <Searchbar search={handleSearch} />
             <div style={styles.divPadding} />
-            <TeachersTable data={teachersSubjects} approve={handleApprove} reject={handleReject} />
+            <TeachersTable
+                isLoading={isLoading}
+                data={teachersSubjects}
+                approve={handleApprove}
+                reject={handleReject}
+            />
+
             <Snackbar
                 open={alert}
                 autoHideDuration={3000}

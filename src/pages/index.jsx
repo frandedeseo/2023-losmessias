@@ -5,7 +5,7 @@ import TopNav from './TopNav';
 import { useRouter } from 'next/router';
 import { useApi } from '../hooks/useApi.js';
 
-export default function Home({ data, subjects }) {
+export default function Home() {
 
     const [page, setPage] = useState("login");
 
@@ -18,7 +18,7 @@ export default function Home({ data, subjects }) {
         if (token != undefined) {
             confirmToken(token);
         }
-    }, [token, confirmToken]);
+    }, [token]);
 
     return (
         <>

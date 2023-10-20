@@ -10,7 +10,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { Button, Chip, TablePagination } from '@mui/material';
+import { Box, Button, Chip, CircularProgress, TablePagination, Typography } from '@mui/material';
 
 // Hooks
 import { useEffect, useState } from 'react';
@@ -21,7 +21,7 @@ import { getColor } from '@/utils/getColor';
 // Styles
 import { styles } from '../../../styles/validator-styles.js';
 
-export default function TeachersTable({ data, approve, reject }) {
+export default function TeachersTable({ data, approve, reject, isLoading }) {
     const [teacherSubject, setTeacherSubject] = useState({});
     const [showApprovalConfirmation, setShowApprovalConfirmation] = useState(false);
     const [showRejectConfirmation, setShowRejectConfirmation] = useState(false);
@@ -78,27 +78,61 @@ export default function TeachersTable({ data, approve, reject }) {
                     </TableHead>
 
                     <TableBody>
-                        {shownTeachersSubjects.map(teacherSubject => (
-                            <TableRow key={teacherSubject.id}>
-                                <TableCell>{`${teacherSubject.professor.firstName} ${teacherSubject.professor.lastName}`}</TableCell>
-                                <TableCell>
-                                    <Chip
-                                        label={teacherSubject.subject.name}
-                                        sx={{
-                                            backgroundColor: getColor(teacherSubject.subject.name),
-                                        }}
-                                    />
-                                </TableCell>
-                                <TableCell align='right' sx={styles.tableCell}>
-                                    <Button variant='outlined' color='error' onClick={() => handleRejectClick(teacherSubject)}>
-                                        Reject
-                                    </Button>
-                                    <Button variant='contained' onClick={() => handleApproveClick(teacherSubject)}>
-                                        Approve
-                                    </Button>
+                        {!isLoading ? (
+                            <>
+                                {shownTeachersSubjects.length > 0 ? (
+                                    <>
+                                        {shownTeachersSubjects.map(teacherSubject => (
+                                            <TableRow key={teacherSubject.id}>
+                                                <TableCell>{`${teacherSubject.professor.firstName} ${teacherSubject.professor.lastName}`}</TableCell>
+                                                <TableCell>
+                                                    <Chip
+                                                        label={teacherSubject.subject.name}
+                                                        sx={{
+                                                            backgroundColor: getColor(teacherSubject.subject.name),
+                                                        }}
+                                                    />
+                                                </TableCell>
+                                                <TableCell align='right' sx={styles.tableCell}>
+                                                    <Button variant='outlined' color='error' onClick={() => handleRejectClick(teacherSubject)}>
+                                                        Reject
+                                                    </Button>
+                                                    <Button variant='contained' onClick={() => handleApproveClick(teacherSubject)}>
+                                                        Approve
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </>
+                                ) : (
+                                    <>
+                                        <TableRow>
+                                            <TableCell colSpan={3}>
+                                                <Box sx={{
+                                                    display: "flex",
+                                                    justifyContent: "center",
+                                                }}>
+                                                    <Typography >
+                                                        There are no professor-subjects to approve or reject!
+                                                    </Typography>
+                                                </Box>
+                                            </TableCell>
+                                        </TableRow>
+                                    </>
+                                )}
+                            </>
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={3}>
+                                    <Box sx={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                    }}>
+                                        <CircularProgress />
+                                    </Box>
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        )}
                     </TableBody>
                 </Table>
                 <TablePagination

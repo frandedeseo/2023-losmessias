@@ -1,8 +1,10 @@
 import Searchbar from '@/components/Searchbar';
 import { getColor } from '@/utils/getColor';
 import {
+    Box,
     Button,
     Chip,
+    CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
@@ -17,6 +19,7 @@ import {
     TablePagination,
     TableRow,
     TextField,
+    Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useUser } from "@/context/UserContext";
@@ -31,6 +34,8 @@ export default function AdminLandingPage() {
     const [subject, setSubject] = useState('');
     const [subjects, setSubjects] = useState([]);
     const user = useUser();
+    const [isLoading, setIsLoading] = useState(false);
+
 
     useEffect(() => {
         if (user.id) {
@@ -38,13 +43,14 @@ export default function AdminLandingPage() {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` }
             };
+            setIsLoading(true);
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/todaySummary`, requestOptions).then(res =>
                 res.json().then(json => {
                     setAllProfessors(json);
                     setProfessors(json);
                     setShownProfessors(json.slice(0, rowsPerPage));
                 })
-            );
+            ).finally(() => setIsLoading(false));
 
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
                 res.json().then(json => {
@@ -142,21 +148,46 @@ export default function AdminLandingPage() {
                     </TableHead>
 
                     <TableBody>
-                        {shownProfessors.map((prof, idx) => (
-                            <TableRow key={idx}>
-                                <TableCell>{`${prof.professor.firstName} ${prof.professor.lastName}`}</TableCell>
-                                <TableCell>
-                                    <Chip
-                                        label={prof.subject.name}
-                                        sx={{
-                                            backgroundColor: getColor(prof.subject.name),
-                                        }}
-                                    />
-                                </TableCell>
-                                <TableCell>{prof.totalHours} hs</TableCell>
-                                <TableCell>${prof.totalIncome}</TableCell>
-                            </TableRow>
-                        ))}
+                        {isLoading ? (
+                            <>
+                                <TableRow>
+                                    <TableCell colSpan={4}>
+                                        <Box sx={{
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                        }}>
+                                            <CircularProgress />
+                                        </Box>
+                                    </TableCell>
+                                </TableRow>
+                            </>
+                        ) : (
+                            <>{!professors.length ? (
+                                <>
+                                    {shownProfessors.map((prof, idx) => (
+                                        <TableRow key={idx}>
+                                            <TableCell>{`${prof.professor.firstName} ${prof.professor.lastName}`}</TableCell>
+                                            <TableCell>
+                                                <Chip
+                                                    label={prof.subject.name}
+                                                    sx={{
+                                                        backgroundColor: getColor(prof.subject.name),
+                                                    }}
+                                                />
+                                            </TableCell>
+                                            <TableCell>{prof.totalHours} hs</TableCell>
+                                            <TableCell>${prof.totalIncome}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </>
+                            ) : (
+                                <Typography variant='h6' sx={{ padding: '1rem' }}>
+                                    No results found!
+                                </Typography>
+                            )}
+                            </>
+                        )}
                     </TableBody>
                 </Table>
                 <TablePagination
