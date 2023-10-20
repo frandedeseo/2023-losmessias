@@ -35,6 +35,7 @@ export function useApi() {
             const id = decoded.id;
             const email = decoded.sub;
             const role = decoded.role.toLowerCase();
+            console.log(token);
             dispatch({ type: 'login', payload: { id: id, token: token, role: role } });
             if (role=="professor"){
                 router.push("http://localhost:3000/professor-landing");
