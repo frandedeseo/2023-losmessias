@@ -32,21 +32,29 @@ export default function StudentsLandingPage() {
     const user = useUser();
 
     useEffect(() => {
-        if (user.id) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization : `Bearer ${user.token}`}
-            };
-            fetch('http://localhost:8080/api/professor/all', requestOptions)
-            .then(res =>
-                res.json().then(json => {
-                    setData(json);
-                    setProfessors(json);
-                })
-            );
-            fetch('http://localhost:8080/api/subject/all').then(res => res.json().then(json => setSubjects(json)));
+        if (router.isReady && user.authenticated) {
+            if (user.role=='admin'){
+                router.push("/admin-landing");
+            }else if(user.role=="professor"){
+                router.push("/professor-landing");
+            }else {
+                const requestOptions = {
+                    method: 'GET',
+                    headers: { Authorization : `Bearer ${user.token}`}
+                };
+                fetch('http://localhost:8080/api/professor/all', requestOptions)
+                .then(res =>
+                    res.json().then(json => {
+                        setData(json);
+                        setProfessors(json);
+                    })
+                );
+                fetch('http://localhost:8080/api/subject/all').then(res => res.json().then(json => setSubjects(json)));
+            }
+        }else {
+            router.push("/");
         }
-    }, [user]);
+    }, [user, router.isReady]);
 
     const handleFilter = () => {
         if (locationSelected.length > 0 && subjectSelected.length === 0) {

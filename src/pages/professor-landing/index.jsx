@@ -42,23 +42,32 @@ export default function ProfessorLandingPage() {
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
-        if (user.id) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization : `Bearer ${user.token}`}
-            };
-            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res =>
-                res.json().then(json => {
-                    setDisabledBlocks(
-                        json.map(e => {
-                            if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                            return e;
-                        })
-                    );
-                })
-            );
+        if (router.isReady && user.authenticated) {
+            if (user.role=='student'){
+                router.push("/student-landing");
+            }else if(user.role=="admin"){
+                router.push("/admin-landing");
+            }else{
+                const requestOptions = {
+                    method: 'GET',
+                    headers: { Authorization : `Bearer ${user.token}`}
+                };
+                fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions)
+                .then(res => res.json()
+                .then(json => {
+                        setDisabledBlocks(
+                            json.map(e => {
+                                if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                return e;
+                            })
+                        );
+                    })
+                )
+            }
+        }else{
+            router.push("/");
         }
-    }, [user]);
+    }, [user, router.isReady]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
