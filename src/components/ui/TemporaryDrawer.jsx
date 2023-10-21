@@ -1,6 +1,7 @@
 import { useUser } from '@/context/UserContext';
 import { AutoStories, HomeMaxOutlined, Person } from '@mui/icons-material';
 import HomeIcon from '@mui/icons-material/Home';
+import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
@@ -20,16 +21,13 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
             icon: <HomeIcon />,
             primary: 'Home',
         },
-        // {
-        //     href: "/home",
-        //     icon: <Person />,
-        //     primary: "Professors"
-        // },
-        // {
-        //     href: "/home",
-        //     icon: <AutoStories />,
-        //     primary: "Courses"
-        // },
+        user.role === 'student'
+            ? {
+                  href: '/professors',
+                  icon: <PersonSearchIcon />,
+                  primary: 'Professors',
+              }
+            : {},
         ...(user.role !== 'admin'
             ? [
                   {

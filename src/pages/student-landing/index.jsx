@@ -1,189 +1,105 @@
-// Components
-import ProfessorCard from '@/components/cards/ProfessorCard';
-
-// Hooks
+import Calendar from '@/components/Calendar';
+import CalendarPagination from '@/components/CalendarPagination';
+import { useUser } from '@/context/UserContext';
+import { order_and_group } from '@/utils/order_and_group';
+import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Snackbar, Typography } from '@mui/material';
+import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
-// Utils
-import { getColor } from '@/utils/getColor';
+// Consts
+const dayNumber = {
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6,
+    Sunday: 7,
+};
 
-// Mui
-import { Box, Chip, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
-import { useRouter } from 'next/router';
-
-import { useUser } from "@/context/UserContext";
-
-// export async function getServerSideProps() {
-//     const res = await fetch('http://localhost:8080/api/professor/all');
-//     const data = await res.json();
-
-//     const subjectsRes = await fetch('http://localhost:8080/api/subject/all');
-//     const subjects = await subjectsRes.json();
-//     return { props: { data, subjects } };
-// }
-
-export default function StudentsLandingPage() {
-    const [data, setData] = useState([]);
-    const [subjects, setSubjects] = useState([]);
-    const router = useRouter();
-    const [professors, setProfessors] = useState([]);
-    const [locationSelected, setLocationSelected] = useState([]);
-    const [subjectSelected, setSubjectSelected] = useState([]);
+export default function StudentLandingPage() {
+    const [week, setWeek] = useState(0);
+    const [disabledBlocks, setDisabledBlocks] = useState([]);
     const user = useUser();
     const [userName, setUserName] = useState('');
+
+    var curr = new Date();
+    var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
         if (user.id) {
             const requestOptions = {
                 method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` }
+                headers: { Authorization: `Bearer ${user.token}` },
             };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, requestOptions)
-                .then(res => {
-                    if (res.status === 200)
-                        console.log(res);
-                    res.json().then(json => {
-                        setData(json);
-                        setProfessors(json);
-                    })
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
+                res.json().then(json => {
+                    setDisabledBlocks(
+                        json.map(e => {
+                            if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                            return e;
+                        })
+                    );
                 });
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res => res.json().then(json => setSubjects(json)));
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions)
-                .then(res => {
-                    if (res.status === 401) {
-                        router.push('/');
-                    }
-                    res.json().then(json => setUserName(json.firstName + ' ' + json.lastName))
-                });
+            });
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions).then(res => {
+                if (res.status === 401) {
+                    router.push('/');
+                }
+                res.json().then(json => setUserName(json.firstName + ' ' + json.lastName));
+            });
         }
-    }, [user, router]);
-
-    const handleFilter = () => {
-        if (locationSelected.length > 0 && subjectSelected.length === 0) {
-            setProfessors(data.filter(professor => locationSelected.includes(professor.location)));
-        } else if (locationSelected.length === 0 && subjectSelected.length > 0) {
-            setProfessors(data.filter(professor => professor.subjects.some(subject => subjectSelected.includes(subject.name))));
-        } else if (locationSelected.length > 0 && subjectSelected.length > 0) {
-            setProfessors(
-                data.filter(professor =>
-                    professor.subjects.some(
-                        subject => subjectSelected.includes(subject.name) && locationSelected.includes(professor.location)
-                    )
-                )
-            );
-        } else {
-            setProfessors(data);
-        }
-    };
-
-    const handleLocationChange = event => {
-        setLocationSelected(typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value);
-    };
-
-    const handleSubjectChange = event => {
-        setSubjectSelected(typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value);
-    };
+    }, [user]);
 
     return (
-        <>
-            <Box
-                sx={{
-                    display: 'flex',
-                    backgroundColor: '#F5F5F5',
-                }}
-            >
-                <Box
-                    sx={{
-                        flexDirection: 'column',
-                        minWidth: 300,
-                        minHeight: 300,
-                        display: 'flex',
-                        borderColor: 'black',
-                        borderWidth: '1pt',
-                        borderRightStyle: 'solid',
-                        px: 1,
-                    }}
-                >
-                    <Typography variant='h3' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
-                        Filters
-                    </Typography>
-                    <Divider width={'100%'} sx={{ my: 2 }} />
-                    <FormControl sx={{ ml: 2, backgroundColor: '#fff' }}>
-                        <InputLabel id='office-select'>Location</InputLabel>
-                        <Select
-                            multiple
-                            labelId='office-select'
-                            input={<OutlinedInput label='Location' />}
-                            value={locationSelected}
-                            onChange={event => handleLocationChange(event)}
-                            onClose={handleFilter}
-                            renderValue={selected => (
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                    {selected.map(value => (
-                                        <Chip key={value} label={value} />
-                                    ))}
-                                </Box>
-                            )}
-                        >
-                            {data.map((profesor, index) => (
-                                <MenuItem key={index} value={profesor.location}>
-                                    {profesor.location}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+        <div style={{ width: '95%', margin: 'auto' }}>
+            <Typography variant='h4' sx={{ margin: '2% 0' }}>
+                Hi {userName}, welcome back!
+            </Typography>
 
-                    <FormControl sx={{ ml: 2, marginTop: '1.5rem', backgroundColor: '#fff' }}>
-                        <InputLabel id='office-select'>Subjects</InputLabel>
-                        <Select
-                            multiple
-                            labelId='office-select'
-                            input={<OutlinedInput label='Subjects' />}
-                            value={subjectSelected}
-                            onChange={event => handleSubjectChange(event)}
-                            onClose={handleFilter}
-                            renderValue={selected => (
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                    {selected.map(value => (
-                                        <Chip key={value} label={value} sx={{ backgroundColor: getColor(value) }} />
-                                    ))}
-                                </Box>
-                            )}
-                        >
-                            {subjects.map(subject => (
-                                <MenuItem key={subject.id} value={subject.name}>
-                                    {subject.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
-                    <Box sx={{ width: "100%", justifyContent: "center", display: "flex" }}>
-                        <Typography variant='h4' sx={{ mt: 2, mb: 2 }} >
-                            Hi {userName}, welcome back!
-                        </Typography>
-                    </Box>
-                    {professors.map((profesor, index) => {
-                        if (profesor.subjects.length > 0) {
-                            return (
-                                <ProfessorCard
-                                    key={index}
-                                    professorId={profesor.id}
-                                    studentId={user.id}
-                                    name={profesor.firstName + ' ' + profesor.lastName}
-                                    email={profesor.email}
-                                    phone={profesor.phone}
-                                    sex={profesor.sex}
-                                    office={profesor.location}
-                                    style={{ mr: 3, mt: 2 }}
-                                    subjects={profesor.subjects}
-                                />
-                            );
-                        }
-                    })}
-                </Box>
-            </Box>
-        </>
+            <Typography variant='h4'>Agenda</Typography>
+            <Divider />
+            <div style={{ paddingBlock: '0.75rem' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <table style={{ height: '35px' }}>
+                    <tbody>
+                        <tr>
+                            <td
+                                style={{
+                                    width: '130px',
+                                    borderBlock: '1px solid #338aed70',
+                                    backgroundColor: '#338aed90',
+                                    textAlign: 'center',
+                                }}
+                            >
+                                <Typography>Selected block</Typography>
+                            </td>
+                            <td
+                                style={{
+                                    textAlign: 'center',
+                                    width: '130px',
+                                    borderBlock: '1px solid #e64b4b70',
+                                    backgroundColor: '#e64b4b90',
+                                }}
+                            >
+                                <Typography>Reserved Class</Typography>
+                            </td>
+                            <td
+                                style={{
+                                    textAlign: 'center',
+                                    width: '130px',
+                                    borderBlock: '1px solid #adadad70',
+                                    backgroundColor: '#adadad90',
+                                }}
+                            >
+                                <Typography>Unavailable</Typography>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={() => {}} />
+            </div>
+            <Calendar selectedBlocks={[]} setSelectedBlocks={() => {}} disabledBlocks={disabledBlocks} week={week} interactive={false} />
+        </div>
     );
 }

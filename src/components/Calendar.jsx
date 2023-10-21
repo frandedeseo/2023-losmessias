@@ -63,7 +63,7 @@ const styles = {
     },
 };
 
-export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBlocks, week }) {
+export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBlocks, week, interactive = true }) {
     var curr_date = new Date();
     var first = curr_date.getDate() - curr_date.getDay();
 
@@ -88,7 +88,7 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
     };
 
     const block_disabled = (block, day) => {
-        if (day_disabled(day) || block_reserved(block, day) || block_not_available(block, day)) return true;
+        if (day_disabled(day, block) || block_reserved(block, day) || block_not_available(block, day)) return true;
         return false;
     };
 
@@ -126,7 +126,8 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
     };
 
     const style_of_block = (block, day) => {
-        let style = styles.block;
+        let style = interactive ? styles.block : { ...styles.block, cursor: 'default' };
+
         if (active(block, day)) style = styles.selected;
         else if (day_disabled(day, block)) style = styles.disabled;
         else if (block_reserved(block, day)) style = styles.reserved;
