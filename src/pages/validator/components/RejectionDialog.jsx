@@ -2,9 +2,10 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 
 // Styles
-import { styles } from '../styles';
+import { styles } from '../../../styles/validator-styles';
 
 export default function RejectionDialog({ open, setOpen, reject, teacher }) {
+    const teacherName = teacher ? teacher.name : 'Loading...';
     const handleReject = () => {
         reject();
     };
@@ -18,7 +19,7 @@ export default function RejectionDialog({ open, setOpen, reject, teacher }) {
             <DialogTitle>Do you want to reject this teacher?</DialogTitle>
 
             <DialogContent>
-                <DialogContentText>{teacher.name}</DialogContentText>
+                <DialogContentText>{teacherName}</DialogContentText>
             </DialogContent>
 
             <DialogActions sx={styles.dialogButtons}>

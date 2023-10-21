@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { getColor } from '@/utils/getColor';
 
 // Styles
-import { styles } from '../pages/validator/styles';
+import { styles } from '../styles/validator-styles';
 
 export default function Searchbar({ search }) {
     const [searchValue, setSearchValue] = useState('');
@@ -17,7 +17,7 @@ export default function Searchbar({ search }) {
     const [subjects, setSubjects] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:8080/api/subject/all').then(res =>
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
             res.json().then(json => {
                 setSubjects(json);
             })

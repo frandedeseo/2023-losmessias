@@ -8,8 +8,8 @@ import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
-import { useApi } from '../hooks/useApi';
-import Alert from '../../components/Alert.js';
+import { useApi } from '../../hooks/useApi';
+import Alert from '../../components/Alert.jsx';
 
 function not(a, b) {
     return a.filter(value => b.indexOf(value) === -1);
@@ -28,7 +28,7 @@ export default function TransferList( { request, setPage } ) {
     const {open, setOpen, alertState, sendRequestForRegistrationProfessor } = useApi();
 
     useEffect(() => {
-        fetch('http://localhost:8080/api/subject/all')
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`)
             .then(response => response.json())
             .then(json => {
                 console.log(json);

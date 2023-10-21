@@ -6,7 +6,7 @@ import Searchbar from '../../components/Searchbar';
 import { useState } from 'react';
 
 // styles
-import { styles } from './styles.js';
+import { styles } from '../../styles/validator-styles.js';
 import { Alert, Snackbar } from '@mui/material';
 
 import { useUser } from "@/context/UserContext";
@@ -17,7 +17,7 @@ export async function getServerSideProps() {
   //      method: 'GET',
   //      headers: { Authorization : `Bearer ${user.token}`}
   //  };
-    const res = await fetch('http://localhost:8080/api/professor-subject/findByStatus?status=PENDING');
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`);
     const data = await res.json();
     return { props: { data } };
 }
@@ -55,7 +55,7 @@ export default function Validator({ data }) {
 
     const handleApprove = teacherSubject => {
         console.log(teacherSubject);
-        fetch('http://localhost:8080/api/professor-subject/approve', {
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/approve`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ export default function Validator({ data }) {
     };
 
     const handleReject = teacherSubject => {
-        fetch('http://localhost:8080/api/professor-subject/reject', {
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/reject`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

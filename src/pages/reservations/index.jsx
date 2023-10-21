@@ -66,15 +66,18 @@ export default function Reservation() {
         if (user.id && router.isReady) {
             const requestOptions = {
                 method: 'GET',
-                headers: { Authorization : `Bearer ${user.token}`}
+                headers: { Authorization: `Bearer ${user.token}` },
             };
-            fetch(`http://localhost:8080/api/professor/${router.query.professorId}`, requestOptions).then(res =>
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${router.query.professorId}`, requestOptions).then(res =>
                 res.json().then(json => {
                     setProfessor(json);
                 })
             );
 
-            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${router.query.professorId}`, requestOptions).then(res =>
+            fetch(
+                `${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${router.query.professorId}`,
+                requestOptions
+            ).then(res =>
                 res.json().then(json => {
                     setDisabledBlocks(
                         json.map(e => {
@@ -105,11 +108,11 @@ export default function Reservation() {
                 price: 250 * block.totalHours,
             };
 
-            fetch('http://localhost:8080/api/reservation/create', {
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization : `Bearer ${user.token}`
+                    Authorization: `Bearer ${user.token}`,
                 },
                 body: JSON.stringify({
                     ...reservation,
@@ -164,7 +167,50 @@ export default function Reservation() {
                 </Modal>
             </div>
             <div style={{ width: '90%', margin: 'auto' }}>
-                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+                <Typography variant='h4'>Agenda</Typography>
+                <Divider />
+                <div style={{ paddingBlock: '0.75rem' }} />
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <table style={{ height: '35px' }}>
+                        <tbody>
+                            <tr>
+                                <td
+                                    style={{
+                                        width: '130px',
+                                        borderBlock: '1px solid #338aed70',
+                                        backgroundColor: '#338aed90',
+                                        textAlign: 'center',
+                                    }}
+                                >
+                                    <Typography>Selected time</Typography>
+                                </td>
+                                <td
+                                    style={{
+                                        textAlign: 'center',
+                                        width: '130px',
+                                        borderBlock: '1px solid #e64b4b70',
+                                        backgroundColor: '#e64b4b90',
+                                    }}
+                                >
+                                    <Typography>Reserved Class</Typography>
+                                </td>
+                                <td
+                                    style={{
+                                        textAlign: 'center',
+                                        width: '130px',
+                                        borderBlock: '1px solid #adadad70',
+                                        backgroundColor: '#adadad90',
+                                    }}
+                                >
+                                    <Typography>Unavailable</Typography>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+                </div>
+
                 <Calendar
                     selectedBlocks={selectedBlocks}
                     setSelectedBlocks={setSelectedBlocks}

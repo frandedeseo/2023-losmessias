@@ -1,6 +1,7 @@
 import { useUser } from '@/context/UserContext';
 import { AutoStories, HomeMaxOutlined, Person } from '@mui/icons-material';
 import HomeIcon from '@mui/icons-material/Home';
+import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemText, Stack, Typography } from '@mui/material';
@@ -19,16 +20,13 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
             icon: <HomeIcon />,
             primary: 'Home',
         },
-        // {
-        //     href: "/home",
-        //     icon: <Person />,
-        //     primary: "Professors"
-        // },
-        // {
-        //     href: "/home",
-        //     icon: <AutoStories />,
-        //     primary: "Courses"
-        // },
+        user.role === 'student'
+            ? {
+                  href: '/professors',
+                  icon: <PersonSearchIcon />,
+                  primary: 'Professors',
+              }
+            : {},
         user.role !== 'admin'
             ? {
                   href: '/personal-data',
@@ -40,11 +38,11 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
                   icon: <SettingsIcon />,
                   primary: 'Validator',
               },
-            {
-                href: "/logout",
-                icon: <LogoutIcon />,
-                primary: 'Log out',
-            }
+        {
+            href: '/logout',
+            icon: <LogoutIcon />,
+            primary: 'Log out',
+        },
     ];
 
     const drawerItem = (href, icon, primary, key) => {
