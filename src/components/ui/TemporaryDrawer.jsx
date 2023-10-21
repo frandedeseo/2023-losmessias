@@ -31,14 +31,14 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
         ...(user.role !== 'admin'
             ? [
                   {
-                      href: '/personal-data',
-                      icon: <SettingsIcon />,
-                      primary: 'Personal information',
-                  },
-                  {
                       href: '/classes',
                       icon: <BookmarkIcon />,
                       primary: 'Class Reservations',
+                  },
+                  {
+                      href: '/personal-data',
+                      icon: <SettingsIcon />,
+                      primary: 'Personal information',
                   },
               ]
             : [

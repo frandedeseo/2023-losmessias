@@ -28,6 +28,7 @@ export default function StudentLandingPage() {
 
     useEffect(() => {
         if (user.id) {
+            console.log(user);
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
