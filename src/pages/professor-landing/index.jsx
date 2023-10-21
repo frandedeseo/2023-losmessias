@@ -39,7 +39,7 @@ export default function ProfessorLandingPage() {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` }
             };
-            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
                 console.log(res);
                 res.json().then(json => {
                     setDisabledBlocks(
@@ -51,7 +51,7 @@ export default function ProfessorLandingPage() {
                 })
             }
             );
-            fetch(`http://localhost:8080/api/professor/${user.id}`, requestOptions).then(res =>
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res =>
                 res.json()
                     .then(json => {
                         console.log(json)
@@ -82,7 +82,7 @@ export default function ProfessorLandingPage() {
                 professorId: parseInt(user.id),
             };
 
-            fetch('http://localhost:8080/api/reservation/createUnavailable', {
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/createUnavailable`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

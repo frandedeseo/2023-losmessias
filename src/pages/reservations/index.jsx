@@ -62,22 +62,24 @@ export default function Reservation() {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
-            fetch(`http://localhost:8080/api/professor/${router.query.professorId}`, requestOptions).then(res =>
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${router.query.professorId}`, requestOptions).then(res =>
                 res.json().then(json => {
                     setProfessor(json);
                 })
             );
 
-            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${router.query.professorId}`, requestOptions).then(
-                res =>
-                    res.json().then(json => {
-                        setDisabledBlocks(
-                            json.map(e => {
-                                if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                                return e;
-                            })
-                        );
-                    })
+            fetch(
+                `${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${router.query.professorId}`,
+                requestOptions
+            ).then(res =>
+                res.json().then(json => {
+                    setDisabledBlocks(
+                        json.map(e => {
+                            if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                            return e;
+                        })
+                    );
+                })
             );
         }
     }, [user, router]);
@@ -100,7 +102,7 @@ export default function Reservation() {
                 price: 250 * block.totalHours,
             };
 
-            fetch('http://localhost:8080/api/reservation/create', {
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/create`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

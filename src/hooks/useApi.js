@@ -61,7 +61,7 @@ export const useApi = () => {
                 phone: request.phone
             }),
         };
-        fetch('http://localhost:8080/api/registration', requestOptions)
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/registration`, requestOptions)
             .then(response => {
                 if (response.status != 200) {
                     showAlert({ message: "Email is already taken", status: 500 });
@@ -87,7 +87,7 @@ export const useApi = () => {
                 subjects: subjects
             }),
         };
-        fetch('http://localhost:8080/api/registration-professor', requestOptions)
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/registration-professor`, requestOptions)
             .then(response => {
                 if (response.status == 200) {
                     showAlert({ message: "We have sent you an email. Please confirm email adress", status: 200 });
@@ -103,7 +103,7 @@ export const useApi = () => {
                 password: request.password,
             }),
         };
-        fetch('http://localhost:8080/api/authentication', requestOptions)
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/authentication`, requestOptions)
             .then(response => {
                 console.log(response.status);
                 console.log(response);
@@ -128,7 +128,7 @@ export const useApi = () => {
                 'Authentication': `Bearer ${this.state.token}`
             }
         };
-        fetch('http://localhost:8080/api/subject/all', requestOptions)
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`, requestOptions)
             .then(response => response.json())
             .then(json => {
                 setData(json);
@@ -146,7 +146,7 @@ export const useApi = () => {
                 'Authentication': `Bearer ${this.state.token}`
             }
         };
-        fetch('http://localhost:8080/api/student/' + id, requestOptions)
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/` + id, requestOptions)
             .then(response => response.json())
             .then(json => {
                 setData(json);
@@ -165,7 +165,7 @@ export const useApi = () => {
             }
         };
         fetch(
-            `http://localhost:8080/api/professor-subject/createAssociation?professorId=${request.professorId}&subjectId=${request.subjectId}`,
+            `${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/createAssociation?professorId=${request.professorId}&subjectId=${request.subjectId}`,
             requestOptions
         ).catch(error => {
             console.log(error);
@@ -174,7 +174,7 @@ export const useApi = () => {
 
     const validateEmailForPasswordChange = request => {
 
-        fetch(`http://localhost:8080/api/loadEmailForPasswordChange?email=${request.email}`,
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/loadEmailForPasswordChange?email=${request.email}`,
             { method: 'POST' })
             .then(response => {
                 if (response.status == 200) {
@@ -191,7 +191,7 @@ export const useApi = () => {
 
     const validateEmailNotTaken = async request => {
         try {
-            let response = await fetch(`http://localhost:8080/api/validate-email?email=${request.email}`, { method: 'POST' })
+            let response = await fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/validate-email?email=${request.email}`, { method: 'POST' })
             let json = await response.json();
             console.log(response);
             if (response.status === 200) {
@@ -206,7 +206,7 @@ export const useApi = () => {
     };
 
     const confirmTokenForgotPassword = token => {
-        fetch(`http://localhost:8080/api/forgot_password/confirm?token=${token}`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/forgot_password/confirm?token=${token}`)
             .then(response => {
                 showAlert(response);
             })
@@ -216,7 +216,9 @@ export const useApi = () => {
     }
 
     const confirmToken = token => {
-        fetch(`http://localhost:8080/api/registration/confirm?token=${token}`)
+        if (token === null || token === undefined) return;
+        console.log(token);
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/registration/confirm?token=${token}`)
             .then(response => {
                 console.log(response.status);
                 if (response.status === 200) {
@@ -241,7 +243,7 @@ export const useApi = () => {
             }),
         };
 
-        fetch(`http://localhost:8080/api/changePassword`, requestOptions)
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/changePassword`, requestOptions)
             .then(response => {
                 if (response.status === 200) {
                     router.push("/");
