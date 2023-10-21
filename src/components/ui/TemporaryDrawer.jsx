@@ -3,6 +3,7 @@ import { AutoStories, HomeMaxOutlined, Person } from '@mui/icons-material';
 import HomeIcon from '@mui/icons-material/Home';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemText, Stack, Typography } from '@mui/material';
 import router from 'next/router';
 
@@ -29,22 +30,31 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
         //     icon: <AutoStories />,
         //     primary: "Courses"
         // },
-        user.role !== 'admin'
-            ? {
-                href: '/personal-data',
-                icon: <SettingsIcon />,
-                primary: 'Personal information',
-            }
-            : {
-                href: '/validator',
-                icon: <SettingsIcon />,
-                primary: 'Validator',
-            },
+        ...(user.role !== 'admin'
+            ? [
+                  {
+                      href: '/personal-data',
+                      icon: <SettingsIcon />,
+                      primary: 'Personal information',
+                  },
+                  {
+                      href: '/classes',
+                      icon: <BookmarkIcon />,
+                      primary: 'Class Reservations',
+                  },
+              ]
+            : [
+                  {
+                      href: '/validator',
+                      icon: <SettingsIcon />,
+                      primary: 'Validator',
+                  },
+              ]),
         {
-            href: "/logout",
+            href: '/logout',
             icon: <LogoutIcon />,
             primary: 'Log out',
-        }
+        },
     ];
 
     const drawerItem = (href, icon, primary, key) => {
