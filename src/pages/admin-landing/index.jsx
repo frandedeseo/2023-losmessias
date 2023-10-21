@@ -60,7 +60,7 @@ export default function AdminLandingPage() {
         }else{
             router.push("/");
         }
-    }, [user, rowsPerPage, router.isReady]);
+    }, [user, rowsPerPage]);
 
     const handleSearch = (searchValue, filterValues) => {
         setPage(0);

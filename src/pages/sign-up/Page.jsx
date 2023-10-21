@@ -30,7 +30,7 @@ export default function Page({ page, setPage }) {
                 router.push("/admin-landing");
             }
         }
-    }, [router.isReady, user]);
+    }, [router, user]);
 
     return (
         <ThemeProvider theme={defaultTheme}>

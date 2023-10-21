@@ -49,7 +49,7 @@ export default function StudentLandingPage() {
         }else {
             router.push("/");
         }
-    }, [user, router.isReady]);
+    }, [user]);
 
     const handleFilter = () => {
         if (locationSelected.length > 0 && subjectSelected.length === 0) {
