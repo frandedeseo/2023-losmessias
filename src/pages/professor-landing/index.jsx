@@ -59,7 +59,7 @@ export default function ProfessorLandingPage() {
                     })
             );
         }
-    }, [user]);
+    }, [user, router.isReady]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);

@@ -1,6 +1,7 @@
 // Mui
 import {
     Alert,
+    Box,
     Button,
     Dialog,
     DialogActions,
@@ -10,10 +11,13 @@ import {
     FormControl,
     InputLabel,
     MenuItem,
+    Modal,
     Select,
     Snackbar,
-    Typography,
+    Typography
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 // Hooks
 import { useEffect, useRef, useState } from 'react';
@@ -27,6 +31,7 @@ import HorizontalProfessorCard from './components/HorizontalProfessorCard';
 import { order_and_group } from '@/utils/order_and_group';
 import { useUser } from '@/context/UserContext';
 import CalendarPagination from '@/components/CalendarPagination';
+import Upload from '@/components/Upload';
 
 // Consts
 const dayNumber = {
@@ -52,6 +57,7 @@ export default function Reservation() {
     const [alertMessage, setAlertMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('');
     const [disabledBlocks, setDisabledBlocks] = useState([]);
+    const [open, setOpen] = useState();
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
@@ -138,6 +144,8 @@ export default function Reservation() {
         setShowConfirmationReservation(true);
     };
 
+      
+
     return (
         <>
             <div style={{ display: 'flex', width: '90%', margin: '2rem auto', alignItems: 'end', justifyContent: 'space-between' }}>
@@ -153,8 +161,11 @@ export default function Reservation() {
                         ))}
                     </Select>
                 </FormControl>
+                <Button onClick={() => setOpen(!open)}>Open modal</Button>
+                <Modal open={open} >
+                    <Upload></Upload>
+                </Modal>
             </div>
-
             <div style={{ width: '90%', margin: 'auto' }}>
                 <Typography variant='h4'>Agenda</Typography>
                 <Divider />
