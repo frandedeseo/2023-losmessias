@@ -38,25 +38,33 @@ export default function AdminLandingPage() {
 
 
     useEffect(() => {
-        if (user.id) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` }
-            };
-            setIsLoading(true);
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/todaySummary`, requestOptions).then(res =>
-                res.json().then(json => {
-                    setAllProfessors(json);
-                    setProfessors(json);
-                    setShownProfessors(json.slice(0, rowsPerPage));
-                })
-            ).finally(() => setIsLoading(false));
+        if (router.isReady && user.authenticated) {
+            if (user.role=='student'){
+                router.push("/student-landing");
+            }else if(user.role=="professor"){
+                router.push("/professor-landing");
+            }else{
+                const requestOptions = {
+                    method: 'GET',
+                    headers: { Authorization : `Bearer ${user.token}`}
+                };
+                setIsLoading(true);
+            fetch('http://localhost:8080/api/reservation/todaySummary', requestOptions).then(res =>
+                    res.json().then(json => {
+                        setAllProfessors(json);
+                        setProfessors(json);
+                        setShownProfessors(json.slice(0, rowsPerPage));
+                    })
+                ).finally(() => setIsLoading(false));
 
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
-                res.json().then(json => {
-                    setSubjects(json);
-                })
-            );
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
+                    res.json().then(json => {
+                        setSubjects(json);
+                    })
+                );
+            }
+        }else{
+            router.push("/");
         }
     }, [user, rowsPerPage]);
 
