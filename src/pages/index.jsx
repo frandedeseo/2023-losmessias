@@ -4,7 +4,6 @@ import Page from './sign-up/Page';
 import TopNav from './TopNav';
 import { useRouter } from 'next/router';
 import { useApi } from '../hooks/useApi.js';
-import Dashboard from '@/components/Dashboard';
 
 export default function Home({ data, subjects }) {
     const [page, setPage] = useState('login');
@@ -24,7 +23,6 @@ export default function Home({ data, subjects }) {
         <>
             <TopNav setPage={setPage} />
             <Page page={page} setPage={setPage} />
-            <Dashboard />
         </>
     );
 }
