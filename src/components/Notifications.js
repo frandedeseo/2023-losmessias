@@ -45,7 +45,12 @@ export default function Notifications(){
 
     useEffect(() => {
         if (user.authenticated){
-            fetch(`http://localhost:8080/api/notification/${user.role}-all?id=${user.id}`)
+            fetch(`http://localhost:8080/api/notification/${user.role}-all?id=${user.id}`, {
+                method: 'GET',
+                headers: {
+                    Authorization : `Bearer ${user.token}`,
+                }
+            })
             .then(response => response.json())
             .then(json => {
                 const data = json.reverse().slice(0,10);

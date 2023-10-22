@@ -42,7 +42,12 @@ export function UserProvider({ children }) {
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem("user"));
         if (user!=null){
-            fetch(`http://localhost:8080/api/is-token-expired?token=${user.token}`)
+            fetch(`http://localhost:8080/api/is-token-expired?token=${user.token}`,{
+                method: 'GET',
+                headers: {
+                    Authorization : `Bearer ${user.token}`,
+                }
+            })
             .then(response => {
                 if (response.status!=200){
                     dispatch({ type: 'logout' } );
