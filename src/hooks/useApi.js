@@ -33,10 +33,12 @@ export const useApi = () => {
         } else {
             const decoded = jwt_decode(token);
             const id = decoded.id;
+            const firstName = decoded.name;
+            const lastName = decoded.surname;
             const email = decoded.sub;
             const role = decoded.role.toLowerCase();
-            console.log(token);
-            dispatch({ type: 'login', payload: { id: id, token: token, role: role } });
+            console.log(lastName);
+            dispatch({ type: 'login', payload: { id: id, token: token, role: role, email: email, firstName: firstName, lastName: lastName} });
             if (role == "professor") {
                 router.push("/professor-landing");
             } else if (role == "student") {
