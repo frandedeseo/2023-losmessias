@@ -72,6 +72,7 @@ export default function Dashboard({ id }) {
         colorField: 'type',
         radius: 1,
         innerRadius: 0.6,
+        legend: false,
         label: {
             type: 'inner',
             offset: '-50%',
@@ -104,7 +105,7 @@ export default function Dashboard({ id }) {
 
     return (
         <div style={{ display: 'flex', gap: 10 }}>
-            <Card sx={{ width: '65%', justifyContent: 'space-between' }}>
+            <Card sx={{ width: '65%', textAlign: 'center' }}>
                 <Typography>Current Month</Typography>
                 <Pie {...config} style={{ width: '70%' }} />
 
@@ -113,7 +114,9 @@ export default function Dashboard({ id }) {
             </Card>
             <Card style={{ width: '40%', textAlign: 'center' }}>
                 <Typography>Montly Mean</Typography>
-                <Pie {...configDonut} />
+                <div>
+                    <Pie {...configDonut} style={{ width: '65%' }} />
+                </div>
                 <Typography>Income: $1000</Typography>
             </Card>
         </div>

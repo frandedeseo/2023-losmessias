@@ -35,31 +35,31 @@ export default function ProfessorLandingPage() {
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
 
-    useEffect(() => {
-        if (user.id) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` },
-            };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
-                console.log(res);
-                res.json().then(json => {
-                    setDisabledBlocks(
-                        json.map(e => {
-                            if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                            return e;
-                        })
-                    );
-                });
-            });
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res =>
-                res.json().then(json => {
-                    console.log(json);
-                    setUserName(json.firstName + ' ' + json.lastName);
-                })
-            );
-        }
-    }, [user]);
+    // useEffect(() => {
+    //     if (user.id) {
+    //         const requestOptions = {
+    //             method: 'GET',
+    //             headers: { Authorization: `Bearer ${user.token}` },
+    //         };
+    //         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
+    //             console.log(res);
+    //             res.json().then(json => {
+    //                 setDisabledBlocks(
+    //                     json.map(e => {
+    //                         if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+    //                         return e;
+    //                     })
+    //                 );
+    //             });
+    //         });
+    //         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res =>
+    //             res.json().then(json => {
+    //                 console.log(json);
+    //                 setUserName(json.firstName + ' ' + json.lastName);
+    //             })
+    //         );
+    //     }
+    // }, [user]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
