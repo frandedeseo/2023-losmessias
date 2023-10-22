@@ -25,6 +25,7 @@ export default function StudentLandingPage() {
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
+    var router = useRouter();
 
     useEffect(() => {
         if (router.isReady && user.authenticated) {
@@ -40,11 +41,11 @@ export default function StudentLandingPage() {
                 fetch('http://localhost:8080/api/professor/all', requestOptions)
                 .then(res =>
                     res.json().then(json => {
-                        setData(json);
-                        setProfessors(json);
+                //        setData(json);
+                 //       setProfessors(json);
                     })
                 );
-                fetch('http://localhost:8080/api/subject/all').then(res => res.json().then(json => setSubjects(json)));
+               // fetch('http://localhost:8080/api/subject/all').then(res => res.json().then(json => setSubjects(json)));
             }
         }else {
             router.push("/");

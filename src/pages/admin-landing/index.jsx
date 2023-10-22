@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useUser } from "@/context/UserContext";
+import { useRouter } from 'next/router';
 
 export default function AdminLandingPage() {
     const [page, setPage] = useState(0);
@@ -31,6 +32,7 @@ export default function AdminLandingPage() {
     const [subject, setSubject] = useState('');
     const [subjects, setSubjects] = useState([]);
     const user = useUser();
+    const router = useRouter();
 
     useEffect(() => {
         if (router.isReady && user.authenticated) {
