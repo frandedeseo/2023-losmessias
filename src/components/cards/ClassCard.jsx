@@ -1,5 +1,6 @@
 // Mui
 import {
+    Alert,
     Button,
     Card,
     CardActionArea,
@@ -11,6 +12,7 @@ import {
     List,
     ListItem,
     ListItemIcon,
+    Snackbar,
     Typography,
 } from '@mui/material';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
@@ -24,6 +26,7 @@ import Link from 'next/link';
 /// Hooks
 import { getColor } from '@/utils/getColor';
 import { useState } from 'react';
+import { useUser } from '@/context/UserContext';
 
 function parseTime(reservation) {
     let start = reservation.startingHour.join(':');
@@ -34,14 +37,18 @@ function parseTime(reservation) {
     return start + ' - ' + end;
 }
 
-export default function ClassCard({ reservation, style }) {
+export default function ClassCard({ reservation, style, cancel }) {
+    const user = useUser();
     const [showConfirmCancel, setShowConfirmCancel] = useState(false);
 
     const handleAbort = () => {
         setShowConfirmCancel(false);
     };
 
-    const handleCancel = () => {};
+    const handleCancel = () => {
+        cancel(reservation.id);
+        setShowConfirmCancel(false);
+    };
 
     return (
         <>

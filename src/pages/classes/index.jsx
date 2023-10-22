@@ -10,32 +10,61 @@ import { useUser } from '@/context/UserContext';
 import { getColor } from '@/utils/getColor';
 
 // Mui
-import { Box, Chip, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
+import { Alert, Box, Chip, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Snackbar, Typography } from '@mui/material';
 
 export default function Professors() {
     const user = useUser();
     const [classes, setClasses] = useState([]);
+    const [alert, setAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState('');
 
     useEffect(() => {
-        const requestOptions = {
-            method: 'GET',
-            headers: { Authorization: `Bearer ${user.token}` },
-        };
+        if (user.id) {
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${user.token}` },
+            };
 
-        if (user.role === 'student') {
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
-                res.json().then(json => {
-                    setClasses(json);
+            if (user.role === 'student') {
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
+                    res.json().then(json => {
+                        setClasses(json);
+                    });
                 });
-            });
-        } else {
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
-                res.json().then(json => {
-                    setClasses(json);
-                });
-            });
+            } else {
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(
+                    res => {
+                        res.json().then(json => {
+                            setClasses(json);
+                        });
+                    }
+                );
+            }
         }
-    }, []);
+    }, [user]);
+
+    const handleCancel = id => {
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/cancel`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${user.token}`,
+            },
+            body: JSON.stringify({
+                id,
+                role: user.role.toUpperCase(),
+            }),
+        }).then(res => {
+            if (res.status !== 200) {
+                setAlertSeverity('error');
+                setAlertMessage('There was an error making the reservation!');
+                setAlert(true);
+            } else {
+                setClasses(prevClasses => prevClasses.filter(reservation => reservation.id !== id));
+            }
+        });
+    };
 
     return (
         <>
@@ -113,10 +142,19 @@ export default function Professors() {
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
                     {classes.map(reservation => (
-                        <ClassCard reservation={reservation} style={{ mr: 3, mt: 2 }} />
+                        <ClassCard reservation={reservation} style={{ mr: 3, mt: 2 }} cancel={handleCancel} />
                     ))}
                 </Box>
             </Box>
+
+            <Snackbar
+                open={alert}
+                autoHideDuration={3000}
+                onClose={() => setAlert(false)}
+                anchorOrigin={{ vertical: 'top', horizontal: 'top' }}
+            >
+                <Alert severity={alertSeverity}>{alertMessage}</Alert>
+            </Snackbar>
         </>
     );
 }
