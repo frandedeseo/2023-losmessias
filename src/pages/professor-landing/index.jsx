@@ -2,7 +2,7 @@ import Calendar from '@/components/Calendar';
 import CalendarPagination from '@/components/CalendarPagination';
 import { useUser } from '@/context/UserContext';
 import { order_and_group } from '@/utils/order_and_group';
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Typography } from '@mui/material';
+import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Snackbar, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -17,15 +17,6 @@ const dayNumber = {
     Sunday: 7,
 };
 
-export async function getServerSideProps() {
-    const res = await fetch('http://localhost:8080/api/professor/all');
-    const data = await res.json();
-
-    const subjectsRes = await fetch('http://localhost:8080/api/subject/all');
-    const subjects = await subjectsRes.json();
-    return { props: { data, subjects } };
-}
-
 export default function ProfessorLandingPage() {
     const router = useRouter();
     const [selectedBlocks, setSelectedBlocks] = useState([]);
@@ -37,35 +28,36 @@ export default function ProfessorLandingPage() {
     const [alertSeverity, setAlertSeverity] = useState('');
     const [disabledBlocks, setDisabledBlocks] = useState([]);
     const user = useUser();
+    const [userName, setUserName] = useState('');
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
-        if (router.isReady && user.authenticated) {
-            if (user.role=='student'){
-                router.push("/student-landing");
-            }else if(user.role=="admin"){
-                router.push("/admin-landing");
-            }else{
-                const requestOptions = {
-                    method: 'GET',
-                    headers: { Authorization : `Bearer ${user.token}`}
-                };
-                fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions)
-                .then(res => res.json()
-                .then(json => {
-                        setDisabledBlocks(
-                            json.map(e => {
-                                if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                                return e;
-                            })
-                        );
-                    })
-                )
+        if (user.id) {
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${user.token}` }
+            };
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
+                console.log(res);
+                res.json().then(json => {
+                    setDisabledBlocks(
+                        json.map(e => {
+                            if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                            return e;
+                        })
+                    );
+                })
             }
-        }else{
-            router.push("/");
+            );
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res =>
+                res.json()
+                    .then(json => {
+                        console.log(json)
+                        setUserName(json.firstName + " " + json.lastName)
+                    })
+            );
         }
     }, [user, router.isReady]);
 
@@ -90,11 +82,11 @@ export default function ProfessorLandingPage() {
                 professorId: parseInt(user.id),
             };
 
-            fetch('http://localhost:8080/api/reservation/createUnavailable', {
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/createUnavailable`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization : `Bearer ${user.token}`
+                    Authorization: `Bearer ${user.token}`
                 },
                 body: JSON.stringify({
                     ...reservation,
@@ -127,10 +119,51 @@ export default function ProfessorLandingPage() {
     return (
         <div style={{ width: '95%', margin: 'auto' }}>
             <Typography variant='h4' sx={{ margin: '2% 0' }}>
-                Hi, welcome back!
+                Hi {userName}, welcome back!
             </Typography>
 
-            <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+            <Typography variant='h4'>Agenda</Typography>
+            <Divider />
+            <div style={{ paddingBlock: '0.75rem' }} />
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <table style={{ height: '35px' }}>
+                    <tbody>
+                        <tr>
+                            <td
+                                style={{
+                                    width: '130px',
+                                    borderBlock: '1px solid #338aed70',
+                                    backgroundColor: '#338aed90',
+                                    textAlign: 'center',
+                                }}
+                            >
+                                <Typography>Selected time</Typography>
+                            </td>
+                            <td
+                                style={{
+                                    textAlign: 'center',
+                                    width: '130px',
+                                    borderBlock: '1px solid #e64b4b70',
+                                    backgroundColor: '#e64b4b90',
+                                }}
+                            >
+                                <Typography>Reserved Class</Typography>
+                            </td>
+                            <td
+                                style={{
+                                    textAlign: 'center',
+                                    width: '130px',
+                                    borderBlock: '1px solid #adadad70',
+                                    backgroundColor: '#adadad90',
+                                }}
+                            >
+                                <Typography>Unavailable</Typography>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+            </div>
             <Calendar selectedBlocks={selectedBlocks} setSelectedBlocks={setSelectedBlocks} disabledBlocks={disabledBlocks} week={week} />
 
             <div style={{ display: 'flex', justifyContent: 'right', margin: '1rem auto', width: '90%' }}>

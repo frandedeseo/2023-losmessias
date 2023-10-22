@@ -2,7 +2,7 @@
 import { Typography } from '@mui/material';
 
 // Utils
-import { compare_time } from '@/utils/compareDate';
+import { compare_time, parseDate } from '@/utils/compareDate';
 
 const blocks = [
     '09:00 - 09:30',
@@ -30,8 +30,7 @@ const blocks = [
     '20:00 - 20:30',
     '20:30 - 21:00',
     '21:00 - 21:30',
-    '21:30 - 22:00'
-
+    '21:30 - 22:00',
 ];
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const daysNumber = {
@@ -64,7 +63,7 @@ const styles = {
     },
 };
 
-export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBlocks, week }) {
+export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBlocks, week, interactive = true }) {
     var curr_date = new Date();
     var first = curr_date.getDate() - curr_date.getDay();
 
@@ -89,7 +88,7 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
     };
 
     const block_disabled = (block, day) => {
-        if (day_disabled(day) || block_reserved(block, day) || block_not_available(block, day)) return true;
+        if (day_disabled(day, block) || block_reserved(block, day) || block_not_available(block, day)) return true;
         return false;
     };
 
@@ -113,18 +112,24 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
         return false;
     };
 
-    const day_disabled = day => {
+    const day_disabled = (day, block) => {
         if (week === 0 && curr_date.getDay() > daysNumber[day]) {
             return true;
-        }
+        } else if (
+            week === 0 &&
+            curr_date.getDay() === daysNumber[day] &&
+            curr_date.getHours() > parseInt(block.split('-')[0].split(':')[0])
+        )
+            return true;
 
         return false;
     };
 
     const style_of_block = (block, day) => {
-        let style = styles.block;
+        let style = interactive ? styles.block : { ...styles.block, cursor: 'default' };
+
         if (active(block, day)) style = styles.selected;
-        else if (day_disabled(day)) style = styles.disabled;
+        else if (day_disabled(day, block)) style = styles.disabled;
         else if (block_reserved(block, day)) style = styles.reserved;
         else if (block_not_available(block, day)) style = styles.disabled;
 
@@ -138,8 +143,9 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
                     <tr>
                         <th style={{ borderBottom: '1px solid #f0f0f0', width: '10%' }}></th>
                         {days.map(day => (
-                            <th style={{ borderBottom: '1px solid #f0f0f0' }}>
+                            <th style={{ borderBottom: '1px solid #f0f0f0' }} key={day}>
                                 <Typography variant='h6'>{day}</Typography>
+                                <Typography>{parseDate(new Date(new Date().setDate(first + daysNumber[day] + 7 * week)))}</Typography>
                             </th>
                         ))}
                     </tr>
@@ -153,7 +159,7 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
                             </td>
 
                             {days.map(day => (
-                                <td style={style_of_block(block, day)} onClick={() => handleBlockSelection(block, day)} />
+                                <td style={style_of_block(block, day)} onClick={() => handleBlockSelection(block, day)} key={day} />
                             ))}
                         </tr>
                     ))}

@@ -19,7 +19,7 @@ import { useEffect, useState } from 'react';
 import { getColor } from '@/utils/getColor';
 
 // Styles
-import { styles } from '../styles.js';
+import { styles } from '../../../styles/validator-styles.js';
 
 export default function TeachersTable({ data, approve, reject }) {
     const [teacherSubject, setTeacherSubject] = useState({});
@@ -33,7 +33,7 @@ export default function TeachersTable({ data, approve, reject }) {
     useEffect(() => {
         setTeachersSubjects(data);
         setShownTeachersSubjects(data.slice(0, rowsPerPage));
-    }, [data]);
+    }, [data, rowsPerPage]);
 
     const handleApprove = () => {
         approve(teacherSubject);
@@ -82,16 +82,6 @@ export default function TeachersTable({ data, approve, reject }) {
                             <TableRow key={teacherSubject.id}>
                                 <TableCell>{`${teacherSubject.professor.firstName} ${teacherSubject.professor.lastName}`}</TableCell>
                                 <TableCell>
-                                    {/* {teacher.subjects.map(subject => (
-                                        <Chip
-                                            key={subject}
-                                            label={subject}
-                                            sx={{
-                                                backgroundColor: getColor(subject),
-                                                marginInline: '0.1rem',
-                                            }}
-                                        />
-                                    ))} */}
                                     <Chip
                                         label={teacherSubject.subject.name}
                                         sx={{
@@ -113,7 +103,7 @@ export default function TeachersTable({ data, approve, reject }) {
                 </Table>
                 <TablePagination
                     component='div'
-                    count={data.length}
+                    count={data ? data.length : 0}
                     page={page}
                     rowsPerPage={rowsPerPage}
                     onPageChange={handleChangePage}

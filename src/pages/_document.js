@@ -4,7 +4,6 @@ export default function Document() {
     return (
         <Html lang='en'>
             <Head>
-                <title>Leherer</title>
                 <link
                     rel='icon'
                     type='image/png'
@@ -12,6 +11,7 @@ export default function Document() {
                 />
             </Head>
             <body>
+                <title>Leherer</title>
                 <Main />
                 <NextScript />
             </body>
