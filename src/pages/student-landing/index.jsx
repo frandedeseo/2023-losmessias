@@ -25,14 +25,20 @@ export default function StudentLandingPage() {
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
+    var router = useRouter();
 
     useEffect(() => {
-        if (user.id) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` },
-            };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
+        if (router.isReady && user.authenticated) {
+            if (user.role=='admin'){
+                router.push("/admin-landing");
+            }else if(user.role=="professor"){
+                router.push("/professor-landing");
+            }else {
+                const requestOptions = {
+                    method: 'GET',
+                    headers: { Authorization : `Bearer ${user.token}`}
+                };
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
                 res.json().then(json => {
                     setDisabledBlocks(
                         json.map(e => {
@@ -48,8 +54,37 @@ export default function StudentLandingPage() {
                 }
                 res.json().then(json => setUserName(json.firstName + ' ' + json.lastName));
             });
+            }
+        }else {
+            router.push("/");
         }
     }, [user]);
+
+    const handleFilter = () => {
+        if (locationSelected.length > 0 && subjectSelected.length === 0) {
+            setProfessors(data.filter(professor => locationSelected.includes(professor.location)));
+        } else if (locationSelected.length === 0 && subjectSelected.length > 0) {
+            setProfessors(data.filter(professor => professor.subjects.some(subject => subjectSelected.includes(subject.name))));
+        } else if (locationSelected.length > 0 && subjectSelected.length > 0) {
+            setProfessors(
+                data.filter(professor =>
+                    professor.subjects.some(
+                        subject => subjectSelected.includes(subject.name) && locationSelected.includes(professor.location)
+                    )
+                )
+            );
+        } else {
+            setProfessors(data);
+        }
+    };
+
+    const handleLocationChange = event => {
+        setLocationSelected(typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value);
+    };
+
+    const handleSubjectChange = event => {
+        setSubjectSelected(typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value);
+    };
 
     return (
         <div style={{ width: '95%', margin: 'auto' }}>

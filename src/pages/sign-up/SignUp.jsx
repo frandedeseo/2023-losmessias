@@ -175,9 +175,8 @@ export default function SignUp({ setRequest, setPage }) {
                             }}
                         />
                     </Grid>
-                    <Grid item xs={12}>
-                        <PasswordComponent />
-                    </Grid>
+
+                    <PasswordComponent />
 
                     <Grid item xs={12}>
                         <FormControlLabel
