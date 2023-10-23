@@ -61,14 +61,14 @@ export default function ClassCard({ reservation, style, cancel }) {
                         }}
                         style={{ textDecoration: 'none' }}
                     >
-                        <div style={{ height: 140, backgroundColor: 'red' }} />
+                        <div style={{ height: 20, backgroundColor: getColor(reservation.subject.name) }} />
                         <CardContent>
                             <ListItem>
                                 <ListItemIcon>
-                                    <BookmarkIcon />
+                                    <BookmarkIcon sx={{ color: getColor(reservation.subject.name) }} />
                                 </ListItemIcon>
                                 <Typography variant='body1' color='text.secondary'>
-                                    {reservation.subject}
+                                    {reservation.subject.name}
                                 </Typography>
                             </ListItem>
                             <List>
@@ -77,7 +77,7 @@ export default function ClassCard({ reservation, style, cancel }) {
                                         <PersonIcon />
                                     </ListItemIcon>
                                     <Typography variant='body1' color='text.secondary'>
-                                        {reservation.professor}
+                                        {reservation.professor.firstName + ' ' + reservation.professor.lastName}
                                     </Typography>
                                 </ListItem>
                                 <ListItem>

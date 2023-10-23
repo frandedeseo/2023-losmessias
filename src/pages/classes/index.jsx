@@ -10,7 +10,27 @@ import { useUser } from '@/context/UserContext';
 import { getColor } from '@/utils/getColor';
 
 // Mui
-import { Alert, Box, Chip, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Snackbar, Typography } from '@mui/material';
+import {
+    Alert,
+    Box,
+    Chip,
+    Divider,
+    FormControl,
+    InputLabel,
+    MenuItem,
+    OutlinedInput,
+    Select,
+    Snackbar,
+    TextField,
+    Typography,
+} from '@mui/material';
+
+const styles = {
+    searchInput: {
+        width: '18rem',
+        backgroundColor: '#fff',
+    },
+};
 
 export default function Professors() {
     const user = useUser();
@@ -18,6 +38,10 @@ export default function Professors() {
     const [alert, setAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('');
+    const [subjectSelected, setSubjectSelected] = useState([]);
+    const [search, setSearch] = useState('');
+    const [subjects, setSubjects] = useState([]);
+    const [data, setData] = useState([]);
 
     useEffect(() => {
         if (user.id) {
@@ -29,6 +53,7 @@ export default function Professors() {
             if (user.role === 'student') {
                 fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
                     res.json().then(json => {
+                        setData(json);
                         setClasses(json);
                     });
                 });
@@ -36,11 +61,18 @@ export default function Professors() {
                 fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(
                     res => {
                         res.json().then(json => {
+                            setData(json);
                             setClasses(json);
                         });
                     }
                 );
             }
+
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
+                res.json().then(json => {
+                    setSubjects(json);
+                })
+            );
         }
     }, [user]);
 
@@ -64,6 +96,45 @@ export default function Professors() {
                 setClasses(prevClasses => prevClasses.filter(reservation => reservation.id !== id));
             }
         });
+    };
+
+    const handleSubjectChange = event => {
+        setSubjectSelected(typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value);
+    };
+
+    const handleFilter = () => {
+        if (search !== '' && subjectSelected.length === 0) {
+            setClasses(
+                data.filter(reservation =>
+                    user.role === 'student'
+                        ? reservation.professor.firstName.toLowerCase().includes(search.toLowerCase()) ||
+                          reservation.professor.lastName.toLowerCase().includes(search.toLowerCase())
+                        : reservation.student.firstName.toLowerCase().includes(search.toLowerCase()) ||
+                          reservation.student.lastName.toLowerCase().includes(search.toLowerCase())
+                )
+            );
+        } else if (search === '' && subjectSelected.length > 0) {
+            setClasses(data.filter(reservation => subjectSelected.includes(reservation.subject.name)));
+        } else if (search !== '' && subjectSelected.length > 0) {
+            setClasses(
+                data.filter(
+                    reservation =>
+                        (user.role === 'student'
+                            ? reservation.professor.firstName.toLowerCase().includes(search.toLowerCase()) ||
+                              reservation.professor.lastName.toLowerCase().includes(search.toLowerCase())
+                            : reservation.student.firstName.toLowerCase().includes(search.toLowerCase()) ||
+                              reservation.student.lastName.toLowerCase().includes(search.toLowerCase())) &&
+                        subjectSelected.includes(reservation.subject.name)
+                )
+            );
+        } else {
+            setClasses(data);
+        }
+    };
+
+    const handleSubmit = e => {
+        e.preventDefault();
+        handleFilter();
     };
 
     return (
@@ -90,32 +161,20 @@ export default function Professors() {
                         Filters
                     </Typography>
                     <Divider width={'100%'} sx={{ my: 2 }} />
-                    {/* <FormControl sx={{ ml: 2, backgroundColor: '#fff' }}>
-                        <InputLabel id='office-select'>Location</InputLabel>
-                        <Select
-                            multiple
-                            labelId='office-select'
-                            input={<OutlinedInput label='Location' />}
-                            value={locationSelected}
-                            onChange={event => handleLocationChange(event)}
-                            onClose={handleFilter}
-                            renderValue={selected => (
-                                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                    {selected.map(value => (
-                                        <Chip key={value} label={value} />
-                                    ))}
-                                </Box>
-                            )}
-                        >
-                            {data.map((profesor, index) => (
-                                <MenuItem key={index} value={profesor.location}>
-                                    {profesor.location}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl> */}
 
-                    {/* <FormControl sx={{ ml: 2, marginTop: '1.5rem', backgroundColor: '#fff' }}>
+                    <FormControl sx={{ ml: 2, marginTop: '1.5rem', backgroundColor: '#fff' }}>
+                        <form onSubmit={handleSubmit}>
+                            <TextField
+                                value={search}
+                                onChange={event => setSearch(event.target.value)}
+                                label='Search'
+                                variant='outlined'
+                                fullWidth
+                            />
+                        </form>
+                    </FormControl>
+
+                    <FormControl sx={{ ml: 2, marginTop: '1.5rem', backgroundColor: '#fff' }}>
                         <InputLabel id='office-select'>Subjects</InputLabel>
                         <Select
                             multiple
@@ -138,7 +197,7 @@ export default function Professors() {
                                 </MenuItem>
                             ))}
                         </Select>
-                    </FormControl> */}
+                    </FormControl>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
                     {classes.map(reservation => (
