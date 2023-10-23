@@ -200,8 +200,8 @@ export default function Professors() {
                     </FormControl>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
-                    {classes.map(reservation => (
-                        <ClassCard reservation={reservation} style={{ mr: 3, mt: 2 }} cancel={handleCancel} />
+                    {classes.map((reservation, idx) => (
+                        <ClassCard key={idx} reservation={reservation} style={{ mr: 3, mt: 2 }} cancel={handleCancel} />
                     ))}
                 </Box>
             </Box>
