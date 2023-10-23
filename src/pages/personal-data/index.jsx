@@ -9,6 +9,7 @@ import { styles } from "../../styles/personal-data-styles";
 import { useUser } from "@/context/UserContext";
 import useSWR from "swr";
 import { fetcherGetWithToken } from "@/helpers/FetchHelpers";
+import LoadingModal from "@/components/modals/LoadingModal";
 
 
 
@@ -17,6 +18,7 @@ export default function PersonalData() {
     const [emailAddress, setEmailAddress] = useState("");
     const [location, setLocation] = useState("");
     const [phone, setPhone] = useState("");
+    const [isProcessing, setIsProcessing] = useState(false);
     const user = useUser();
 
 
@@ -26,6 +28,7 @@ export default function PersonalData() {
     const handleSave = () => {
         if (editMode) {
             setEditMode(false)
+            setIsProcessing(true)
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/${user.role}/update/${user.id}`, {
                 method: 'PATCH',
                 body: JSON.stringify({
@@ -43,7 +46,7 @@ export default function PersonalData() {
                     res.json()
                 })
                 .then((response) => mutate(response))
-                .catch((err) => console.log(err));
+                .catch((err) => console.log(err)).finally(() => setIsProcessing(false));
         } else {
             setEditMode(true)
             setEmailAddress("")
@@ -52,8 +55,17 @@ export default function PersonalData() {
         }
     }
 
-    if (!isLoading) {
-        return (
+
+    return (
+        <>
+            {/* {isLoading ? (
+                // Loading skeleton
+                <Box sx={styles.noInformationGlobalContainer} >
+                    <Typography variant='h4' sx={styles.typography}>
+                        LOADING...
+                    </Typography>
+                </Box>
+            ) : ( */}
             <>
                 <Box sx={styles.globalContainer}>
                     <Typography variant='h4' sx={styles.typography}>
@@ -90,7 +102,7 @@ export default function PersonalData() {
                     )}
                 </Box>
                 {!editMode ? (
-                    <PersonalDataDisplay data={studentData} />
+                    <PersonalDataDisplay data={studentData} isLoading={isLoading} />
                 ) : (
                     <PersonalDataEdit
                         data={studentData}
@@ -99,17 +111,9 @@ export default function PersonalData() {
                         setPhone={setPhone}
                     />
                 )}
-
             </>
-        );
-    } else {
-        return (
-            <Box sx={styles.noInformationGlobalContainer}>
-                <Typography variant='h4' sx={styles.typography}>
-                    LOADING...
-                </Typography>
-
-            </Box>
-        );
-    }
+            {/* )} */}
+            <LoadingModal isOpen={isProcessing} message={'Processing changes...'} />
+        </>
+    );
 }
