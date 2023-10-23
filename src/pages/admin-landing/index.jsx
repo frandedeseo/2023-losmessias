@@ -19,7 +19,7 @@ import {
     TextField,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { useUser } from "@/context/UserContext";
+import { useUser } from '@/context/UserContext';
 import { useRouter } from 'next/router';
 
 export default function AdminLandingPage() {
@@ -36,14 +36,14 @@ export default function AdminLandingPage() {
 
     useEffect(() => {
         if (router.isReady && user.authenticated) {
-            if (user.role=='student'){
-                router.push("/student-landing");
-            }else if(user.role=="professor"){
-                router.push("/professor-landing");
-            }else{
+            if (user.role == 'student') {
+                router.push('/student-landing');
+            } else if (user.role == 'professor') {
+                router.push('/professor-landing');
+            } else {
                 const requestOptions = {
                     method: 'GET',
-                    headers: { Authorization : `Bearer ${user.token}`}
+                    headers: { Authorization: `Bearer ${user.token}` },
                 };
                 fetch('http://localhost:8080/api/reservation/todaySummary', requestOptions).then(res =>
                     res.json().then(json => {
@@ -59,8 +59,8 @@ export default function AdminLandingPage() {
                     })
                 );
             }
-        }else{
-            router.push("/");
+        } else {
+            router.push('/');
         }
     }, [user, rowsPerPage]);
 
@@ -114,7 +114,7 @@ export default function AdminLandingPage() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${user.token}`
+                Authorization: `Bearer ${user.token}`,
             },
             body: JSON.stringify({
                 name: subject,
@@ -131,6 +131,8 @@ export default function AdminLandingPage() {
 
     return (
         <div style={{ margin: '2% auto', width: '95%' }}>
+            <Typography variant='h4'>Today's Summary</Typography>
+            <Divider />
             <div style={{ display: 'flex', gap: '2rem' }}>
                 <Searchbar search={handleSearch} />
                 <Button variant='contained' sx={{ boxShadow: 'none' }} onClick={() => setOpen(true)}>

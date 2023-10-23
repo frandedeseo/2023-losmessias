@@ -8,6 +8,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 // Utils
 import { getColor } from '@/utils/getColor';
+import MonthlyChart from './MonthlyChart';
 
 export default function Dashboard({ id }) {
     const data = [
@@ -150,7 +151,7 @@ export default function Dashboard({ id }) {
                     <Pie {...configDonut} style={{ width: '68%' }} />
                 </div>
 
-                <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '-1.5rem' }}>
+                <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '-1rem', textAlign: 'center' }}>
                     Income
                 </Typography>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
