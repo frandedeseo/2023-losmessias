@@ -33,10 +33,12 @@ export const useApi = () => {
         } else {
             const decoded = jwt_decode(token);
             const id = decoded.id;
+            const firstName = decoded.name;
+            const lastName = decoded.surname;
             const email = decoded.sub;
             const role = decoded.role.toLowerCase();
-            console.log(token);
-            dispatch({ type: 'login', payload: { id: id, token: token, role: role } });
+            console.log(lastName);
+            dispatch({ type: 'login', payload: { id: id, token: token, role: role, email: email, firstName: firstName, lastName: lastName } });
             if (role == "professor") {
                 router.push("/professor-landing");
             } else if (role == "student") {
@@ -95,7 +97,7 @@ export const useApi = () => {
                 }
             })
     };
-    const sendRequestForLogIn = (request) => {
+    const sendRequestForLogIn = (request, setIsLoading) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -104,6 +106,7 @@ export const useApi = () => {
                 password: request.password,
             }),
         };
+        setIsLoading(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/authentication`, requestOptions)
             .then(response => {
                 console.log(response.status);
@@ -118,6 +121,8 @@ export const useApi = () => {
             .catch(error => {
                 showAlert({ message: "Error Log In", status: 403 })
                 setError(error);
+            }).finally(() => {
+                setIsLoading(false);
             });
     };
 

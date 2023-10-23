@@ -10,7 +10,7 @@ import { useUser } from '@/context/UserContext';
 import { getColor } from '@/utils/getColor';
 
 // Mui
-import { Box, Chip, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
+import { Box, Chip, CircularProgress, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
 
 export default function Professors() {
     const [data, setData] = useState([]);
@@ -20,6 +20,7 @@ export default function Professors() {
     const [locationSelected, setLocationSelected] = useState([]);
     const [subjectSelected, setSubjectSelected] = useState([]);
     const user = useUser();
+    const [isLoading, setIsLoading] = useState(true);
     const [userName, setUserName] = useState('');
 
     useEffect(() => {
@@ -28,13 +29,14 @@ export default function Professors() {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
+            setIsLoading(true);
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, requestOptions).then(res => {
                 if (res.status === 200) console.log(res);
                 res.json().then(json => {
                     setData(json);
                     setProfessors(json);
                 });
-            });
+            }).finally(() => setIsLoading(false));
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res => res.json().then(json => setSubjects(json)));
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions).then(res => {
                 if (res.status === 401) {
@@ -146,24 +148,45 @@ export default function Professors() {
                     </FormControl>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
-                    {professors.map((profesor, index) => {
-                        if (profesor.subjects.length > 0) {
-                            return (
-                                <ProfessorCard
-                                    key={index}
-                                    professorId={profesor.id}
-                                    studentId={user.id}
-                                    name={profesor.firstName + ' ' + profesor.lastName}
-                                    email={profesor.email}
-                                    phone={profesor.phone}
-                                    sex={profesor.sex}
-                                    office={profesor.location}
-                                    style={{ mr: 3, mt: 2 }}
-                                    subjects={profesor.subjects}
-                                />
-                            );
-                        }
-                    })}
+                    {isLoading ? (
+                        <>
+                            <CircularProgress />
+                            <Typography variant='h4' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
+                                Loading professors...
+                            </Typography>
+                        </>
+                    ) : (
+                        <>
+                            {professors.length === 0 ? (
+                                <Typography variant='h4' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
+                                    No professors found
+                                </Typography>
+                            ) : (
+                                <>
+                                    {professors.map((profesor, index) => {
+                                        if (profesor.subjects.length > 0) {
+                                            return (
+                                                <ProfessorCard
+                                                    key={index}
+                                                    professorId={profesor.id}
+                                                    studentId={user.id}
+                                                    name={profesor.firstName + ' ' + profesor.lastName}
+                                                    email={profesor.email}
+                                                    phone={profesor.phone}
+                                                    sex={profesor.sex}
+                                                    office={profesor.location}
+                                                    style={{ mr: 3, mt: 2 }}
+                                                    subjects={profesor.subjects}
+                                                />
+                                            );
+                                        }
+                                    })}
+                                </>
+                            )}
+                        </>
+                    )
+                    }
+
                 </Box>
             </Box>
         </>

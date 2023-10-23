@@ -29,17 +29,12 @@ export default function SearchAppBar() {
                         >
                             <MenuIcon />
                         </IconButton>
-                        
+
                         <Typography variant='h4' noWrap component='div' sx={{ flexGrow: 1 }}>
                             Leherer
                         </Typography>
-
-                        {user.role!='admin' && <Notifications/>}
-
+                        {user.role != 'admin' && <Notifications />}
                     </Toolbar>
-                    
-                            
-                    
                 </AppBar>
                 <TemporaryDrawer toggleDrawer={toggleDrawer} menuIsOpen={menuIsOpen} />
             </Box>

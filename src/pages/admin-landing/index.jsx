@@ -23,6 +23,7 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useUser } from "@/context/UserContext";
+import { useRouter } from 'next/router';
 
 export default function AdminLandingPage() {
     const [page, setPage] = useState(0);
@@ -34,22 +35,23 @@ export default function AdminLandingPage() {
     const [subject, setSubject] = useState('');
     const [subjects, setSubjects] = useState([]);
     const user = useUser();
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
 
     useEffect(() => {
         if (router.isReady && user.authenticated) {
-            if (user.role=='student'){
+            if (user.role == 'student') {
                 router.push("/student-landing");
-            }else if(user.role=="professor"){
+            } else if (user.role == "professor") {
                 router.push("/professor-landing");
-            }else{
+            } else {
                 const requestOptions = {
                     method: 'GET',
-                    headers: { Authorization : `Bearer ${user.token}`}
+                    headers: { Authorization: `Bearer ${user.token}` }
                 };
                 setIsLoading(true);
-            fetch('http://localhost:8080/api/reservation/todaySummary', requestOptions).then(res =>
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/todaySummary`, requestOptions).then(res =>
                     res.json().then(json => {
                         setAllProfessors(json);
                         setProfessors(json);
@@ -63,7 +65,7 @@ export default function AdminLandingPage() {
                     })
                 );
             }
-        }else{
+        } else {
             router.push("/");
         }
     }, [user, rowsPerPage]);
@@ -190,9 +192,19 @@ export default function AdminLandingPage() {
                                     ))}
                                 </>
                             ) : (
-                                <Typography variant='h6' sx={{ padding: '1rem' }}>
-                                    No results found!
-                                </Typography>
+                                <TableRow>
+                                    <TableCell colSpan={4}>
+                                        <Box sx={{
+                                            display: "flex",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                        }}>
+                                            <Typography variant='h6' sx={{ padding: '1rem' }}>
+                                                No results found!
+                                            </Typography>
+                                        </Box>
+                                    </TableCell>
+                                </TableRow>
                             )}
                             </>
                         )}

@@ -21,66 +21,42 @@ export default function StudentLandingPage() {
     const [week, setWeek] = useState(0);
     const [disabledBlocks, setDisabledBlocks] = useState([]);
     const user = useUser();
-    const [userName, setUserName] = useState('');
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
+    var router = useRouter();
 
     useEffect(() => {
         if (router.isReady && user.authenticated) {
-            if (user.role=='admin'){
+            if (user.role == 'admin') {
                 router.push("/admin-landing");
-            }else if(user.role=="professor"){
+            } else if (user.role == "professor") {
                 router.push("/professor-landing");
-            }else {
+            } else {
                 const requestOptions = {
                     method: 'GET',
-                    headers: { Authorization : `Bearer ${user.token}`}
+                    headers: { Authorization: `Bearer ${user.token}` },
                 };
-                fetch('http://localhost:8080/api/professor/all', requestOptions)
-                .then(res =>
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
                     res.json().then(json => {
-                        setData(json);
-                        setProfessors(json);
-                    })
-                );
-                fetch('http://localhost:8080/api/subject/all').then(res => res.json().then(json => setSubjects(json)));
+                        setDisabledBlocks(
+                            json.map(e => {
+                                if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                return e;
+                            })
+                        );
+                    });
+                });
             }
-        }else {
+        } else {
             router.push("/");
         }
     }, [user]);
 
-    const handleFilter = () => {
-        if (locationSelected.length > 0 && subjectSelected.length === 0) {
-            setProfessors(data.filter(professor => locationSelected.includes(professor.location)));
-        } else if (locationSelected.length === 0 && subjectSelected.length > 0) {
-            setProfessors(data.filter(professor => professor.subjects.some(subject => subjectSelected.includes(subject.name))));
-        } else if (locationSelected.length > 0 && subjectSelected.length > 0) {
-            setProfessors(
-                data.filter(professor =>
-                    professor.subjects.some(
-                        subject => subjectSelected.includes(subject.name) && locationSelected.includes(professor.location)
-                    )
-                )
-            );
-        } else {
-            setProfessors(data);
-        }
-    };
-
-    const handleLocationChange = event => {
-        setLocationSelected(typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value);
-    };
-
-    const handleSubjectChange = event => {
-        setSubjectSelected(typeof event.target.value === 'string' ? event.target.value.split(',') : event.target.value);
-    };
-
     return (
         <div style={{ width: '95%', margin: 'auto' }}>
             <Typography variant='h4' sx={{ margin: '2% 0' }}>
-                Hi {userName}, welcome back!
+                Hi{" " + user.firstName + " " + user.lastName}, welcome back!
             </Typography>
 
             <Typography variant='h4'>Agenda</Typography>
@@ -123,9 +99,9 @@ export default function StudentLandingPage() {
                         </tr>
                     </tbody>
                 </table>
-                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={() => {}} />
+                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={() => { }} />
             </div>
-            <Calendar selectedBlocks={[]} setSelectedBlocks={() => {}} disabledBlocks={disabledBlocks} week={week} interactive={false} />
+            <Calendar selectedBlocks={[]} setSelectedBlocks={() => { }} disabledBlocks={disabledBlocks} week={week} interactive={false} />
         </div>
     );
 }

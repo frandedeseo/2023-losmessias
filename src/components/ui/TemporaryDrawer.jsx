@@ -20,30 +20,25 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
             icon: <HomeIcon />,
             primary: 'Home',
         },
-        user.role === 'student'
-            ? {
-                  href: '/professors',
-                  icon: <PersonSearchIcon />,
-                  primary: 'Professors',
-              }
-            : {},
-        user.role !== 'admin'
-            ? {
-                  href: '/personal-data',
-                  icon: <SettingsIcon />,
-                  primary: 'Personal information',
-              }
-            : {
-                  href: '/validator',
-                  icon: <SettingsIcon />,
-                  primary: 'Validator',
-              },
-        {
-            href: '/logout',
-            icon: <LogoutIcon />,
-            primary: 'Log out',
-        },
     ];
+    if (user.role === 'student' || user.role === 'professor') {
+        drawerItems.push({
+            href: '/professors',
+            icon: <PersonSearchIcon />,
+            primary: 'Professors',
+        });
+    } else if (user.role === 'admin') {
+        drawerItems.push({
+            href: '/validator',
+            icon: <SettingsIcon />,
+            primary: 'Validator',
+        });
+    }
+    drawerItems.push({
+        href: '/logout',
+        icon: <LogoutIcon />,
+        primary: 'Log out',
+    });
 
     const drawerItem = (href, icon, primary, key) => {
         //Agg seleccionado o no
@@ -65,10 +60,7 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
                     <Typography variant={'h5'}>Leherer</Typography>
                     <Divider style={{ color: 'transparent', width: '100%' }} />
                     <List>
-                        {
-                            drawerItems.map((item, index) => drawerItem(item.href, item.icon, item.primary, index))
-                            // filtrar por rol
-                        }
+                        {drawerItems.map((item, index) => drawerItem(item.href, item.icon, item.primary, index))}
                     </List>
                 </Stack>
             </Box>
