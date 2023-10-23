@@ -3,6 +3,7 @@ import {
     Alert,
     Box,
     Button,
+    CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
@@ -16,11 +17,9 @@ import {
     Snackbar,
     Typography
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 // Hooks
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 
 // Components
@@ -58,6 +57,7 @@ export default function Reservation() {
     const [alertSeverity, setAlertSeverity] = useState('');
     const [disabledBlocks, setDisabledBlocks] = useState([]);
     const [open, setOpen] = useState();
+    const [isLoading, setIsLoading] = useState(false);
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
@@ -107,7 +107,7 @@ export default function Reservation() {
                 studentId: parseInt(user.id),
                 price: 250 * block.totalHours,
             };
-
+            setIsLoading(true);
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/create`, {
                 method: 'POST',
                 headers: {
@@ -125,7 +125,7 @@ export default function Reservation() {
                     router.push('/student-landing');
                 }
                 setAlert(true);
-            });
+            }).finally(() => setIsLoading(false));
         });
         handleCancel();
 
@@ -143,14 +143,11 @@ export default function Reservation() {
         setOrderedSelectedBlocks(orderedSelectedBlocks);
         setShowConfirmationReservation(true);
     };
-
-      
-
+    
     return (
         <>
             <div style={{ display: 'flex', width: '90%', margin: '2rem auto', alignItems: 'end', justifyContent: 'space-between' }}>
                 <HorizontalProfessorCard professor={professor} />
-
                 <FormControl sx={{ minWidth: 150, backgroundColor: '#fff' }}>
                     <InputLabel>Subject</InputLabel>
                     <Select value={subject} label='Subject' onChange={e => handleSubjectChange(e)}>
@@ -250,6 +247,17 @@ export default function Reservation() {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            <Modal open={isLoading}>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', padding: 5, backgroundColor: "white", borderRadius: 4 }}>
+                        <CircularProgress />
+                        <Typography variant='h4' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
+                            Processing reservation, please wait...
+                        </Typography>
+                    </Box>
+                </div>
+            </Modal>
 
             <Snackbar
                 open={alert}
