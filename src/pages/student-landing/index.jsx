@@ -38,14 +38,22 @@ export default function StudentLandingPage() {
                     method: 'GET',
                     headers: { Authorization : `Bearer ${user.token}`}
                 };
-                fetch('http://localhost:8080/api/professor/all', requestOptions)
-                .then(res =>
-                    res.json().then(json => {
-                //        setData(json);
-                 //       setProfessors(json);
-                    })
-                );
-               // fetch('http://localhost:8080/api/subject/all').then(res => res.json().then(json => setSubjects(json)));
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
+                res.json().then(json => {
+                    setDisabledBlocks(
+                        json.map(e => {
+                            if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                            return e;
+                        })
+                    );
+                });
+            });
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions).then(res => {
+                if (res.status === 401) {
+                    router.push('/');
+                }
+                res.json().then(json => setUserName(json.firstName + ' ' + json.lastName));
+            });
             }
         }else {
             router.push("/");

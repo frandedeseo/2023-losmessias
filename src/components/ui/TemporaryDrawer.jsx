@@ -4,6 +4,7 @@ import HomeIcon from '@mui/icons-material/Home';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemText, Stack, Typography } from '@mui/material';
 import router from 'next/router';
 
@@ -27,17 +28,26 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
                   primary: 'Professors',
               }
             : {},
-        user.role !== 'admin'
-            ? {
-                  href: '/personal-data',
-                  icon: <SettingsIcon />,
-                  primary: 'Personal information',
-              }
-            : {
-                  href: '/validator',
-                  icon: <SettingsIcon />,
-                  primary: 'Validator',
-              },
+        ...(user.role !== 'admin'
+            ? [
+                  {
+                      href: '/classes',
+                      icon: <BookmarkIcon />,
+                      primary: 'Class Reservations',
+                  },
+                  {
+                      href: '/personal-data',
+                      icon: <SettingsIcon />,
+                      primary: 'Personal information',
+                  },
+              ]
+            : [
+                  {
+                      href: '/validator',
+                      icon: <SettingsIcon />,
+                      primary: 'Validator',
+                  },
+              ]),
         {
             href: '/logout',
             icon: <LogoutIcon />,
