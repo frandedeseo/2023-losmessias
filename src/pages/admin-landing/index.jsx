@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useUser } from "@/context/UserContext";
+import { useRouter } from 'next/router';
 
 export default function AdminLandingPage() {
     const [page, setPage] = useState(0);
@@ -31,26 +32,35 @@ export default function AdminLandingPage() {
     const [subject, setSubject] = useState('');
     const [subjects, setSubjects] = useState([]);
     const user = useUser();
+    const router = useRouter();
 
     useEffect(() => {
-        if (user.id) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` }
-            };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/todaySummary`, requestOptions).then(res =>
-                res.json().then(json => {
-                    setAllProfessors(json);
-                    setProfessors(json);
-                    setShownProfessors(json.slice(0, rowsPerPage));
-                })
-            );
+        if (router.isReady && user.authenticated) {
+            if (user.role=='student'){
+                router.push("/student-landing");
+            }else if(user.role=="professor"){
+                router.push("/professor-landing");
+            }else{
+                const requestOptions = {
+                    method: 'GET',
+                    headers: { Authorization : `Bearer ${user.token}`}
+                };
+                fetch('http://localhost:8080/api/reservation/todaySummary', requestOptions).then(res =>
+                    res.json().then(json => {
+                        setAllProfessors(json);
+                        setProfessors(json);
+                        setShownProfessors(json.slice(0, rowsPerPage));
+                    })
+                );
 
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
-                res.json().then(json => {
-                    setSubjects(json);
-                })
-            );
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
+                    res.json().then(json => {
+                        setSubjects(json);
+                    })
+                );
+            }
+        }else{
+            router.push("/");
         }
     }, [user, rowsPerPage]);
 

@@ -1,10 +1,12 @@
 import { Menu as MenuIcon } from '@mui/icons-material';
-import { AppBar, Box, IconButton, Toolbar, Typography } from '@mui/material';
+import { AppBar, Badge, Box, IconButton, Toolbar, Typography } from '@mui/material';
 import { useState } from 'react';
 import TemporaryDrawer from './TemporaryDrawer';
 import { useUser } from '@/context/UserContext';
+import Notifications from '../Notifications';
 
 export default function SearchAppBar() {
+
     const [menuIsOpen, setMenuIsOpen] = useState(false);
     const user = useUser();
 
@@ -27,10 +29,17 @@ export default function SearchAppBar() {
                         >
                             <MenuIcon />
                         </IconButton>
-                        <Typography variant='h4' noWrap component='div'>
+                        
+                        <Typography variant='h4' noWrap component='div' sx={{ flexGrow: 1 }}>
                             Leherer
                         </Typography>
+
+                        {user.role!='admin' && <Notifications/>}
+
                     </Toolbar>
+                    
+                            
+                    
                 </AppBar>
                 <TemporaryDrawer toggleDrawer={toggleDrawer} menuIsOpen={menuIsOpen} />
             </Box>
