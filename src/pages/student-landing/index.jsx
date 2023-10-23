@@ -1,29 +1,15 @@
 import Calendar from '@/components/Calendar';
 import CalendarPagination from '@/components/CalendarPagination';
 import { useUser } from '@/context/UserContext';
-import { order_and_group } from '@/utils/order_and_group';
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Snackbar, Typography } from '@mui/material';
+import { Divider, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-
-// Consts
-const dayNumber = {
-    Monday: 1,
-    Tuesday: 2,
-    Wednesday: 3,
-    Thursday: 4,
-    Friday: 5,
-    Saturday: 6,
-    Sunday: 7,
-};
 
 export default function StudentLandingPage() {
     const [week, setWeek] = useState(0);
     const [disabledBlocks, setDisabledBlocks] = useState([]);
     const user = useUser();
 
-    var curr = new Date();
-    var first = curr.getDate() - curr.getDay();
     var router = useRouter();
 
     useEffect(() => {

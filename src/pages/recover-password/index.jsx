@@ -74,19 +74,22 @@ export default function RecoverPassword() {
             <Typography component="h1" variant="h5">
               Recover Password
             </Typography>
-            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1, marginTop: 5 }}>
-              <Typography component="h7" variant="h7">
-                Write the new password
+            <Typography component="h7" variant="h7">
+                  Write the new password
               </Typography>
-              <PasswordComponent />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                sx={{ mt: 3, mb: 2 }}
-              >
-                Confirm New Password
-              </Button>
+            <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
+              <Grid container spacing={2} >
+                
+                <PasswordComponent />
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2 }}
+                >
+                  Confirm New Password
+                </Button>
+              </Grid>
             </Box>
           </Box>
         </Grid>
