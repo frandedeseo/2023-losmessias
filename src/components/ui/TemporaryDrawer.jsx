@@ -3,6 +3,7 @@ import { AutoStories, HomeMaxOutlined, Person } from '@mui/icons-material';
 import HomeIcon from '@mui/icons-material/Home';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import SettingsIcon from '@mui/icons-material/Settings';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemText, Stack, Typography } from '@mui/material';
 import router from 'next/router';
@@ -20,25 +21,39 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
             icon: <HomeIcon />,
             primary: 'Home',
         },
+        user.role === 'student'
+            ? {
+                href: '/professors',
+                icon: <PersonSearchIcon />,
+                primary: 'Professors',
+            }
+            : {},
+        ...(user.role !== 'admin'
+            ? [
+                {
+                    href: '/classes',
+                    icon: <BookmarkIcon />,
+                    primary: 'Class Reservations',
+                },
+                {
+                    href: '/personal-data',
+                    icon: <SettingsIcon />,
+                    primary: 'Personal information',
+                },
+            ]
+            : [
+                {
+                    href: '/validator',
+                    icon: <SettingsIcon />,
+                    primary: 'Validator',
+                },
+            ]),
+        {
+            href: '/logout',
+            icon: <LogoutIcon />,
+            primary: 'Log out',
+        },
     ];
-    if (user.role === 'student' || user.role === 'professor') {
-        drawerItems.push({
-            href: '/professors',
-            icon: <PersonSearchIcon />,
-            primary: 'Professors',
-        });
-    } else if (user.role === 'admin') {
-        drawerItems.push({
-            href: '/validator',
-            icon: <SettingsIcon />,
-            primary: 'Validator',
-        });
-    }
-    drawerItems.push({
-        href: '/logout',
-        icon: <LogoutIcon />,
-        primary: 'Log out',
-    });
 
     const drawerItem = (href, icon, primary, key) => {
         //Agg seleccionado o no

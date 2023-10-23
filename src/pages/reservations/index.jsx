@@ -31,6 +31,7 @@ import { order_and_group } from '@/utils/order_and_group';
 import { useUser } from '@/context/UserContext';
 import CalendarPagination from '@/components/CalendarPagination';
 import Upload from '@/components/Upload';
+import LoadingModal from '@/components/modals/LoadingModal';
 
 // Consts
 const dayNumber = {
@@ -143,7 +144,7 @@ export default function Reservation() {
         setOrderedSelectedBlocks(orderedSelectedBlocks);
         setShowConfirmationReservation(true);
     };
-    
+
     return (
         <>
             <div style={{ display: 'flex', width: '90%', margin: '2rem auto', alignItems: 'end', justifyContent: 'space-between' }}>
@@ -248,16 +249,7 @@ export default function Reservation() {
                 </DialogActions>
             </Dialog>
 
-            <Modal open={isLoading}>
-                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', padding: 5, backgroundColor: "white", borderRadius: 4 }}>
-                        <CircularProgress />
-                        <Typography variant='h4' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
-                            Processing reservation, please wait...
-                        </Typography>
-                    </Box>
-                </div>
-            </Modal>
+            <LoadingModal isOpen={isLoading} message={'Processing reservation, please wait...'} />
 
             <Snackbar
                 open={alert}
