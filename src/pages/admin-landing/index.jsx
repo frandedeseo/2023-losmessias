@@ -17,6 +17,7 @@ import {
     TablePagination,
     TableRow,
     TextField,
+    Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useUser } from '@/context/UserContext';
@@ -62,7 +63,7 @@ export default function AdminLandingPage() {
         } else {
             router.push('/');
         }
-    }, [user, rowsPerPage]);
+    }, [user, rowsPerPage, router]);
 
     const handleSearch = (searchValue, filterValues) => {
         setPage(0);
@@ -131,7 +132,7 @@ export default function AdminLandingPage() {
 
     return (
         <div style={{ margin: '2% auto', width: '95%' }}>
-            <Typography variant='h4'>Today's Summary</Typography>
+            <Typography variant='h4'>Today&apos;s Summary</Typography>
             <Divider />
             <div style={{ display: 'flex', gap: '2rem' }}>
                 <Searchbar search={handleSearch} />

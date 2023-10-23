@@ -1,5 +1,6 @@
 // Mui
-import { Pie } from '@ant-design/charts';
+import dynamic from 'next/dynamic';
+const Pie = dynamic(() => import('@ant-design/plots').then(({ Pie }) => Pie), { ssr: false });
 import { Card, Typography } from '@mui/material';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import PaidIcon from '@mui/icons-material/Paid';

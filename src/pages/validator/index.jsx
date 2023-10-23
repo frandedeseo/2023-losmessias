@@ -7,7 +7,7 @@ import { useState } from 'react';
 
 // styles
 import { styles } from '../../styles/validator-styles.js';
-import { Alert, Snackbar } from '@mui/material';
+import { Alert, Snackbar, Typography, Divider } from '@mui/material';
 
 import { useUser } from '@/context/UserContext';
 

@@ -1,4 +1,5 @@
-import { Pie } from '@ant-design/charts';
+import dynamic from 'next/dynamic';
+const Pie = dynamic(() => import('@ant-design/plots').then(({ Pie }) => Pie), { ssr: false });
 import { Typography } from '@mui/material';
 import PaidIcon from '@mui/icons-material/Paid';
 import { getColor } from '@/utils/getColor';
