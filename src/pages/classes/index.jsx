@@ -29,22 +29,20 @@ import LoadingModal from '@/components/modals/LoadingModal';
 import useSWR from 'swr';
 import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 
-export default function Professors() {
+export default function Classes() {
     const user = useUser();
+    const [data, setData] = useState([]);
     const [classes, setClasses] = useState([]);
     const [alert, setAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
-    const [alertSeverity, setAlertSeverity] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState('error');
     const [subjectSelected, setSubjectSelected] = useState([]);
     const [search, setSearch] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const camelCaseUserRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const { data, isLoading } = useSWR(
-        [`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findBy${camelCaseUserRole}?${user.role}Id=${user.id}`, user.token],
-        fetcherGetWithToken,
-        { fallbackData: [] }
-    );
+
     const { data: subjects } = useSWR(
         [`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`, user.token],
         fetcherGetWithToken,
@@ -52,8 +50,24 @@ export default function Professors() {
     );
 
     useEffect(() => {
-        if (data) setClasses(data);
-    }, [data])
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+                Authorization: `Bearer ${user.token}`
+            },
+        };
+        setIsLoading(true);
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findBy${camelCaseUserRole}?${user.role}Id=${user.id}`, requestOptions)
+            .then(res => {
+                if (!res.ok) throw Error(res.status);
+                res.json().then(json => {
+                    setData(json);
+                    setClasses(json);
+                });
+            }).catch(err => console.log(err))
+            .finally(() => setIsLoading(false));
+    }, [user])
 
     const handleCancel = id => {
         setIsProcessing(true);
@@ -209,7 +223,7 @@ export default function Professors() {
                 open={alert}
                 autoHideDuration={3000}
                 onClose={() => setAlert(false)}
-                anchorOrigin={{ vertical: 'top', horizontal: 'top' }}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
                 <Alert severity={alertSeverity}>{alertMessage}</Alert>
             </Snackbar>

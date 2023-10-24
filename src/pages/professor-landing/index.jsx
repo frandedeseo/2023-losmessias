@@ -119,7 +119,7 @@ export default function ProfessorLandingPage() {
     return (
         <div style={{ width: '95%', margin: 'auto' }}>
             <Typography variant='h4' sx={{ margin: '2% 0' }}>
-                Hi {userName}, welcome back!
+                Hi{" " + user.firstName + " " + user.lastName}, welcome back!
             </Typography>
 
             <Typography variant='h4'>Agenda</Typography>
