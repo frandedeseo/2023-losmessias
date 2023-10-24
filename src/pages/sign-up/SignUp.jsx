@@ -12,6 +12,7 @@ import PasswordComponent from '@/components/PasswordComponent.jsx';
 import { useState } from 'react';
 import { useApi } from '@/hooks/useApi.js';
 import Alert from '@/components/Alert';
+import { CircularProgress } from '@mui/material';
 
 const REG_ONLY_LETTERS = /^[ a-zA-ZÀ-ÿ\u00f1\u00d1]*$/;
 const REG_ONLY_NUM = /^[0-9]*$/;
@@ -24,10 +25,10 @@ export default function SignUp({ setRequest, setPage }) {
     const [error, setError] = useState("");
     const [role, setRole] = useState('Student');
     const [sex, setSex] = useState('Male');
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        var returnValue = false;
         const data = new FormData(event.currentTarget);
 
         const req = {
@@ -42,9 +43,9 @@ export default function SignUp({ setRequest, setPage }) {
         };
         setRequest(req);
         if (role == "Student") {
-            sendRequestForRegistration(req);
+            sendRequestForRegistration(req, setIsLoading);
         } else {
-
+            setIsLoading(true);
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/validate-email?email=${req.email}`, { method: 'POST' })
                 .then(response => {
                     if (response.status === 200) {
@@ -52,7 +53,7 @@ export default function SignUp({ setRequest, setPage }) {
                     } else {
                         showAlert({ message: "Email already taken", status: 500 });
                     }
-                })
+                }).finally(() => setIsLoading(false));
         }
     };
 
@@ -190,7 +191,9 @@ export default function SignUp({ setRequest, setPage }) {
                     fullWidth
                     variant="contained"
                     sx={{ mt: 3, mb: 2 }}
+                    disabled={isLoading}
                 >
+                    {isLoading && <CircularProgress size={24} />}
                     Sign Up
                 </Button>
                 <Grid container justifyContent="flex-end">

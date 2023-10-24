@@ -52,7 +52,7 @@ export default function Professors() {
     );
 
     useEffect(() => {
-        setClasses(data);
+        if (data) setClasses(data);
     }, [data])
 
     const handleCancel = id => {

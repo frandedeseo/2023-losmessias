@@ -22,9 +22,10 @@ export default function PersonalData() {
     const user = useUser();
 
 
-    const { data: studentData, isLoading, mutate } = useSWR(
+    const { data, isLoading, mutate } = useSWR(
         [`${process.env.NEXT_PUBLIC_API_URI}/api/${user.role}/${user.id}`, user.token],
         fetcherGetWithToken);
+
     const handleSave = () => {
         if (editMode) {
             setEditMode(false)
@@ -93,10 +94,10 @@ export default function PersonalData() {
                 )}
             </Box>
             {!editMode ? (
-                <PersonalDataDisplay data={studentData} isLoading={isLoading} />
+                <PersonalDataDisplay data={data} isLoading={isLoading} />
             ) : (
                 <PersonalDataEdit
-                    data={studentData}
+                    data={data}
                     setEmailAddress={setEmailAddress}
                     setLocation={setLocation}
                     setPhone={setPhone}

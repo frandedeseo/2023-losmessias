@@ -21,13 +21,6 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
             icon: <HomeIcon />,
             primary: 'Home',
         },
-        user.role === 'student'
-            ? {
-                href: '/professors',
-                icon: <PersonSearchIcon />,
-                primary: 'Professors',
-            }
-            : {},
         ...(user.role !== 'admin'
             ? [
                 {
@@ -54,6 +47,11 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
             primary: 'Log out',
         },
     ];
+    if (user.role === 'student') drawerItems.splice(1, 0, {
+        href: '/professors',
+        icon: <PersonSearchIcon />,
+        primary: 'Professors',
+    })
 
     const drawerItem = (href, icon, primary, key) => {
         //Agg seleccionado o no

@@ -49,7 +49,7 @@ export const useApi = () => {
         }
     }
 
-    const sendRequestForRegistration = request => {
+    const sendRequestForRegistration = (request, setLoading) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -64,6 +64,7 @@ export const useApi = () => {
                 phone: request.phone
             }),
         };
+        setLoading(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/registration`, requestOptions)
             .then(response => {
                 if (response.status != 200) {
@@ -71,10 +72,12 @@ export const useApi = () => {
                 } else {
                     showAlert({ message: "We have sent you an email. Please confirm email adress", status: 200 });
                 }
-            })
+            }).finally(() => {
+                setLoading(false);
+            });
     };
 
-    const sendRequestForRegistrationProfessor = (request, subjects) => {
+    const sendRequestForRegistrationProfessor = (request, subjects, setIsProcessing) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -90,12 +93,15 @@ export const useApi = () => {
                 subjects: subjects
             }),
         };
+        setIsProcessing(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/registration-professor`, requestOptions)
             .then(response => {
                 if (response.status == 200) {
                     showAlert({ message: "We have sent you an email. Please confirm email adress", status: 200 });
                 }
-            })
+            }).finally(() => {
+                setIsProcessing(false);
+            });
     };
     const sendRequestForLogIn = (request, setIsLoading) => {
         const requestOptions = {
