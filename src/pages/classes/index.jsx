@@ -26,6 +26,8 @@ import {
     Typography,
 } from '@mui/material';
 import LoadingModal from '@/components/modals/LoadingModal';
+import useSWR from 'swr';
+import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 
 export default function Professors() {
     const user = useUser();
@@ -35,44 +37,23 @@ export default function Professors() {
     const [alertSeverity, setAlertSeverity] = useState('');
     const [subjectSelected, setSubjectSelected] = useState([]);
     const [search, setSearch] = useState('');
-    const [subjects, setSubjects] = useState([]);
-    const [data, setData] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
+    const camelCaseUserRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+
+    const { data, isLoading } = useSWR(
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findBy${camelCaseUserRole}?${user.role}Id=${user.id}`, user.token],
+        fetcherGetWithToken,
+        { fallbackData: [] }
+    );
+    const { data: subjects } = useSWR(
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`, user.token],
+        fetcherGetWithToken,
+        { fallbackData: [] }
+    );
 
     useEffect(() => {
-        if (user.id) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` },
-            };
-
-            if (user.role === 'student') {
-                setIsLoading(true);
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
-                    res.json().then(json => {
-                        setData(json);
-                        setClasses(json);
-                    });
-                }).finally(() => setIsLoading(false));
-            } else {
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(
-                    res => {
-                        res.json().then(json => {
-                            setData(json);
-                            setClasses(json);
-                        });
-                    }
-                ).finally(() => setIsLoading(false));
-            }
-
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
-                res.json().then(json => {
-                    setSubjects(json);
-                })
-            );
-        }
-    }, [user]);
+        setClasses(data);
+    }, [data])
 
     const handleCancel = id => {
         setIsProcessing(true);

@@ -11,41 +11,27 @@ import { getColor } from '@/utils/getColor';
 
 // Mui
 import { Box, Chip, CircularProgress, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
+import useSWR from 'swr';
+import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 
 export default function Professors() {
-    const [data, setData] = useState([]);
-    const [subjects, setSubjects] = useState([]);
-    const router = useRouter();
     const [professors, setProfessors] = useState([]);
     const [locationSelected, setLocationSelected] = useState([]);
     const [subjectSelected, setSubjectSelected] = useState([]);
     const user = useUser();
-    const [isLoading, setIsLoading] = useState(true);
-    const [userName, setUserName] = useState('');
+
+    const { data, isLoading } = useSWR(
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, user.token],
+        fetcherGetWithToken,
+        { fallbackData: [] });
+    const { data: subjects } = useSWR(
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`, user.token],
+        fetcherGetWithToken,
+        { fallbackData: [] });
 
     useEffect(() => {
-        if (user.id) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` },
-            };
-            setIsLoading(true);
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, requestOptions).then(res => {
-                if (res.status === 200) console.log(res);
-                res.json().then(json => {
-                    setData(json);
-                    setProfessors(json);
-                });
-            }).finally(() => setIsLoading(false));
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res => res.json().then(json => setSubjects(json)));
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions).then(res => {
-                if (res.status === 401) {
-                    router.push('/');
-                }
-                res.json().then(json => setUserName(json.firstName + ' ' + json.lastName));
-            });
-        }
-    }, [user, router]);
+        setProfessors(data)
+    }, [data])
 
     const handleFilter = () => {
         if (locationSelected.length > 0 && subjectSelected.length === 0) {

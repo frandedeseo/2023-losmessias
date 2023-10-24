@@ -58,61 +58,50 @@ export default function PersonalData() {
 
     return (
         <>
-            {/* {isLoading ? (
-                // Loading skeleton
-                <Box sx={styles.noInformationGlobalContainer} >
-                    <Typography variant='h4' sx={styles.typography}>
-                        LOADING...
-                    </Typography>
-                </Box>
-            ) : ( */}
-            <>
-                <Box sx={styles.globalContainer}>
-                    <Typography variant='h4' sx={styles.typography}>
-                        My personal information
-                    </Typography>
-                    {editMode ? (
-                        <Box>
-                            <Fab
-                                color="error"
-                                aria-label="edit"
-                                onClick={() => setEditMode(false)}
-                                style={{ marginRight: "1rem" }}
-                            >
-                                <Cancel />
-                            </Fab>
-                            <Fab
-                                color="success"
-                                aria-label="edit"
-                                onClick={() => handleSave()}
-                            >
-                                <CheckIcon />
-                            </Fab>
-                        </Box>
-                    ) : (
-                        <>
-                            <Fab
-                                color={"primary"}
-                                aria-label="edit"
-                                onClick={() => handleSave()}
-                            >
-                                {editMode ? <CheckIcon /> : (<EditIcon />)}
-                            </Fab>
-                        </>
-                    )}
-                </Box>
-                {!editMode ? (
-                    <PersonalDataDisplay data={studentData} isLoading={isLoading} />
+            <Box sx={styles.globalContainer}>
+                <Typography variant='h4' sx={styles.typography}>
+                    My personal information
+                </Typography>
+                {editMode ? (
+                    <Box>
+                        <Fab
+                            color="error"
+                            aria-label="edit"
+                            onClick={() => setEditMode(false)}
+                            style={{ marginRight: "1rem" }}
+                        >
+                            <Cancel />
+                        </Fab>
+                        <Fab
+                            color="success"
+                            aria-label="edit"
+                            onClick={() => handleSave()}
+                        >
+                            <CheckIcon />
+                        </Fab>
+                    </Box>
                 ) : (
-                    <PersonalDataEdit
-                        data={studentData}
-                        setEmailAddress={setEmailAddress}
-                        setLocation={setLocation}
-                        setPhone={setPhone}
-                    />
+                    <>
+                        <Fab
+                            color={"primary"}
+                            aria-label="edit"
+                            onClick={() => handleSave()}
+                        >
+                            {editMode ? <CheckIcon /> : (<EditIcon />)}
+                        </Fab>
+                    </>
                 )}
-            </>
-            {/* )} */}
+            </Box>
+            {!editMode ? (
+                <PersonalDataDisplay data={studentData} isLoading={isLoading} />
+            ) : (
+                <PersonalDataEdit
+                    data={studentData}
+                    setEmailAddress={setEmailAddress}
+                    setLocation={setLocation}
+                    setPhone={setPhone}
+                />
+            )}
             <LoadingModal isOpen={isProcessing} message={'Processing changes...'} />
         </>
     );
