@@ -16,7 +16,7 @@ export default function HorizontalProfessorCard({ professor }) {
                             <ListItemIcon>
                                 <PersonIcon />
                             </ListItemIcon>
-                            {professor.firstName !== undefined ? (
+                            {professor && professor.firstName !== undefined ? (
                                 <Typography variant='body1' color='text.secondary'>
                                     {professor.firstName + ' ' + professor.lastName}
                                 </Typography>
@@ -32,7 +32,7 @@ export default function HorizontalProfessorCard({ professor }) {
                             <ListItemIcon>
                                 <MailOutline />
                             </ListItemIcon>
-                            {professor.email !== undefined ? (
+                            {professor && professor.email !== undefined ? (
                                 <Typography variant='body1' color='text.secondary'>
                                     {professor.email}
                                 </Typography>
@@ -50,7 +50,7 @@ export default function HorizontalProfessorCard({ professor }) {
                             <ListItemIcon>
                                 <Phone />
                             </ListItemIcon>
-                            {professor.phone !== undefined ? (
+                            {professor && professor.phone !== undefined ? (
                                 <Typography variant='body1' color='text.secondary'>
                                     {professor.phone}
                                 </Typography>
@@ -66,7 +66,7 @@ export default function HorizontalProfessorCard({ professor }) {
                             <ListItemIcon>
                                 <Business />
                             </ListItemIcon>
-                            {professor.location !== undefined ? (
+                            {professor && professor.location !== undefined ? (
                                 <Typography variant='body1' color='text.secondary'>
                                     {professor.location}
                                 </Typography>

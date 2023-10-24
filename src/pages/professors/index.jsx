@@ -11,7 +11,6 @@ import { getColor } from '@/utils/getColor';
 
 // Mui
 import { Box, Chip, CircularProgress, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
-import useSWR from 'swr';
 
 export default function Professors() {
     const [data, setData] = useState([]);
@@ -23,8 +22,6 @@ export default function Professors() {
     const user = useUser();
     const [isLoading, setIsLoading] = useState(true);
     const [userName, setUserName] = useState('');
-
-    // const {data, isLoading:fetchLoading} = useSWR(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, fetcher);
 
     useEffect(() => {
         if (user.id) {
