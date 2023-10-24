@@ -27,7 +27,7 @@ export default function LogIn({ setPage }) {
 
 	return (
 		<>
-			<Alert open={open} setOpen={setOpen} message={alertState.message} severity={alertState.severity} />
+			{alertState.severity && <Alert open={open} setOpen={setOpen} message={alertState.message} severity={alertState.severity} />}
 
 			<Typography component="h1" variant="h5">
 				Log In

@@ -1,5 +1,5 @@
 import { Business, MailOutline, Phone } from '@mui/icons-material';
-import { Card, CardActionArea, CardContent, CardMedia, List, ListItem, ListItemIcon, Typography } from '@mui/material';
+import { Card, CardActionArea, CardContent, CardMedia, List, ListItem, ListItemIcon, Skeleton, Typography } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 
 export default function HorizontalProfessorCard({ professor }) {
@@ -10,52 +10,76 @@ export default function HorizontalProfessorCard({ professor }) {
         <Card>
             <CardActionArea sx={{ display: 'flex', justifyContent: 'start' }}>
                 <CardMedia component='img' height='140' image={link} alt='Professor' />
-                {professor ? (
-                    <CardContent sx={{ padding: 0, display: 'flex', alignSelf: 'start' }}>
-                        <List>
-                            <ListItem>
-                                <ListItemIcon>
-                                    <PersonIcon />
-                                </ListItemIcon>
+                <CardContent sx={{ padding: 0, display: 'flex', alignSelf: 'start' }}>
+                    <List>
+                        <ListItem>
+                            <ListItemIcon>
+                                <PersonIcon />
+                            </ListItemIcon>
+                            {professor.firstName !== undefined ? (
                                 <Typography variant='body1' color='text.secondary'>
                                     {professor.firstName + ' ' + professor.lastName}
                                 </Typography>
-                            </ListItem>
-                            <ListItem>
-                                <ListItemIcon>
-                                    <MailOutline />
-                                </ListItemIcon>
+                            ) : (
+                                <Skeleton
+                                    variant="text"
+                                    width={190}
+                                    height={30}
+                                />
+                            )}
+                        </ListItem>
+                        <ListItem>
+                            <ListItemIcon>
+                                <MailOutline />
+                            </ListItemIcon>
+                            {professor.email !== undefined ? (
                                 <Typography variant='body1' color='text.secondary'>
                                     {professor.email}
                                 </Typography>
-                            </ListItem>
-                        </List>
-                        <List>
-                            <ListItem>
-                                <ListItemIcon>
-                                    <Phone />
-                                </ListItemIcon>
+                            ) : (
+                                <Skeleton
+                                    variant="text"
+                                    width={190}
+                                    height={30}
+                                />
+                            )}
+                        </ListItem>
+                    </List>
+                    <List>
+                        <ListItem>
+                            <ListItemIcon>
+                                <Phone />
+                            </ListItemIcon>
+                            {professor.phone !== undefined ? (
                                 <Typography variant='body1' color='text.secondary'>
                                     {professor.phone}
                                 </Typography>
-                            </ListItem>
-                            <ListItem>
-                                <ListItemIcon>
-                                    <Business />
-                                </ListItemIcon>
+                            ) : (
+                                <Skeleton
+                                    variant="text"
+                                    width={190}
+                                    height={30}
+                                />
+                            )}
+                        </ListItem>
+                        <ListItem>
+                            <ListItemIcon>
+                                <Business />
+                            </ListItemIcon>
+                            {professor.location !== undefined ? (
                                 <Typography variant='body1' color='text.secondary'>
                                     {professor.location}
                                 </Typography>
-                            </ListItem>
-                        </List>
-                    </CardContent>
-                ) : (
-                    <CardContent>
-                        <Typography variant='body1' color='text.secondary'>
-                            Loading...
-                        </Typography>
-                    </CardContent>
-                )}
+                            ) : (
+                                <Skeleton
+                                    variant="text"
+                                    width={190}
+                                    height={30}
+                                />
+                            )}
+                        </ListItem>
+                    </List>
+                </CardContent>
             </CardActionArea>
         </Card>
     );

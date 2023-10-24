@@ -32,6 +32,8 @@ import { useUser } from '@/context/UserContext';
 import CalendarPagination from '@/components/CalendarPagination';
 import Upload from '@/components/Upload';
 import LoadingModal from '@/components/modals/LoadingModal';
+import useSWR from 'swr';
+import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 
 // Consts
 const dayNumber = {
@@ -48,7 +50,6 @@ export default function Reservation() {
     const router = useRouter();
     const [selectedBlocks, setSelectedBlocks] = useState([]);
     const [orderedSelectedBlocks, setOrderedSelectedBlocks] = useState([]);
-    const [professor, setProfessor] = useState({ subjects: [] });
     const [subject, setSubject] = useState(0);
     const [showConfirmReservation, setShowConfirmationReservation] = useState(false);
     const [week, setWeek] = useState(0);
@@ -56,40 +57,21 @@ export default function Reservation() {
     const [alert, setAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('');
-    const [disabledBlocks, setDisabledBlocks] = useState([]);
     const [open, setOpen] = useState();
-    const [isLoading, setIsLoading] = useState(false);
+    const [isProcessingReservation, setIsProcessingReservation] = useState(false);
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
 
-    useEffect(() => {
-        if (user.id && router.isReady) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` },
-            };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${router.query.professorId}`, requestOptions).then(res =>
-                res.json().then(json => {
-                    setProfessor(json);
-                })
-            );
+    const { data: professor, isLoading } = useSWR(
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${router.query.professorId}`, user.token],
+        fetcherGetWithToken,
+        { fallbackData: { subjects: [] } });
 
-            fetch(
-                `${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${router.query.professorId}`,
-                requestOptions
-            ).then(res =>
-                res.json().then(json => {
-                    setDisabledBlocks(
-                        json.map(e => {
-                            if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                            return e;
-                        })
-                    );
-                })
-            );
-        }
-    }, [user, router]);
+    const { data: disabledBlocks, isLoading: isLoadingDissabledBlocks } = useSWR(
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${router.query.professorId}`, user.token],
+        fetcherGetWithToken,
+        { fallbackData: [] });
 
     const handleCancel = () => {
         setSelectedBlocks([]);
@@ -108,7 +90,7 @@ export default function Reservation() {
                 studentId: parseInt(user.id),
                 price: 250 * block.totalHours,
             };
-            setIsLoading(true);
+            setIsProcessingReservation(true);
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/create`, {
                 method: 'POST',
                 headers: {
@@ -126,7 +108,7 @@ export default function Reservation() {
                     router.push('/student-landing');
                 }
                 setAlert(true);
-            }).finally(() => setIsLoading(false));
+            }).finally(() => setIsProcessingReservation(false));
         });
         handleCancel();
 
@@ -149,7 +131,7 @@ export default function Reservation() {
         <>
             <div style={{ display: 'flex', width: '90%', margin: '2rem auto', alignItems: 'end', justifyContent: 'space-between' }}>
                 <HorizontalProfessorCard professor={professor} />
-                <FormControl sx={{ minWidth: 150, backgroundColor: '#fff' }}>
+                <FormControl sx={{ minWidth: 150, backgroundColor: '#fff', ml: 5 }}>
                     <InputLabel>Subject</InputLabel>
                     <Select value={subject} label='Subject' onChange={e => handleSubjectChange(e)}>
                         {professor.subjects?.map((subject, idx) => (
@@ -159,9 +141,14 @@ export default function Reservation() {
                         ))}
                     </Select>
                 </FormControl>
-                <Button onClick={() => setOpen(!open)}>Open modal</Button>
-                <Modal open={open} >
-                    <Upload></Upload>
+                <Button onClick={() => setOpen(!open)}>Upload a file</Button>
+
+                <Modal open={open} onClose={() => setOpen(false)} sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}>
+                    <Upload />
                 </Modal>
             </div>
             <div style={{ width: '90%', margin: 'auto' }}>
@@ -249,7 +236,7 @@ export default function Reservation() {
                 </DialogActions>
             </Dialog>
 
-            <LoadingModal isOpen={isLoading} message={'Processing reservation, please wait...'} />
+            <LoadingModal isOpen={isProcessingReservation} message={'Processing reservation, please wait...'} />
 
             <Snackbar
                 open={alert}

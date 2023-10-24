@@ -49,7 +49,7 @@ export default function Upload() {
             <Button component="label" variant="contained" startIcon={<CloudUploadIcon />}>
                 Upload file
                 <VisuallyHiddenInput type="file" onChange={onFileChange} />
-                <TextField >{uploadedInfo}</TextField>
+                <TextField sx={{ pl: 3 }}>{uploadedInfo}</TextField>
             </Button>
         </Box>
     );
