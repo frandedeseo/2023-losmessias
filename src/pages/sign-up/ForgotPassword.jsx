@@ -6,18 +6,21 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { useApi } from '../../hooks/useApi.js';
 import Alert from '../../components/Alert.jsx';
+import LoadingModal from '@/components/modals/LoadingModal.jsx';
+import { useState } from 'react';
+import { CircularProgress } from '@mui/material';
 
 export default function ForgotPassword({ setPage }) {
 	const { alertState, open, setOpen, validateEmailForPasswordChange } = useApi();
+	const [isProcessing, setIsProcessing] = useState(false);
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
 		const datos = new FormData(event.currentTarget);
-
 		const request = {
 			email: datos.get('email')
 		};
-		validateEmailForPasswordChange(request);
+		validateEmailForPasswordChange(request, setIsProcessing);
 	};
 
 	return (
@@ -44,8 +47,10 @@ export default function ForgotPassword({ setPage }) {
 					type="submit"
 					fullWidth
 					variant="contained"
+					disabled={isProcessing}
 					sx={{ mt: 3, mb: 2 }}
 				>
+					{!isProcessing && <CircularProgress size={20} style={{ marginRight: 10 }} />}
 					Send Email
 				</Button>
 				<Grid container justifyContent="flex-end">
@@ -55,9 +60,8 @@ export default function ForgotPassword({ setPage }) {
 						</Link>
 					</Grid>
 				</Grid>
-
-
 			</Box>
+			<LoadingModal open={isProcessing} message={"Sending recovery email..."} />
 		</>
 	);
 }

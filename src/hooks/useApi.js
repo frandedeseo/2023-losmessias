@@ -184,8 +184,8 @@ export const useApi = () => {
         });
     };
 
-    const validateEmailForPasswordChange = request => {
-
+    const validateEmailForPasswordChange = (request, setIsProcessing) => {
+        setIsProcessing(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/loadEmailForPasswordChange?email=${request.email}`,
             { method: 'POST' })
             .then(response => {
@@ -196,8 +196,9 @@ export const useApi = () => {
                     showAlert({ message: "Email not exists", status: 500 });
                     return false;
                 }
-
-            })
+            }).finally(() => {
+                setIsProcessing(false);
+            });
 
     };
 
@@ -245,7 +246,7 @@ export const useApi = () => {
                 setError(error);
             });
     }
-    const changePassword = request => {
+    const changePassword = (request, setIsProcessing) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -254,7 +255,7 @@ export const useApi = () => {
                 password: request.password,
             }),
         };
-
+        setIsProcessing(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/changePassword`, requestOptions)
             .then(response => {
                 if (response.status === 200) {
@@ -263,6 +264,8 @@ export const useApi = () => {
             })
             .catch(res => {
                 console.log(res);
+            }).finally(() => {
+                setIsProcessing(false);
             });
     };
 
