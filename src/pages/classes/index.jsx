@@ -53,16 +53,18 @@ export default function Professors() {
             if (user.role === 'student') {
                 fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
                     res.json().then(json => {
-                        setData(json);
-                        setClasses(json);
+                        const resrv = json.filter(reserv => reserv.status !== 'CANCELLED');
+                        setData(resrv);
+                        setClasses(resrv);
                     });
                 });
             } else {
                 fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(
                     res => {
                         res.json().then(json => {
-                            setData(json);
-                            setClasses(json);
+                            const resrv = json.filter(reserv => reserv.status !== 'CANCELLED');
+                            setData(resrv);
+                            setClasses(resrv);
                         });
                     }
                 );

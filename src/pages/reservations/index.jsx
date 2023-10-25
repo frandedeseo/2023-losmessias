@@ -14,7 +14,7 @@ import {
     Modal,
     Select,
     Snackbar,
-    Typography
+    Typography,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -144,8 +144,6 @@ export default function Reservation() {
         setShowConfirmationReservation(true);
     };
 
-      
-
     return (
         <>
             <div style={{ display: 'flex', width: '90%', margin: '2rem auto', alignItems: 'end', justifyContent: 'space-between' }}>
@@ -161,10 +159,6 @@ export default function Reservation() {
                         ))}
                     </Select>
                 </FormControl>
-                <Button onClick={() => setOpen(!open)}>Open modal</Button>
-                <Modal open={open} >
-                    <Upload></Upload>
-                </Modal>
             </div>
             <div style={{ width: '90%', margin: 'auto' }}>
                 <Typography variant='h4'>Agenda</Typography>
