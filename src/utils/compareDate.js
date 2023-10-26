@@ -20,3 +20,9 @@ export function compare_time(a, b) {
 
     return false;
 }
+
+export function parseDate(date) {
+    let splittedDate = date.toISOString().split('T')[0].split('-');
+    splittedDate.shift();
+    return splittedDate.join('/');
+}

@@ -1,8 +1,9 @@
 import Calendar from '@/components/Calendar';
 import CalendarPagination from '@/components/CalendarPagination';
+import Dashboard from '@/components/Dashboard';
 import { useUser } from '@/context/UserContext';
 import { order_and_group } from '@/utils/order_and_group';
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Snackbar, Typography } from '@mui/material';
+import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Snackbar, Tab, Tabs, Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -17,15 +18,6 @@ const dayNumber = {
     Sunday: 7,
 };
 
-export async function getServerSideProps() {
-    const res = await fetch('http://localhost:8080/api/professor/all');
-    const data = await res.json();
-
-    const subjectsRes = await fetch('http://localhost:8080/api/subject/all');
-    const subjects = await subjectsRes.json();
-    return { props: { data, subjects } };
-}
-
 export default function ProfessorLandingPage() {
     const router = useRouter();
     const [selectedBlocks, setSelectedBlocks] = useState([]);
@@ -37,6 +29,8 @@ export default function ProfessorLandingPage() {
     const [alertSeverity, setAlertSeverity] = useState('');
     const [disabledBlocks, setDisabledBlocks] = useState([]);
     const user = useUser();
+    const [userName, setUserName] = useState('');
+    const [tab, setTab] = useState(0);
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
@@ -45,9 +39,9 @@ export default function ProfessorLandingPage() {
         if (user.id) {
             const requestOptions = {
                 method: 'GET',
-                headers: { Authorization : `Bearer ${user.token}`}
+                headers: { Authorization: `Bearer ${user.token}` },
             };
-            fetch(`http://localhost:8080/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res =>
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
                 res.json().then(json => {
                     setDisabledBlocks(
                         json.map(e => {
@@ -55,10 +49,15 @@ export default function ProfessorLandingPage() {
                             return e;
                         })
                     );
+                });
+            });
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res =>
+                res.json().then(json => {
+                    setUserName(json.firstName + ' ' + json.lastName);
                 })
             );
         }
-    }, [user]);
+    }, [user, router.isReady]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
@@ -71,6 +70,10 @@ export default function ProfessorLandingPage() {
         setShowConfirmationDisable(true);
     };
 
+    const handleTabChange = (event, newValue) => {
+        setTab(newValue);
+    };
+
     const handleDisable = () => {
         orderedSelectedBlocks.forEach(block => {
             const reservation = {
@@ -81,11 +84,11 @@ export default function ProfessorLandingPage() {
                 professorId: parseInt(user.id),
             };
 
-            fetch('http://localhost:8080/api/reservation/createUnavailable', {
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/createUnavailable`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization : `Bearer ${user.token}`
+                    Authorization: `Bearer ${user.token}`,
                 },
                 body: JSON.stringify({
                     ...reservation,
@@ -118,46 +121,99 @@ export default function ProfessorLandingPage() {
     return (
         <div style={{ width: '95%', margin: 'auto' }}>
             <Typography variant='h4' sx={{ margin: '2% 0' }}>
-                Hi, welcome back!
+                Hi {userName}, welcome back!
             </Typography>
 
-            <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
-            <Calendar selectedBlocks={selectedBlocks} setSelectedBlocks={setSelectedBlocks} disabledBlocks={disabledBlocks} week={week} />
-
-            <div style={{ display: 'flex', justifyContent: 'right', margin: '1rem auto', width: '90%' }}>
-                <Button onClick={handleCancel}>Cancel</Button>
-                <Button variant='contained' onClick={handleConfirmationOpen} disabled={selectedBlocks.length === 0}>
-                    Disable
-                </Button>
-            </div>
-
-            <Dialog open={showConfirmDisable}>
-                <DialogTitle>Confirm Disable</DialogTitle>
-                <DialogContent dividers>
-                    <div style={{ display: 'flex' }}>
-                        <div style={{ paddingInline: '2rem' }}>
-                            {orderedSelectedBlocks.map((block, idx) => (
-                                <Typography key={idx}>{block.day + ' ' + block.startingHour + ' - ' + block.endingHour}</Typography>
-                            ))}
-                        </div>
+            <Tabs value={tab} onChange={handleTabChange}>
+                <Tab label='Agenda' />
+                <Tab label='Dashboard' />
+            </Tabs>
+            <div style={{ paddingBlock: '0.75rem' }} />
+            {tab === 0 && (
+                <>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <table style={{ height: '35px' }}>
+                            <tbody>
+                                <tr>
+                                    <td
+                                        style={{
+                                            width: '130px',
+                                            borderBlock: '1px solid #338aed70',
+                                            backgroundColor: '#338aed90',
+                                            textAlign: 'center',
+                                        }}
+                                    >
+                                        <Typography>Selected block</Typography>
+                                    </td>
+                                    <td
+                                        style={{
+                                            textAlign: 'center',
+                                            width: '130px',
+                                            borderBlock: '1px solid #e64b4b70',
+                                            backgroundColor: '#e64b4b90',
+                                        }}
+                                    >
+                                        <Typography>Reserved Class</Typography>
+                                    </td>
+                                    <td
+                                        style={{
+                                            textAlign: 'center',
+                                            width: '130px',
+                                            borderBlock: '1px solid #adadad70',
+                                            backgroundColor: '#adadad90',
+                                        }}
+                                    >
+                                        <Typography>Unavailable</Typography>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
                     </div>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCancel}>Cancel</Button>
-                    <Button variant='contained' onClick={handleDisable}>
-                        Disable
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                    <Calendar
+                        selectedBlocks={selectedBlocks}
+                        setSelectedBlocks={setSelectedBlocks}
+                        disabledBlocks={disabledBlocks}
+                        week={week}
+                    />
 
-            <Snackbar
-                open={alert}
-                autoHideDuration={3000}
-                onClose={() => setAlert(false)}
-                anchorOrigin={{ vertical: 'top', horizontal: 'top' }}
-            >
-                <Alert severity={alertSeverity}>{alertMessage}</Alert>
-            </Snackbar>
+                    <div style={{ display: 'flex', justifyContent: 'right', margin: '1rem auto', width: '90%' }}>
+                        <Button onClick={handleCancel}>Cancel</Button>
+                        <Button variant='contained' onClick={handleConfirmationOpen} disabled={selectedBlocks.length === 0}>
+                            Disable
+                        </Button>
+                    </div>
+
+                    <Dialog open={showConfirmDisable}>
+                        <DialogTitle>Confirm Disable</DialogTitle>
+                        <DialogContent dividers>
+                            <div style={{ display: 'flex' }}>
+                                <div style={{ paddingInline: '2rem' }}>
+                                    {orderedSelectedBlocks.map((block, idx) => (
+                                        <Typography key={idx}>{block.day + ' ' + block.startingHour + ' - ' + block.endingHour}</Typography>
+                                    ))}
+                                </div>
+                            </div>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={handleCancel}>Cancel</Button>
+                            <Button variant='contained' onClick={handleDisable}>
+                                Disable
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    <Snackbar
+                        open={alert}
+                        autoHideDuration={3000}
+                        onClose={() => setAlert(false)}
+                        anchorOrigin={{ vertical: 'top', horizontal: 'top' }}
+                    >
+                        <Alert severity={alertSeverity}>{alertMessage}</Alert>
+                    </Snackbar>
+                </>
+            )}
+            {tab === 1 && <Dashboard id={user.id} />}
         </div>
     );
 }

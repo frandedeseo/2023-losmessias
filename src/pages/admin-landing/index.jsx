@@ -6,7 +6,6 @@ import {
     Dialog,
     DialogActions,
     DialogContent,
-    DialogContentText,
     DialogTitle,
     Divider,
     Paper,
@@ -18,13 +17,13 @@ import {
     TablePagination,
     TableRow,
     TextField,
+    Typography,
 } from '@mui/material';
-import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { useUser } from "@/context/UserContext";
+import { useUser } from '@/context/UserContext';
+import { useRouter } from 'next/router';
 
-export default function adminLandingPage() {
-    const router = useRouter();
+export default function AdminLandingPage() {
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [shownProfessors, setShownProfessors] = useState([]);
@@ -34,28 +33,37 @@ export default function adminLandingPage() {
     const [subject, setSubject] = useState('');
     const [subjects, setSubjects] = useState([]);
     const user = useUser();
-  
-    useEffect(() => {
-        if (user.id){
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization : `Bearer ${user.token}`}
-            };
-            fetch('http://localhost:8080/api/reservation/todaySummary', requestOptions).then(res =>
-                res.json().then(json => {
-                    setAllProfessors(json);
-                    setProfessors(json);
-                    setShownProfessors(json.slice(0, rowsPerPage));
-                })
-            );
+    const router = useRouter();
 
-            fetch('http://localhost:8080/api/subject/all').then(res =>
-                res.json().then(json => {
-                    setSubjects(json);
-                })
-            );
+    useEffect(() => {
+        if (router.isReady && user.authenticated) {
+            if (user.role == 'student') {
+                router.push('/student-landing');
+            } else if (user.role == 'professor') {
+                router.push('/professor-landing');
+            } else {
+                const requestOptions = {
+                    method: 'GET',
+                    headers: { Authorization: `Bearer ${user.token}` },
+                };
+                fetch('http://localhost:8080/api/reservation/todaySummary', requestOptions).then(res =>
+                    res.json().then(json => {
+                        setAllProfessors(json);
+                        setProfessors(json);
+                        setShownProfessors(json.slice(0, rowsPerPage));
+                    })
+                );
+
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
+                    res.json().then(json => {
+                        setSubjects(json);
+                    })
+                );
+            }
+        } else {
+            router.push('/');
         }
-    }, [user]);
+    }, [user, rowsPerPage, router]);
 
     const handleSearch = (searchValue, filterValues) => {
         setPage(0);
@@ -103,11 +111,11 @@ export default function adminLandingPage() {
     };
 
     const handleCreate = () => {
-        fetch('http://localhost:8080/api/subject/create', {
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/create`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization : `Bearer ${user.token}`
+                Authorization: `Bearer ${user.token}`,
             },
             body: JSON.stringify({
                 name: subject,
@@ -124,6 +132,9 @@ export default function adminLandingPage() {
 
     return (
         <div style={{ margin: '2% auto', width: '95%' }}>
+            <Typography variant='h4'>Today&apos;s Summary</Typography>
+            <Divider />
+            <div style={{ paddingBlock: '1rem' }} />
             <div style={{ display: 'flex', gap: '2rem' }}>
                 <Searchbar search={handleSearch} />
                 <Button variant='contained' sx={{ boxShadow: 'none' }} onClick={() => setOpen(true)}>

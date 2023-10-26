@@ -1,8 +1,10 @@
 import { useUser } from '@/context/UserContext';
 import { AutoStories, HomeMaxOutlined, Person } from '@mui/icons-material';
 import HomeIcon from '@mui/icons-material/Home';
+import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemText, Stack, Typography } from '@mui/material';
 import router from 'next/router';
 
@@ -19,44 +21,55 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
             icon: <HomeIcon />,
             primary: 'Home',
         },
-        // {
-        //     href: "/home",
-        //     icon: <Person />,
-        //     primary: "Professors"
-        // },
-        // {
-        //     href: "/home",
-        //     icon: <AutoStories />,
-        //     primary: "Courses"
-        // },
-        user.role !== 'admin'
-            ? {
-                  href: '/personal-data',
-                  icon: <SettingsIcon />,
-                  primary: 'Personal information',
-              }
-            : {
-                  href: '/validator',
-                  icon: <SettingsIcon />,
-                  primary: 'Validator',
-              },
-            {
-                href: "/logout",
-                icon: <LogoutIcon />,
-                primary: 'Log out',
-            }
+        user.role === 'student' ?? {
+            href: '/professors',
+            icon: <PersonSearchIcon />,
+            primary: 'Professors',
+        },
+        ...(user.role !== 'admin'
+            ? [
+                  {
+                      href: '/classes',
+                      icon: <BookmarkIcon />,
+                      primary: 'Class Reservations',
+                  },
+                  {
+                      href: '/personal-data',
+                      icon: <SettingsIcon />,
+                      primary: 'Personal information',
+                  },
+              ]
+            : [
+                  {
+                      href: '/all-professors',
+                      icon: <PersonSearchIcon />,
+                      primary: 'Professors',
+                  },
+                  {
+                      href: '/validator',
+                      icon: <SettingsIcon />,
+                      primary: 'Validator',
+                  },
+              ]),
+        {
+            href: '/logout',
+            icon: <LogoutIcon />,
+            primary: 'Log out',
+        },
     ];
 
     const drawerItem = (href, icon, primary, key) => {
         //Agg seleccionado o no
-        return (
-            <ListItem key={key}>
-                <ListItemButton style={{ borderRadius: '8px' }} onClick={() => handleRedirect(href)}>
-                    {icon}
-                    <ListItemText sx={{ ml: 3, mr: 6 }} primary={primary} />
-                </ListItemButton>
-            </ListItem>
-        );
+        if (primary) {
+            return (
+                <ListItem key={key}>
+                    <ListItemButton style={{ borderRadius: '8px' }} onClick={() => handleRedirect(href)}>
+                        {icon}
+                        <ListItemText sx={{ ml: 3, mr: 6 }} primary={primary} />
+                    </ListItemButton>
+                </ListItem>
+            );
+        }
     };
 
     return (

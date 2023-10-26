@@ -6,18 +6,18 @@ import Searchbar from '../../components/Searchbar';
 import { useState } from 'react';
 
 // styles
-import { styles } from './styles.js';
-import { Alert, Snackbar } from '@mui/material';
+import { styles } from '../../styles/validator-styles.js';
+import { Alert, Snackbar, Typography, Divider } from '@mui/material';
 
-import { useUser } from "@/context/UserContext";
+import { useUser } from '@/context/UserContext';
 
 export async function getServerSideProps() {
-   // const user = useUser();
-  //  const requestOptions = {
-  //      method: 'GET',
-  //      headers: { Authorization : `Bearer ${user.token}`}
-  //  };
-    const res = await fetch('http://localhost:8080/api/professor-subject/findByStatus?status=PENDING');
+    // const user = useUser();
+    //  const requestOptions = {
+    //      method: 'GET',
+    //      headers: { Authorization : `Bearer ${user.token}`}
+    //  };
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`);
     const data = await res.json();
     return { props: { data } };
 }
@@ -55,11 +55,11 @@ export default function Validator({ data }) {
 
     const handleApprove = teacherSubject => {
         console.log(teacherSubject);
-        fetch('http://localhost:8080/api/professor-subject/approve', {
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/approve`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization : `Bearer ${user.token}`
+                Authorization: `Bearer ${user.token}`,
             },
             body: JSON.stringify({
                 professorId: teacherSubject.professor.id,
@@ -101,11 +101,11 @@ export default function Validator({ data }) {
     };
 
     const handleReject = teacherSubject => {
-        fetch('http://localhost:8080/api/professor-subject/reject', {
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/reject`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization : `Bearer ${user.token}`
+                Authorization: `Bearer ${user.token}`,
             },
             body: JSON.stringify({
                 professorId: teacherSubject.professor.id,
@@ -148,6 +148,9 @@ export default function Validator({ data }) {
 
     return (
         <div style={styles.container}>
+            <Typography variant='h4'>Professor Validator</Typography>
+            <Divider />
+            <div style={{ paddingBlock: '1rem' }} />
             <Searchbar search={handleSearch} />
             <div style={styles.divPadding} />
             <TeachersTable data={teachersSubjects} approve={handleApprove} reject={handleReject} />

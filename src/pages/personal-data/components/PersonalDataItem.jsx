@@ -1,4 +1,4 @@
-import { styles } from "./styles";
+import { styles } from "../../../styles/personal-data-styles";
 
 const { Typography } = require("@mui/material");
 

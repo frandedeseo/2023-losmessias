@@ -7,13 +7,30 @@ import LogIn from './LogIn';
 import SignUp from './SignUp';
 import TransferList from './TransferList';
 import ForgotPassword from './ForgotPassword';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import { useUser, useUserDispatch } from '@/context/UserContext';
 
 const defaultTheme = createTheme();
 
 export default function Page({ page, setPage }) {
     
     const [request, setRequest] = useState({});
+    const router = useRouter();
+    const user = useUser();
+    const dispatch = useUserDispatch();
+
+    useEffect(() => {
+        if (router.isReady && user.authenticated) {
+            if (user.role=='student'){
+                router.push("/student-landing");
+            }else if(user.role=="professor"){
+                router.push("/professor-landing");
+            }else{
+                router.push("/admin-landing");
+            }
+        }
+    }, [router, user]);
 
     return (
         <ThemeProvider theme={defaultTheme}>
