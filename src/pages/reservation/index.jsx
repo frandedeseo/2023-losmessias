@@ -104,12 +104,12 @@ export default function Reservation() {
 
             <div style={{ display: 'flex', alignItems: 'baseline', width: '80%', margin: '2rem auto', justifyContent: 'space-between' }}>
                 <List>
-                    {comments.map(com => {
+                    {comments.map((com, idx) => {
                         let author = userInfo;
                         if (com.role === user.role) author = user;
 
                         return (
-                            <ListItemButton onClick={() => handleClick(com.comment)}>
+                            <ListItemButton onClick={() => handleClick(com.comment)} key={idx}>
                                 <ListItemIcon>
                                     <SendIcon />
                                 </ListItemIcon>
@@ -121,8 +121,8 @@ export default function Reservation() {
 
                 <Divider orientation='vertical' flexItem />
 
-                {files.map(file => (
-                    <Button onClick={() => handleDownload(file.id)}>
+                {files.map((file, idx) => (
+                    <Button onClick={() => handleDownload(file.id)} key={idx}>
                         <PictureAsPdfIcon fontSize='large' />
                         <Typography sx={{ marginLeft: '0.5rem' }}>{file.fileName}</Typography>
                     </Button>
