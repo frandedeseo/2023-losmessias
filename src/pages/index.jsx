@@ -6,12 +6,11 @@ import { useRouter } from 'next/router';
 import { useApi } from '../hooks/useApi.js';
 
 export default function Home({ data, subjects }) {
-
-    const [page, setPage] = useState("login");
+    const [page, setPage] = useState('login');
 
     const { confirmToken } = useApi();
 
-    const router = useRouter()
+    const router = useRouter();
     var token = router.query.token;
 
     useEffect(() => {
@@ -23,11 +22,7 @@ export default function Home({ data, subjects }) {
     return (
         <>
             <TopNav setPage={setPage} />
-            <Page
-                page={page}
-                setPage={setPage}
-            />
+            <Page page={page} setPage={setPage} />
         </>
     );
-
 }
