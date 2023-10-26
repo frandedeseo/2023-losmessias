@@ -134,6 +134,7 @@ export default function AdminLandingPage() {
         <div style={{ margin: '2% auto', width: '95%' }}>
             <Typography variant='h4'>Today&apos;s Summary</Typography>
             <Divider />
+            <div style={{ paddingBlock: '1rem' }} />
             <div style={{ display: 'flex', gap: '2rem' }}>
                 <Searchbar search={handleSearch} />
                 <Button variant='contained' sx={{ boxShadow: 'none' }} onClick={() => setOpen(true)}>

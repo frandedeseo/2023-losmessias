@@ -150,6 +150,7 @@ export default function Validator({ data }) {
         <div style={styles.container}>
             <Typography variant='h4'>Professor Validator</Typography>
             <Divider />
+            <div style={{ paddingBlock: '1rem' }} />
             <Searchbar search={handleSearch} />
             <div style={styles.divPadding} />
             <TeachersTable data={teachersSubjects} approve={handleApprove} reject={handleReject} />

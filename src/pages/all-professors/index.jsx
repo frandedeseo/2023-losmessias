@@ -161,8 +161,10 @@ export default function AllProfessors() {
                     <MonthlyChart id={professorId} legend />
                 </DialogContent>
 
-                <DialogActions sx={{ justifyContent: 'center' }}>
-                    <Button onClick={handleClose}>Close</Button>
+                <DialogActions>
+                    <Button onClick={handleClose} variant='contained'>
+                        Close
+                    </Button>
                 </DialogActions>
             </Dialog>
         </div>
