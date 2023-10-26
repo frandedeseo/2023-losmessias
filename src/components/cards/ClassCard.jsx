@@ -40,6 +40,7 @@ function parseTime(reservation) {
 export default function ClassCard({ reservation, style, cancel }) {
     const user = useUser();
     const [showConfirmCancel, setShowConfirmCancel] = useState(false);
+    const userId = user.role === 'student' ? reservation.professor : reservation.student;
 
     const handleAbort = () => {
         setShowConfirmCancel(false);
@@ -56,8 +57,8 @@ export default function ClassCard({ reservation, style, cancel }) {
                 <CardActionArea>
                     <Link
                         href={{
-                            pathname: '/class',
-                            query: { id: reservation.id },
+                            pathname: '/reservation',
+                            query: { id: reservation.id, userId: userId.id },
                         }}
                         style={{ textDecoration: 'none' }}
                     >
@@ -77,7 +78,7 @@ export default function ClassCard({ reservation, style, cancel }) {
                                         <PersonIcon />
                                     </ListItemIcon>
                                     <Typography variant='body1' color='text.secondary'>
-                                        {reservation.professor.firstName + ' ' + reservation.professor.lastName}
+                                        {userId.firstName + ' ' + userId.lastName}
                                     </Typography>
                                 </ListItem>
                                 <ListItem>

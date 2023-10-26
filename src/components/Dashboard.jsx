@@ -39,8 +39,8 @@ export default function Dashboard({ id }) {
             });
 
             setColors(colors);
-            setTotalPercentage(data[0]?.total / data[1]?.total - 1);
-            setIncomePercentage(data[0]?.income / data[1]?.income - 1);
+            setTotalPercentage(data[0]?.total - data[1]?.total);
+            setIncomePercentage(data[1].income > 0 ? data[0]?.income / data[1]?.income - 1 : 0);
 
             setConfig({
                 appendPadding: 10,
@@ -133,9 +133,11 @@ export default function Dashboard({ id }) {
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
                                     {totalPercentage < 0 && <ArrowDropDownIcon color='error' sx={{ fontSize: 34 }} />}
                                     {totalPercentage > 0 && <ArrowDropUpIcon color='success' sx={{ fontSize: 34 }} />}
-                                    <Typography variant='h6' sx={{ fontSize: 16, color: totalPercentage > 0 ? 'green' : 'red' }}>
-                                        {totalPercentage + '%'}
-                                    </Typography>
+                                    {totalPercentage !== 0 && (
+                                        <Typography variant='h6' sx={{ fontSize: 16, color: totalPercentage > 0 ? 'green' : 'red' }}>
+                                            {totalPercentage}
+                                        </Typography>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -150,9 +152,11 @@ export default function Dashboard({ id }) {
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
                                     {incomePercentage < 0 && <ArrowDropDownIcon color='error' sx={{ fontSize: 34 }} />}
                                     {incomePercentage > 0 && <ArrowDropUpIcon color='success' sx={{ fontSize: 34 }} />}
-                                    <Typography variant='h6' sx={{ fontSize: 16, color: 'green' }}>
-                                        {incomePercentage + '%'}
-                                    </Typography>
+                                    {incomePercentage !== 0 && (
+                                        <Typography variant='h6' sx={{ fontSize: 16, color: 'green' }}>
+                                            {incomePercentage + '%'}
+                                        </Typography>
+                                    )}
                                 </div>
                             </div>
                         </div>

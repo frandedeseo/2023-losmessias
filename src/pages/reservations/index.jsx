@@ -15,7 +15,7 @@ import {
     Modal,
     Select,
     Snackbar,
-    Typography
+    Typography,
 } from '@mui/material';
 
 // Hooks
@@ -127,6 +127,8 @@ export default function Reservation() {
         setShowConfirmationReservation(true);
     };
 
+      
+
     return (
         <>
             <div style={{ display: 'flex', width: '90%', margin: '2rem auto', alignItems: 'end', justifyContent: 'space-between' }}>
@@ -141,15 +143,6 @@ export default function Reservation() {
                         ))}
                     </Select>
                 </FormControl>
-                <Button onClick={() => setOpen(!open)}>Upload a file</Button>
-
-                <Modal open={open} onClose={() => setOpen(false)} sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}>
-                    <Upload />
-                </Modal>
             </div>
             <div style={{ width: '90%', margin: 'auto' }}>
                 <Typography variant='h4'>Agenda</Typography>
