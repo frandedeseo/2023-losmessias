@@ -17,7 +17,8 @@ export const fetcherGetWithToken = async ([url, token]) => {
                 Authorization: `Bearer ${token}`
             },
         });
-        return res.json();
+        if (res.status === 200)
+            return res.json();
     } catch (error) {
         console.log(error);
     }

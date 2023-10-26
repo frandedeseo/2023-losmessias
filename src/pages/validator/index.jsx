@@ -14,12 +14,8 @@ import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 import { useUser } from '@/context/UserContext';
 
 export async function getServerSideProps() {
-    // const user = useUser();
-    //  const requestOptions = {
-    //      method: 'GET',
-    //      headers: { Authorization : `Bearer ${user.token}`}
-    //  };
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`);
+    if (!res.ok) return { props: { data: [] } };
     const data = await res.json();
     return { props: { data } };
 }
@@ -34,7 +30,8 @@ export default function Validator() {
     const { data, isLoading, mutate } = useSWR([
         `${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`,
         user.token],
-        fetcherGetWithToken)
+        fetcherGetWithToken,
+        { fallbackData: [] })
 
     const handleSearch = (searchValue, filterValues) => {
         if (searchValue !== '' && filterValues.length === 0) {
