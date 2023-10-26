@@ -1,7 +1,7 @@
 // Mui
 import dynamic from 'next/dynamic';
 const Pie = dynamic(() => import('@ant-design/plots').then(({ Pie }) => Pie), { ssr: false });
-import { Card, Typography } from '@mui/material';
+import { Box, Card, CircularProgress, Typography } from '@mui/material';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import PaidIcon from '@mui/icons-material/Paid';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
@@ -17,7 +17,6 @@ import { fetcherGetWithTokenDashboard } from '@/helpers/FetchHelpers';
 
 export default function Dashboard({ id }) {
     const user = useUser();
-    // const [data, setData] = useState([]);
     const [colors, setColors] = useState([]);
     const [totalPercentage, setTotalPercentage] = useState('');
     const [incomePercentage, setIncomePercentage] = useState('');
@@ -27,14 +26,14 @@ export default function Dashboard({ id }) {
     const { data, isLoading } = useSWR([
         `${process.env.NEXT_PUBLIC_API_URI}/api/reservation/getStatistics?professorId=${id}`,
         user.token,
-    ], fetcherGetWithTokenDashboard)
+    ], fetcherGetWithTokenDashboard,
+        { fallbackData: [] })
 
 
     useEffect(() => {
         if (data.length > 0) {
             const colors = data[0]?.classes.map(val => {
                 if (val.type !== 'Cancelled') return getColor(val.type);
-
                 return '#ADB5BD';
             });
 
@@ -120,7 +119,24 @@ export default function Dashboard({ id }) {
             <Card sx={{ width: '65%', textAlign: 'center', padding: '1rem' }}>
                 <Typography variant='h5'>Current Month</Typography>
                 <div style={{ display: 'flex' }}>
-                    <div style={{ width: '70%' }}>{config && <Pie {...config} />}</div>
+                    <div style={{ width: '70%' }}>
+                        {isLoading ? (
+                            <Box sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignContent: 'center',
+                            }}>
+                                <CircularProgress sx={{ mr: 2 }} />
+                                <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '1rem', textAlign: 'center' }}>
+                                    Loading...
+                                </Typography>
+                            </Box>
+                        ) : (
+                            <>
+                                {config && <Pie {...config} />}
+                            </>
+                        )}
+                    </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 20 }}>
                         <div>
@@ -166,9 +182,23 @@ export default function Dashboard({ id }) {
             <Card style={{ width: '40%', textAlign: 'center', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
                 <Typography variant='h5'>Monthly Mean</Typography>
                 <div style={{ justifyContent: 'center', display: 'flex' }}>
-                    {configDonut && <Pie {...configDonut} style={{ width: '68%' }} />}
+                    {isLoading ? (
+                        <Box sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignContent: 'center',
+                        }}>
+                            <CircularProgress sx={{ mr: 2 }} />
+                            <Typography variant='h5' sx={{ marginBottom: '4rem', marginTop: '1rem', textAlign: 'center' }}>
+                                Loading...
+                            </Typography>
+                        </Box>
+                    ) : (
+                        <>
+                            {configDonut && <Pie {...configDonut} style={{ width: '68%' }} />}
+                        </>
+                    )}
                 </div>
-
                 <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '-1rem', textAlign: 'center' }}>
                     Income
                 </Typography>

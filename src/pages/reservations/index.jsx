@@ -127,6 +127,8 @@ export default function Reservation() {
         setShowConfirmationReservation(true);
     };
 
+      
+
     return (
         <>
             <div style={{ display: 'flex', width: '90%', margin: '2rem auto', alignItems: 'end', justifyContent: 'space-between' }}>
