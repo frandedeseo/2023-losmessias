@@ -1,37 +1,23 @@
 import dynamic from 'next/dynamic';
 const Pie = dynamic(() => import('@ant-design/plots').then(({ Pie }) => Pie), { ssr: false });
-import { Typography } from '@mui/material';
+import { Box, CircularProgress, Typography } from '@mui/material';
 import PaidIcon from '@mui/icons-material/Paid';
 import { getColor } from '@/utils/getColor';
 import { useUser } from '@/context/UserContext';
 import { useEffect, useState } from 'react';
+import useSWR from 'swr';
+import { fetcherGetWithTokenDashboard } from '@/helpers/FetchHelpers';
 
 export default function MonthlyChart({ id, legend = false }) {
     const user = useUser();
-    const [data, setData] = useState([]);
     const [configDonut, setConfigDonut] = useState(null);
 
-    useEffect(() => {
-        if (user.id) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` },
-            };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/getStatistics?professorId=${id}`, requestOptions).then(res => {
-                res.json().then(json => {
-                    const newData = json.map(e => {
-                        let classes = Object.keys(e.classesPerSubject).map(key => ({ type: key, value: e.classesPerSubject[key] }));
-                        return {
-                            total: e.totalClasses,
-                            income: e.incomes,
-                            classes,
-                        };
-                    });
-                    setData(newData);
-                });
-            });
-        }
-    }, []);
+    const { data, isLoading } = useSWR([
+        `${process.env.NEXT_PUBLIC_API_URI}/api/reservation/getStatistics?professorId=${id}`,
+        user.token]
+        , fetcherGetWithTokenDashboard,
+        { fallbackData: [] });
+
 
     useEffect(() => {
         if (data.length > 0) {
@@ -88,19 +74,43 @@ export default function MonthlyChart({ id, legend = false }) {
 
     return (
         <>
-            {configDonut && (
-                <div style={{ justifyContent: 'center', display: 'flex' }}>
-                    <Pie {...configDonut} />
-                </div>
+            {isLoading ? (
+                <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
+                    <CircularProgress />
+                    <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '1rem', textAlign: 'center' }}>
+                        Loading...
+                    </Typography>
+                </Box>
+            ) : (
+                <>
+                    {configDonut && (
+                        <div style={{ justifyContent: 'center', display: 'flex' }}>
+                            <Pie {...configDonut} />
+                        </div>
+                    )}
+                    {data.length === 0 ? (
+                        <>
+                            <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '1rem', textAlign: 'center' }}>
+                                There are no classes to show yet
+                            </Typography>
+                        </>
+                    ) : (
+                        <>
+                            <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '1rem', textAlign: 'center' }}>
+                                Income
+                            </Typography>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
+                                <PaidIcon sx={{ fontSize: 30 }} />
+                                <Typography variant='h6'>{data[2]?.income}</Typography>
+                            </div>
+                        </>
+                    )}
+                </>
             )}
-
-            <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '-1rem', textAlign: 'center' }}>
-                Income
-            </Typography>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
-                <PaidIcon sx={{ fontSize: 30 }} />
-                <Typography variant='h6'>{data[2]?.income}</Typography>
-            </div>
         </>
     );
 }

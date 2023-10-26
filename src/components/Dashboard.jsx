@@ -12,37 +12,23 @@ import { getColor } from '@/utils/getColor';
 import MonthlyChart from './MonthlyChart';
 import { useEffect, useState } from 'react';
 import { useUser } from '@/context/UserContext';
+import useSWR from 'swr';
+import { fetcherGetWithTokenDashboard } from '@/helpers/FetchHelpers';
 
 export default function Dashboard({ id }) {
     const user = useUser();
-    const [data, setData] = useState([]);
+    // const [data, setData] = useState([]);
     const [colors, setColors] = useState([]);
     const [totalPercentage, setTotalPercentage] = useState('');
     const [incomePercentage, setIncomePercentage] = useState('');
     const [config, setConfig] = useState(null);
     const [configDonut, setConfigDonut] = useState(null);
 
-    useEffect(() => {
-        if (user.id) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` },
-            };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/getStatistics?professorId=${id}`, requestOptions).then(res => {
-                res.json().then(json => {
-                    const newData = json.map(e => {
-                        let classes = Object.keys(e.classesPerSubject).map(key => ({ type: key, value: e.classesPerSubject[key] }));
-                        return {
-                            total: e.totalClasses,
-                            income: e.incomes,
-                            classes,
-                        };
-                    });
-                    setData(newData);
-                });
-            });
-        }
-    }, []);
+    const { data, isLoading } = useSWR([
+        `${process.env.NEXT_PUBLIC_API_URI}/api/reservation/getStatistics?professorId=${id}`,
+        user.token,
+    ], fetcherGetWithTokenDashboard)
+
 
     useEffect(() => {
         if (data.length > 0) {
