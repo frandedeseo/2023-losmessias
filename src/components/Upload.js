@@ -44,16 +44,23 @@ export default function Upload({ id }) {
 
     const handleSave = () => {
         if (uploadedInfo !== null) {
+            console.log(uploadedInfo);
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/uploadFile`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${user.token}`,
                 },
-                body: uploadedInfo,
+                body: JSON.stringify({
+                    fileName: uploadedInfo.name,
+                    fileDownloadUri: 'C:Users\\005894613\\Downloads\\IBM\\Telefonica\\' + uploadedInfo.name,
+                    fileType: 'application/pdf',
+                    size: uploadedInfo.size,
+                }),
             }).then(res => {
-                if (res.ok === 200) {
+                if (res.status === 200) {
                     setAlertMessage('File uploaded successfully!');
+                    setAlertSeverity('success');
                 } else {
                     setAlertSeverity('error');
                     setAlertMessage('There was an error uploading the file!');
@@ -71,12 +78,13 @@ export default function Upload({ id }) {
                     text: newMessage,
                     classReservation: parseInt(id),
                     role: user.role.toUpperCase(),
-                    uploadedDateTime: new Date().toISOString().split('T')[0] + ' ' + new Date().toISOString().split('T')[1].split('.')[0],
+                    uploadedDateTime: new Date().toISOString().split('.')[0],
                     associatedId: user.id,
                 }),
             }).then(res => {
-                if (res.ok === 200) {
+                if (res.status === 200) {
                     setAlertMessage('Message uploaded successfully!');
+                    setAlertSeverity('success');
                 } else {
                     setAlertSeverity('error');
                     setAlertMessage('There was an error uploading the message!');
@@ -116,6 +124,8 @@ export default function Upload({ id }) {
                 <DialogContent dividers sx={{ display: 'flex', alignItems: 'center' }}>
                     <div style={{ paddingInline: '2rem' }}>
                         <TextField
+                            multiline
+                            rows={3}
                             fullWidth
                             value={newMessage}
                             label='Message'

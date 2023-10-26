@@ -10,6 +10,7 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
+    Divider,
     List,
     ListItem,
     ListItemButton,
@@ -17,6 +18,16 @@ import {
     Typography,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+
+function parse(dateTime) {
+    let date = dateTime.slice(0, 3);
+    let time = dateTime.slice(3, 7);
+    date = date.join('-');
+    time = time.join(':');
+
+    return date + ' ' + time;
+}
 
 export default function Reservation() {
     const router = useRouter();
@@ -36,7 +47,16 @@ export default function Reservation() {
 
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/get-uploaded-data?id=${router.query.id}`, requestOptions).then(res => {
                 res.json().then(json => {
-                    setFiles(json);
+                    let comments = [];
+                    let files = [];
+
+                    json.forEach(e => {
+                        if (e.comment !== undefined) comments.push(e);
+                        else files.push(e);
+                    });
+
+                    setFiles(files);
+                    setComments(comments);
                 });
             });
 
@@ -66,6 +86,15 @@ export default function Reservation() {
         setMessage('');
     };
 
+    const handleDownload = id => {
+        const requestOptions = {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${user.token}` },
+        };
+
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/downloadFile?id=${id}`, requestOptions);
+    };
+
     return (
         <div style={{ width: '90%', margin: '2rem auto' }}>
             <div style={{ display: 'flex', alignItems: 'end', justifyContent: 'space-between' }}>
@@ -73,21 +102,32 @@ export default function Reservation() {
                 <Upload id={router.query.id} />
             </div>
 
-            <List>
-                {comments.map(com => {
-                    let author = userInfo;
-                    if (com.role === user.role) author = user;
+            <div style={{ display: 'flex', alignItems: 'baseline', width: '80%', margin: '2rem auto', justifyContent: 'space-between' }}>
+                <List>
+                    {comments.map(com => {
+                        let author = userInfo;
+                        if (com.role === user.role) author = user;
 
-                    return (
-                        <ListItemButton onClick={() => handleClick(com.text)}>
-                            <ListItemIcon>
-                                <SendIcon />
-                            </ListItemIcon>
-                            <Typography>{author.firstName + ' ' + author.lastName + ' - ' + com.uploadedDateTime}</Typography>
-                        </ListItemButton>
-                    );
-                })}
-            </List>
+                        return (
+                            <ListItemButton onClick={() => handleClick(com.comment)}>
+                                <ListItemIcon>
+                                    <SendIcon />
+                                </ListItemIcon>
+                                <Typography>{author.firstName + ' ' + author.lastName + ' - ' + parse(com.uploadedDateTime)}</Typography>
+                            </ListItemButton>
+                        );
+                    })}
+                </List>
+
+                <Divider orientation='vertical' flexItem />
+
+                {files.map(file => (
+                    <Button onClick={() => handleDownload(file.id)}>
+                        <PictureAsPdfIcon fontSize='large' />
+                        <Typography sx={{ marginLeft: '0.5rem' }}>{file.fileName}</Typography>
+                    </Button>
+                ))}
+            </div>
 
             <Dialog open={open} onClose={handleClose} fullWidth>
                 <DialogTitle>Message</DialogTitle>
