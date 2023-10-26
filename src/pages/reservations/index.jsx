@@ -15,7 +15,7 @@ import {
     Modal,
     Select,
     Snackbar,
-    Typography
+    Typography,
 } from '@mui/material';
 
 // Hooks
