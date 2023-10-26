@@ -12,13 +12,13 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 export default function Upload({ id }) {
     const user = useUser();
-    const [uploadedInfo, setUploadedInfo] = useState(null);
+    const [file, setFile] = useState(null);
     const [alert, setAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('');
@@ -37,35 +37,55 @@ export default function Upload({ id }) {
         width: 1,
     });
 
+    const handleFileChange = (e) => {
+        if (e.target.files) {
+          setFile(e.target.files[0]);
+        }
+      };
+
     const onFileChange = event => {
         const myFile = event.target.files[0];
-        setUploadedInfo(myFile);
+        setFile(myFile);
     };
 
     const handleSave = () => {
-        if (uploadedInfo !== null) {
-            console.log(uploadedInfo);
+        var response;
+        if (file !== null) {
+            console.log(file);
+            var data = new FormData();
+            data.append("file", file);
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/uploadFile`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${user.token}`,
                 },
-                body: JSON.stringify({
-                    fileName: uploadedInfo.name,
-                    fileDownloadUri: 'C:Users\\005894613\\Downloads\\IBM\\Telefonica\\' + uploadedInfo.name,
-                    fileType: 'application/pdf',
-                    size: uploadedInfo.size,
-                }),
+                body: data,
             }).then(res => {
                 if (res.status === 200) {
                     setAlertMessage('File uploaded successfully!');
                     setAlertSeverity('success');
+                    return res.json();
                 } else {
                     setAlertSeverity('error');
                     setAlertMessage('There was an error uploading the file!');
                 }
-            });
+                
+            }).then(json => {
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/setUploadInformation`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${user.token}`,
+                    },
+                    body: JSON.stringify({
+                        idFile: json.fileId,
+                        classReservation: parseInt(id),
+                        role: user.role.toUpperCase(),
+                        uploadedDateTime: new Date().toISOString().split('.')[0],
+                        associatedId: user.id,
+                    })
+                });
+            })
         }
         if (newMessage !== '') {
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/comment/upload`, {
@@ -94,13 +114,13 @@ export default function Upload({ id }) {
         setOpen(false);
         setAlert(true);
         setNewMessage('');
-        setUploadedInfo(null);
+        setFile(null);
     };
 
     const handleClose = () => {
         setOpen(false);
         setNewMessage('');
-        setUploadedInfo(null);
+        setFile(null);
     };
 
     return (
@@ -136,11 +156,11 @@ export default function Upload({ id }) {
                     </div>
                     <Divider orientation='vertical' flexItem />
                     <div style={{ paddingInline: '2rem' }}>
-                        <Button component='label' variant='contained' startIcon={<CloudUploadIcon />}>
-                            Upload file
-                            <VisuallyHiddenInput type='file' onChange={onFileChange} />
-                        </Button>
-                        <Typography>{uploadedInfo?.name}</Typography>
+                            <Button component='label' variant='contained' startIcon={<CloudUploadIcon />}>
+                                Upload file
+                                <VisuallyHiddenInput type='file' name='file' onChange={handleFileChange} />
+                            </Button>
+                            <Typography>{file?.name}</Typography>
                     </div>
                 </DialogContent>
 
