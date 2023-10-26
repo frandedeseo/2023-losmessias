@@ -7,11 +7,22 @@ import { useEffect, useState } from 'react';
 
 // styles
 import { styles } from '../../styles/validator-styles.js';
-import { Alert, Snackbar } from '@mui/material';
-
-import { useUser } from "@/context/UserContext";
+import { Alert, Snackbar, Typography, Divider } from '@mui/material';
 import useSWR from 'swr';
 import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
+
+import { useUser } from '@/context/UserContext';
+
+export async function getServerSideProps() {
+    // const user = useUser();
+    //  const requestOptions = {
+    //      method: 'GET',
+    //      headers: { Authorization : `Bearer ${user.token}`}
+    //  };
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`);
+    const data = await res.json();
+    return { props: { data } };
+}
 
 export default function Validator() {
     const [allTeachersSubjects, setAllTeachersSubjects] = useState([]);
@@ -143,6 +154,9 @@ export default function Validator() {
 
     return (
         <div style={styles.container}>
+            <Typography variant='h4'>Professor Validator</Typography>
+            <Divider />
+            <div style={{ paddingBlock: '1rem' }} />
             <Searchbar search={handleSearch} />
             <div style={styles.divPadding} />
             <TeachersTable

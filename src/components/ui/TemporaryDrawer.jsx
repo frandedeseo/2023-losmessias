@@ -21,6 +21,11 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
             icon: <HomeIcon />,
             primary: 'Home',
         },
+        user.role === 'student' ?? {
+            href: '/professors',
+            icon: <PersonSearchIcon />,
+            primary: 'Professors',
+        },
         ...(user.role !== 'admin'
             ? [
                 {
@@ -35,12 +40,17 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
                 },
             ]
             : [
-                {
-                    href: '/validator',
-                    icon: <SettingsIcon />,
-                    primary: 'Validator',
-                },
-            ]),
+                  {
+                      href: '/all-professors',
+                      icon: <PersonSearchIcon />,
+                      primary: 'Professors',
+                  },
+                  {
+                      href: '/validator',
+                      icon: <SettingsIcon />,
+                      primary: 'Validator',
+                  },
+              ]),
         {
             href: '/logout',
             icon: <LogoutIcon />,
@@ -55,14 +65,16 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
 
     const drawerItem = (href, icon, primary, key) => {
         //Agg seleccionado o no
-        return (
-            <ListItem key={key}>
-                <ListItemButton style={{ borderRadius: '8px' }} onClick={() => handleRedirect(href)}>
-                    {icon}
-                    <ListItemText sx={{ ml: 3, mr: 6 }} primary={primary} />
-                </ListItemButton>
-            </ListItem>
-        );
+        if (primary) {
+            return (
+                <ListItem key={key}>
+                    <ListItemButton style={{ borderRadius: '8px' }} onClick={() => handleRedirect(href)}>
+                        {icon}
+                        <ListItemText sx={{ ml: 3, mr: 6 }} primary={primary} />
+                    </ListItemButton>
+                </ListItem>
+            );
+        }
     };
 
     return (
