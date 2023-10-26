@@ -143,7 +143,6 @@ export default function Reservation() {
                         ))}
                     </Select>
                 </FormControl>
-                <Button onClick={() => setOpen(!open)}>Upload a file</Button>
 
                 <Modal open={open} onClose={() => setOpen(false)} sx={{
                     display: 'flex',
