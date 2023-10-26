@@ -42,19 +42,24 @@ export default function ProfessorLandingPage() {
                 headers: { Authorization: `Bearer ${user.token}` },
             };
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
-                res.json().then(json => {
-                    setDisabledBlocks(
-                        json.map(e => {
-                            if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                            return e;
-                        })
-                    );
-                });
+                if (res.status === 200)
+                    res.json().then(json => {
+                        setDisabledBlocks(
+                            json.map(e => {
+                                if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                return e;
+                            })
+                        );
+                    });
             });
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res =>
-                res.json().then(json => {
-                    setUserName(json.firstName + ' ' + json.lastName);
-                })
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res => {
+                if (res.status === 200)
+                    return res.json().then(json => {
+                        setUserName(json.firstName + ' ' + json.lastName);
+                    })
+                else
+                    return [];
+            }
             );
         }
     }, [user, router.isReady]);

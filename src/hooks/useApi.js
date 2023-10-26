@@ -126,6 +126,7 @@ export const useApi = () => {
             })
             .then(json => { getTokenValues(json.token) })
             .catch(error => {
+                console.log(error);
                 showAlert({ message: "Error Log In", status: 403 })
                 setError(error);
             }).finally(() => {

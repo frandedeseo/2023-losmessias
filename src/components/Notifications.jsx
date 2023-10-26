@@ -50,7 +50,12 @@ export default function Notifications() {
                     Authorization: `Bearer ${user.token}`,
                 }
             })
-                .then(response => response.json())
+                .then(response => {
+                    if(response.status === 200)
+                        return response.json()
+                    else
+                        return [];
+                })
                 .then(json => {
                     const data = json.reverse().slice(0, 10);
                     setNotifications(data);
