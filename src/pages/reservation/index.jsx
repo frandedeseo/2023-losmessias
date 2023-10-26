@@ -47,6 +47,7 @@ export default function Reservation() {
 
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/get-uploaded-data?id=${router.query.id}`, requestOptions).then(res => {
                 res.json().then(json => {
+                    console.log(json);
                     let comments = [];
                     let files = [];
 
@@ -86,13 +87,27 @@ export default function Reservation() {
         setMessage('');
     };
 
-    const handleDownload = id => {
+    const handleDownload = file => {
         const requestOptions = {
             method: 'GET',
-            headers: { Authorization: `Bearer ${user.token}` },
+            headers: {
+                Authorization: `Bearer ${user.token}`,
+            },
         };
 
-        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/downloadFile?id=${id}`, requestOptions);
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/downloadFile?id=${file.id}`, requestOptions)
+        .then(response => response.blob())
+        .then(blob => {
+            const url = window.URL.createObjectURL(new Blob([blob]));
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file.fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        })
+        .catch(error => console.error('Error:', error));
     };
 
     return (
@@ -122,7 +137,7 @@ export default function Reservation() {
                 <Divider orientation='vertical' flexItem />
 
                 {files.map((file, idx) => (
-                    <Button onClick={() => handleDownload(file.id)} key={idx}>
+                    <Button onClick={() => handleDownload(file)} key={idx}>
                         <PictureAsPdfIcon fontSize='large' />
                         <Typography sx={{ marginLeft: '0.5rem' }}>{file.fileName}</Typography>
                     </Button>
