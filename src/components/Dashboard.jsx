@@ -149,7 +149,7 @@ export default function Dashboard({ id }) {
                                     {totalPercentage > 0 && <ArrowDropUpIcon color='success' sx={{ fontSize: 34 }} />}
                                     {totalPercentage !== 0 && (
                                         <Typography variant='h6' sx={{ fontSize: 16, color: totalPercentage > 0 ? 'green' : 'red' }}>
-                                            {totalPercentage + '%'}
+                                            {totalPercentage}
                                         </Typography>
                                     )}
                                 </div>
