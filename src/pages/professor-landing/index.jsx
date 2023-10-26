@@ -26,7 +26,7 @@ export default function ProfessorLandingPage() {
     const [showConfirmDisable, setShowConfirmationDisable] = useState(false);
     const [alert, setAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
-    const [alertSeverity, setAlertSeverity] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState('error');
     const [disabledBlocks, setDisabledBlocks] = useState([]);
     const user = useUser();
     const [userName, setUserName] = useState('');
@@ -212,7 +212,7 @@ export default function ProfessorLandingPage() {
                         open={alert}
                         autoHideDuration={3000}
                         onClose={() => setAlert(false)}
-                        anchorOrigin={{ vertical: 'top', horizontal: 'top' }}
+                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                     >
                         <Alert severity={alertSeverity}>{alertMessage}</Alert>
                     </Snackbar>

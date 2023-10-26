@@ -133,7 +133,17 @@ export default function Dashboard({ id }) {
                             </Box>
                         ) : (
                             <>
-                                {config && <Pie {...config} />}
+                                {data.length > 0 ? (
+                                    <>
+                                        {config && <Pie {...config} />}
+                                    </>
+                                ) : (
+                                    <>
+                                        <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '3.5rem', textAlign: 'center' }}>
+                                            No metrics to be displayed, yet!
+                                        </Typography>
+                                    </>
+                                )}
                             </>
                         )}
                     </div>
@@ -199,13 +209,23 @@ export default function Dashboard({ id }) {
                         </>
                     )}
                 </div>
-                <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '-1rem', textAlign: 'center' }}>
+                <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '1rem', textAlign: 'center' }}>
                     Income
                 </Typography>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
-                    <PaidIcon sx={{ fontSize: 30 }} />
-                    <Typography variant='h6'>{data[2]?.income}</Typography>
-                </div>
+                {data.length > 0 ? (
+                    <>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
+                            <PaidIcon sx={{ fontSize: 30 }} />
+                            <Typography variant='h6'>{data[2]?.income}</Typography>
+                        </div>
+                    </>
+                ) : (
+                    <>
+                        <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '2.5rem', textAlign: 'center' }}>
+                            No metrics to be displayed, yet!
+                        </Typography>
+                    </>
+                )}
             </Card>
         </div>
     );
