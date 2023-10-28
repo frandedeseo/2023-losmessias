@@ -17,8 +17,59 @@ export const fetcherGetWithToken = async ([url, token]) => {
                 Authorization: `Bearer ${token}`
             },
         });
-        console.log(res)
-        return res.json();
+        if (res.status === 200)
+            return res.json();
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export const fetchGetWithTokenCalendar = async ([url, token]) => {
+    try {
+        const res = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+        }).then(res =>
+            res.json().then(json =>
+                json.map(e => {
+                    if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                    return e;
+                })
+            ));
+        console.log(res);
+        return res;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export const fetcherGetWithTokenDashboard = async ([url, token]) => {
+    try {
+        const res = await fetch(url, {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+                Authorization: `Bearer ${token}`
+            },
+        }).then(res => {
+            if (res.status === 200)
+                return res.json().then(json => {
+                    return json.map(e => {
+                        let classes = Object.keys(e.classesPerSubject).map(key => ({ type: key, value: e.classesPerSubject[key] }));
+                        return {
+                            total: e.totalClasses,
+                            income: e.incomes,
+                            classes,
+                        };
+                    });
+                });
+            else
+                return [];
+        });
+        return res;
     } catch (error) {
         console.log(error);
     }

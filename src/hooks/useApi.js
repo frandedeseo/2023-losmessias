@@ -38,7 +38,7 @@ export const useApi = () => {
             const email = decoded.sub;
             const role = decoded.role.toLowerCase();
             console.log(lastName);
-            dispatch({ type: 'login', payload: { id: id, token: token, role: role, email: email, firstName: firstName, lastName: lastName} });
+            dispatch({ type: 'login', payload: { id: id, token: token, role: role, email: email, firstName: firstName, lastName: lastName } });
             if (role == "professor") {
                 router.push("/professor-landing");
             } else if (role == "student") {
@@ -49,7 +49,7 @@ export const useApi = () => {
         }
     }
 
-    const sendRequestForRegistration = request => {
+    const sendRequestForRegistration = (request, setLoading) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -64,17 +64,21 @@ export const useApi = () => {
                 phone: request.phone
             }),
         };
+        setLoading(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/registration`, requestOptions)
             .then(response => {
                 if (response.status != 200) {
                     showAlert({ message: "Email is already taken", status: 500 });
                 } else {
                     showAlert({ message: "We have sent you an email. Please confirm email adress", status: 200 });
+                    router.push(`/${request.role}-landing`);
                 }
-            })
+            }).finally(() => {
+                setLoading(false);
+            });
     };
 
-    const sendRequestForRegistrationProfessor = (request, subjects) => {
+    const sendRequestForRegistrationProfessor = (request, subjects, setIsProcessing) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -90,14 +94,17 @@ export const useApi = () => {
                 subjects: subjects
             }),
         };
+        setIsProcessing(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/registration-professor`, requestOptions)
             .then(response => {
                 if (response.status == 200) {
                     showAlert({ message: "We have sent you an email. Please confirm email adress", status: 200 });
                 }
-            })
+            }).finally(() => {
+                setIsProcessing(false);
+            });
     };
-    const sendRequestForLogIn = (request) => {
+    const sendRequestForLogIn = (request, setIsLoading) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -106,6 +113,7 @@ export const useApi = () => {
                 password: request.password,
             }),
         };
+        setIsLoading(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/authentication`, requestOptions)
             .then(response => {
                 console.log(response.status);
@@ -118,8 +126,11 @@ export const useApi = () => {
             })
             .then(json => { getTokenValues(json.token) })
             .catch(error => {
+                console.log(error);
                 showAlert({ message: "Error Log In", status: 403 })
                 setError(error);
+            }).finally(() => {
+                setIsLoading(false);
             });
     };
 
@@ -175,8 +186,8 @@ export const useApi = () => {
         });
     };
 
-    const validateEmailForPasswordChange = request => {
-
+    const validateEmailForPasswordChange = (request, setIsProcessing) => {
+        setIsProcessing(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/loadEmailForPasswordChange?email=${request.email}`,
             { method: 'POST' })
             .then(response => {
@@ -187,8 +198,9 @@ export const useApi = () => {
                     showAlert({ message: "Email not exists", status: 500 });
                     return false;
                 }
-
-            })
+            }).finally(() => {
+                setIsProcessing(false);
+            });
 
     };
 
@@ -236,7 +248,7 @@ export const useApi = () => {
                 setError(error);
             });
     }
-    const changePassword = request => {
+    const changePassword = (request, setIsProcessing) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -245,7 +257,7 @@ export const useApi = () => {
                 password: request.password,
             }),
         };
-
+        setIsProcessing(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/changePassword`, requestOptions)
             .then(response => {
                 if (response.status === 200) {
@@ -254,6 +266,8 @@ export const useApi = () => {
             })
             .catch(res => {
                 console.log(res);
+            }).finally(() => {
+                setIsProcessing(false);
             });
     };
 

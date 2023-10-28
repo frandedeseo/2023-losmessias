@@ -10,40 +10,28 @@ import { useUser } from '@/context/UserContext';
 import { getColor } from '@/utils/getColor';
 
 // Mui
-import { Box, Chip, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
+import { Box, Chip, CircularProgress, Divider, FormControl, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
+import useSWR from 'swr';
+import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 
 export default function Professors() {
-    const [data, setData] = useState([]);
-    const [subjects, setSubjects] = useState([]);
-    const router = useRouter();
     const [professors, setProfessors] = useState([]);
     const [locationSelected, setLocationSelected] = useState([]);
     const [subjectSelected, setSubjectSelected] = useState([]);
     const user = useUser();
-    const [userName, setUserName] = useState('');
+
+    const { data, isLoading } = useSWR(
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, user.token],
+        fetcherGetWithToken,
+        { fallbackData: [] });
+    const { data: subjects } = useSWR(
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`, user.token],
+        fetcherGetWithToken,
+        { fallbackData: [] });
 
     useEffect(() => {
-        if (user.id) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` },
-            };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, requestOptions).then(res => {
-                if (res.status === 200) console.log(res);
-                res.json().then(json => {
-                    setData(json);
-                    setProfessors(json);
-                });
-            });
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res => res.json().then(json => setSubjects(json)));
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions).then(res => {
-                if (res.status === 401) {
-                    router.push('/');
-                }
-                res.json().then(json => setUserName(json.firstName + ' ' + json.lastName));
-            });
-        }
-    }, [user, router]);
+        setProfessors(data)
+    }, [data])
 
     const handleFilter = () => {
         if (locationSelected.length > 0 && subjectSelected.length === 0) {
@@ -146,24 +134,45 @@ export default function Professors() {
                     </FormControl>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
-                    {professors.map((profesor, index) => {
-                        if (profesor.subjects.length > 0) {
-                            return (
-                                <ProfessorCard
-                                    key={index}
-                                    professorId={profesor.id}
-                                    studentId={user.id}
-                                    name={profesor.firstName + ' ' + profesor.lastName}
-                                    email={profesor.email}
-                                    phone={profesor.phone}
-                                    sex={profesor.sex}
-                                    office={profesor.location}
-                                    style={{ mr: 3, mt: 2 }}
-                                    subjects={profesor.subjects}
-                                />
-                            );
-                        }
-                    })}
+                    {isLoading ? (
+                        <>
+                            <CircularProgress />
+                            <Typography variant='h4' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
+                                Loading professors...
+                            </Typography>
+                        </>
+                    ) : (
+                        <>
+                            {professors.length === 0 ? (
+                                <Typography variant='h4' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
+                                    No professors found
+                                </Typography>
+                            ) : (
+                                <>
+                                    {professors.map((profesor, index) => {
+                                        if (profesor.subjects.length > 0) {
+                                            return (
+                                                <ProfessorCard
+                                                    key={index}
+                                                    professorId={profesor.id}
+                                                    studentId={user.id}
+                                                    name={profesor.firstName + ' ' + profesor.lastName}
+                                                    email={profesor.email}
+                                                    phone={profesor.phone}
+                                                    sex={profesor.sex}
+                                                    office={profesor.location}
+                                                    style={{ mr: 3, mt: 2 }}
+                                                    subjects={profesor.subjects}
+                                                />
+                                            );
+                                        }
+                                    })}
+                                </>
+                            )}
+                        </>
+                    )
+                    }
+
                 </Box>
             </Box>
         </>
