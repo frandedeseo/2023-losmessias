@@ -93,7 +93,14 @@ export default function StudentLandingPage() {
                 </table>
                 <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={() => {}} />
             </div>
-            <Calendar selectedBlocks={[]} setSelectedBlocks={() => {}} disabledBlocks={disabledBlocks} week={week} interactive={false} />
+            <Calendar
+                selectedBlocks={[]}
+                setSelectedBlocks={() => {}}
+                disabledBlocks={disabledBlocks}
+                week={week}
+                interactive={false}
+                showData
+            />
         </div>
     );
 }
