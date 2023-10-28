@@ -15,9 +15,9 @@ export default function StudentLandingPage() {
     useEffect(() => {
         if (router.isReady && user.authenticated) {
             if (user.role == 'admin') {
-                router.push("/admin-landing");
-            } else if (user.role == "professor") {
-                router.push("/professor-landing");
+                router.push('/admin-landing');
+            } else if (user.role == 'professor') {
+                router.push('/professor-landing');
             } else {
                 const requestOptions = {
                     method: 'GET',
@@ -27,7 +27,13 @@ export default function StudentLandingPage() {
                     res.json().then(json => {
                         setDisabledBlocks(
                             json.map(e => {
+                                if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
                                 if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
+                                if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
+                                if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
+                                if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
+
                                 return e;
                             })
                         );
@@ -35,14 +41,14 @@ export default function StudentLandingPage() {
                 });
             }
         } else {
-            router.push("/");
+            router.push('/');
         }
     }, [user]);
 
     return (
         <div style={{ width: '95%', margin: 'auto' }}>
             <Typography variant='h4' sx={{ margin: '2% 0' }}>
-                Hi{" " + user.firstName + " " + user.lastName}, welcome back!
+                Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
             </Typography>
 
             <Typography variant='h4'>Agenda</Typography>
@@ -85,9 +91,16 @@ export default function StudentLandingPage() {
                         </tr>
                     </tbody>
                 </table>
-                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={() => { }} />
+                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={() => {}} />
             </div>
-            <Calendar selectedBlocks={[]} setSelectedBlocks={() => { }} disabledBlocks={disabledBlocks} week={week} interactive={false} />
+            <Calendar
+                selectedBlocks={[]}
+                setSelectedBlocks={() => {}}
+                disabledBlocks={disabledBlocks}
+                week={week}
+                interactive={false}
+                showData
+            />
         </div>
     );
 }
