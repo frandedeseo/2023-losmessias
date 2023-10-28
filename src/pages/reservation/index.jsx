@@ -146,8 +146,8 @@ export default function Reservation() {
                         if (file.role.toLowerCase() === user.role) author = user;
 
                         return (
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
-                                <Button onClick={() => handleDownload(file)} key={idx}>
+                            <div style={{ display: 'flex', alignItems: 'center' }} key={idx}>
+                                <Button onClick={() => handleDownload(file)}>
                                     <PictureAsPdfIcon fontSize='large' />
                                     <Typography sx={{ marginLeft: '0.5rem' }}>{file.fileName}</Typography>
                                 </Button>
