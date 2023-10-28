@@ -38,7 +38,6 @@ export default function AdminLandingPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
 
-
     useEffect(() => {
         if (router.isReady && user.authenticated) {
             if (user.role == 'student') {
@@ -48,16 +47,18 @@ export default function AdminLandingPage() {
             } else {
                 const requestOptions = {
                     method: 'GET',
-                    headers: { Authorization: `Bearer ${user.token}` }
+                    headers: { Authorization: `Bearer ${user.token}` },
                 };
                 setIsLoading(true);
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/todaySummary`, requestOptions).then(res =>
-                    res.json().then(json => {
-                        setAllProfessors(json);
-                        setProfessors(json);
-                        setShownProfessors(json.slice(0, rowsPerPage));
-                    })
-                ).finally(() => setIsLoading(false));
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/todaySummary`, requestOptions)
+                    .then(res =>
+                        res.json().then(json => {
+                            setAllProfessors(json);
+                            setProfessors(json);
+                            setShownProfessors(json.slice(0, rowsPerPage));
+                        })
+                    )
+                    .finally(() => setIsLoading(false));
 
                 fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
                     res.json().then(json => {
@@ -165,50 +166,55 @@ export default function AdminLandingPage() {
                             <>
                                 <TableRow>
                                     <TableCell colSpan={4}>
-                                        <Box sx={{
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                        }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }}
+                                        >
                                             <CircularProgress />
                                         </Box>
                                     </TableCell>
                                 </TableRow>
                             </>
                         ) : (
-                            <>{!professors.length ? (
-                                <>
-                                    {shownProfessors.map((prof, idx) => (
-                                        <TableRow key={idx}>
-                                            <TableCell>{`${prof.professor.firstName} ${prof.professor.lastName}`}</TableCell>
-                                            <TableCell>
-                                                <Chip
-                                                    label={prof.subject.name}
-                                                    sx={{
-                                                        backgroundColor: getColor(prof.subject.name),
-                                                    }}
-                                                />
-                                            </TableCell>
-                                            <TableCell>{prof.totalHours} hs</TableCell>
-                                            <TableCell>${prof.totalIncome}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </>
-                            ) : (
-                                <TableRow>
-                                    <TableCell colSpan={4}>
-                                        <Box sx={{
-                                            display: "flex",
-                                            justifyContent: "center",
-                                            alignItems: "center",
-                                        }}>
-                                            <Typography variant='h6' sx={{ padding: '1rem' }}>
-                                                No results found!
-                                            </Typography>
-                                        </Box>
-                                    </TableCell>
-                                </TableRow>
-                            )}
+                            <>
+                                {professors.length > 0 ? (
+                                    <>
+                                        {shownProfessors.map((prof, idx) => (
+                                            <TableRow key={idx}>
+                                                <TableCell>{`${prof.professor.firstName} ${prof.professor.lastName}`}</TableCell>
+                                                <TableCell>
+                                                    <Chip
+                                                        label={prof.subject.name}
+                                                        sx={{
+                                                            backgroundColor: getColor(prof.subject.name),
+                                                        }}
+                                                    />
+                                                </TableCell>
+                                                <TableCell>{prof.totalHours} hs</TableCell>
+                                                <TableCell>${prof.totalIncome}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </>
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={4}>
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                }}
+                                            >
+                                                <Typography variant='h6' sx={{ padding: '1rem' }}>
+                                                    No results found!
+                                                </Typography>
+                                            </Box>
+                                        </TableCell>
+                                    </TableRow>
+                                )}
                             </>
                         )}
                     </TableBody>
