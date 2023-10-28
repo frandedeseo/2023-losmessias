@@ -56,11 +56,9 @@ export default function ProfessorLandingPage() {
                 if (res.status === 200)
                     return res.json().then(json => {
                         setUserName(json.firstName + ' ' + json.lastName);
-                    })
-                else
-                    return [];
-            }
-            );
+                    });
+                else return [];
+            });
         }
     }, [user, router.isReady]);
 
@@ -126,7 +124,7 @@ export default function ProfessorLandingPage() {
     return (
         <div style={{ width: '95%', margin: 'auto' }}>
             <Typography variant='h4' sx={{ margin: '2% 0' }}>
-                Hi{" " + user.firstName + " " + user.lastName}, welcome back!
+                Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
             </Typography>
 
             <Tabs value={tab} onChange={handleTabChange}>
@@ -180,6 +178,7 @@ export default function ProfessorLandingPage() {
                         setSelectedBlocks={setSelectedBlocks}
                         disabledBlocks={disabledBlocks}
                         week={week}
+                        showData
                     />
 
                     <div style={{ display: 'flex', justifyContent: 'right', margin: '1rem auto', width: '90%' }}>
