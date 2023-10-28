@@ -10,6 +10,7 @@ import Typography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 import { useApi } from '../../hooks/useApi';
 import Alert from '../../components/Alert.jsx';
+import LoadingModal from '@/components/modals/LoadingModal';
 
 function not(a, b) {
     return a.filter(value => b.indexOf(value) === -1);
@@ -19,13 +20,14 @@ function intersection(a, b) {
     return a.filter(value => b.indexOf(value) !== -1);
 }
 
-export default function TransferList( { request, setPage } ) {
-    
+export default function TransferList({ request, setPage }) {
+
     const [checked, setChecked] = useState([]);
     const [left, setLeft] = useState([]);
     const [right, setRight] = useState([]);
+    const [isProcessing, setIsProcessing] = useState(false);
 
-    const {open, setOpen, alertState, sendRequestForRegistrationProfessor } = useApi();
+    const { open, setOpen, alertState, sendRequestForRegistrationProfessor } = useApi();
 
     useEffect(() => {
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`)
@@ -77,12 +79,12 @@ export default function TransferList( { request, setPage } ) {
         const obj = {};
         right.forEach((element, index) => {
             obj[`${index}`] = element;
-          });
-        sendRequestForRegistrationProfessor(request, right);
+        });
+        sendRequestForRegistrationProfessor(request, right, setIsProcessing);
         await sleep(2000);
         setPage('login');
     };
-    var sleep = function(ms){
+    var sleep = function (ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     };
 
@@ -118,13 +120,13 @@ export default function TransferList( { request, setPage } ) {
     );
 
     return (
-        
+
         <Grid component='form' onSubmit={handleSubmit} container spacing={2} justifyContent='center' alignItems='center'>
             <Typography component='h4' variant='h5'>
                 Choose the subjects your are capable of teaching:
             </Typography>
 
-            <Alert open={open} setOpen={setOpen} message={alertState.message} severity={alertState.severity}/>
+            <Alert open={open} setOpen={setOpen} message={alertState.message} severity={alertState.severity} />
 
             <Grid item>{customList(left)}</Grid>
             <Grid item>
@@ -172,9 +174,11 @@ export default function TransferList( { request, setPage } ) {
                 </Grid>
             </Grid>
             <Grid item>{customList(right)}</Grid>
-            <Button disabled={right.length==0} type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
+
+            <Button disabled={right.length == 0} type='submit' fullWidth variant='contained' sx={{ mt: 3, mb: 2 }}>
                 Finish
             </Button>
+            <LoadingModal isOpen={isProcessing} message={'Processing registration...'} />
         </Grid>
     );
 }

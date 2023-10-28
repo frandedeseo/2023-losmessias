@@ -9,6 +9,7 @@ import { styles } from "../../styles/personal-data-styles";
 import { useUser } from "@/context/UserContext";
 import useSWR from "swr";
 import { fetcherGetWithToken } from "@/helpers/FetchHelpers";
+import LoadingModal from "@/components/modals/LoadingModal";
 
 
 
@@ -17,15 +18,18 @@ export default function PersonalData() {
     const [emailAddress, setEmailAddress] = useState("");
     const [location, setLocation] = useState("");
     const [phone, setPhone] = useState("");
+    const [isProcessing, setIsProcessing] = useState(false);
     const user = useUser();
 
 
-    const { data: studentData, isLoading, mutate } = useSWR(
+    const { data, isLoading, mutate } = useSWR(
         [`${process.env.NEXT_PUBLIC_API_URI}/api/${user.role}/${user.id}`, user.token],
         fetcherGetWithToken);
+
     const handleSave = () => {
         if (editMode) {
             setEditMode(false)
+            setIsProcessing(true)
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/${user.role}/update/${user.id}`, {
                 method: 'PATCH',
                 body: JSON.stringify({
@@ -43,7 +47,7 @@ export default function PersonalData() {
                     res.json()
                 })
                 .then((response) => mutate(response))
-                .catch((err) => console.log(err));
+                .catch((err) => console.log(err)).finally(() => setIsProcessing(false));
         } else {
             setEditMode(true)
             setEmailAddress("")
@@ -52,64 +56,54 @@ export default function PersonalData() {
         }
     }
 
-    if (!isLoading) {
-        return (
-            <>
-                <Box sx={styles.globalContainer}>
-                    <Typography variant='h4' sx={styles.typography}>
-                        My personal information
-                    </Typography>
-                    {editMode ? (
-                        <Box>
-                            <Fab
-                                color="error"
-                                aria-label="edit"
-                                onClick={() => setEditMode(false)}
-                                style={{ marginRight: "1rem" }}
-                            >
-                                <Cancel />
-                            </Fab>
-                            <Fab
-                                color="success"
-                                aria-label="edit"
-                                onClick={() => handleSave()}
-                            >
-                                <CheckIcon />
-                            </Fab>
-                        </Box>
-                    ) : (
-                        <>
-                            <Fab
-                                color={"primary"}
-                                aria-label="edit"
-                                onClick={() => handleSave()}
-                            >
-                                {editMode ? <CheckIcon /> : (<EditIcon />)}
-                            </Fab>
-                        </>
-                    )}
-                </Box>
-                {!editMode ? (
-                    <PersonalDataDisplay data={studentData} />
-                ) : (
-                    <PersonalDataEdit
-                        data={studentData}
-                        setEmailAddress={setEmailAddress}
-                        setLocation={setLocation}
-                        setPhone={setPhone}
-                    />
-                )}
 
-            </>
-        );
-    } else {
-        return (
-            <Box sx={styles.noInformationGlobalContainer}>
+    return (
+        <>
+            <Box sx={styles.globalContainer}>
                 <Typography variant='h4' sx={styles.typography}>
-                    LOADING...
+                    My personal information
                 </Typography>
-
+                {editMode ? (
+                    <Box>
+                        <Fab
+                            color="error"
+                            aria-label="edit"
+                            onClick={() => setEditMode(false)}
+                            style={{ marginRight: "1rem" }}
+                        >
+                            <Cancel />
+                        </Fab>
+                        <Fab
+                            color="success"
+                            aria-label="edit"
+                            onClick={() => handleSave()}
+                        >
+                            <CheckIcon />
+                        </Fab>
+                    </Box>
+                ) : (
+                    <>
+                        <Fab
+                            color={"primary"}
+                            aria-label="edit"
+                            onClick={() => handleSave()}
+                        >
+                            {editMode ? <CheckIcon /> : (<EditIcon />)}
+                        </Fab>
+                    </>
+                )}
             </Box>
-        );
-    }
+            {!editMode ? (
+                <PersonalDataDisplay data={data} isLoading={isLoading} />
+            ) : (
+                <PersonalDataEdit
+                    data={data}
+                    setEmailAddress={setEmailAddress}
+                    setLocation={setLocation}
+                    setPhone={setPhone}
+                />
+            )}
+            <LoadingModal isOpen={isProcessing} message={'Processing changes...'} />
+        </>
+    );
 }

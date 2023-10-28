@@ -11,8 +11,10 @@ import { styles } from '../../styles/validator-styles.js';
 
 // Mui
 import {
+    Box,
     Button,
     Chip,
+    CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
@@ -38,6 +40,7 @@ export default function AllProfessors() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [open, setOpen] = useState(false);
     const [professorId, setProfessorId] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
 
     const user = useUser();
 
@@ -47,13 +50,13 @@ export default function AllProfessors() {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
-
+            setIsLoading(true);
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, requestOptions).then(res =>
                 res.json().then(json => {
                     setAllProfessors(json);
                     setProfessors(json);
                 })
-            );
+            ).finally(() => setIsLoading(false));
         }
     }, [user]);
 
@@ -120,28 +123,58 @@ export default function AllProfessors() {
                     </TableHead>
 
                     <TableBody>
-                        {professors.map(prof => (
-                            <TableRow key={prof.id} onClick={() => handleClick(prof.id)}>
-                                <TableCell>{`${prof.firstName} ${prof.lastName}`}</TableCell>
-                                <TableCell>
-                                    {prof.subjects.map(subject => (
-                                        <Chip
-                                            key={subject.id}
-                                            label={subject.name}
-                                            sx={{
-                                                backgroundColor: getColor(subject.name),
-                                                marginRight: '0.2rem',
-                                            }}
-                                        />
-                                    ))}
-                                </TableCell>
-                                <TableCell align='right'>
-                                    <Button variant='contained' onClick={() => handleClick(prof.id)}>
-                                        Dashboard
-                                    </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
+                        {isLoading ? (
+                            <>
+                                <TableRow>
+                                    <TableCell colSpan={3} align='center'>
+                                        <Box sx={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            flexDirection: 'row',
+                                        }}>
+                                            <CircularProgress sx={{ mr: 2 }} />
+                                            <Typography variant='h4'>Loading professors...</Typography>
+                                        </Box>
+                                    </TableCell>
+                                </TableRow>
+                            </>
+                        ) : (
+                            <>
+                                {professors.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={3} align='center'>
+                                            <Typography variant='h4'>No professors found</Typography>
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    <>
+                                        {professors.map(prof => (
+                                            <TableRow key={prof.id} onClick={() => handleClick(prof.id)}>
+                                                <TableCell>{`${prof.firstName} ${prof.lastName}`}</TableCell>
+                                                <TableCell>
+                                                    {prof.subjects.map(subject => (
+                                                        <Chip
+                                                            key={subject.id}
+                                                            label={subject.name}
+                                                            sx={{
+                                                                backgroundColor: getColor(subject.name),
+                                                                marginRight: '0.2rem',
+                                                            }}
+                                                        />
+                                                    ))}
+                                                </TableCell>
+                                                <TableCell align='right'>
+                                                    <Button variant='contained' onClick={() => handleClick(prof.id)}>
+                                                        Dashboard
+                                                    </Button>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </>
+                                )}
+                            </>
+                        )}
                     </TableBody>
                 </Table>
                 <TablePagination

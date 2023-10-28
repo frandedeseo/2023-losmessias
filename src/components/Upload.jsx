@@ -39,9 +39,9 @@ export default function Upload({ id }) {
 
     const handleFileChange = (e) => {
         if (e.target.files) {
-          setFile(e.target.files[0]);
+            setFile(e.target.files[0]);
         }
-      };
+    };
 
     const onFileChange = event => {
         const myFile = event.target.files[0];
@@ -69,7 +69,7 @@ export default function Upload({ id }) {
                     setAlertSeverity('error');
                     setAlertMessage('There was an error uploading the file!');
                 }
-                
+
             }).then(json => {
                 fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/setUploadInformation`, {
                     method: 'POST',
@@ -156,11 +156,11 @@ export default function Upload({ id }) {
                     </div>
                     <Divider orientation='vertical' flexItem />
                     <div style={{ paddingInline: '2rem' }}>
-                            <Button component='label' variant='contained' startIcon={<CloudUploadIcon />}>
-                                Upload file
-                                <VisuallyHiddenInput type='file' name='file' onChange={handleFileChange} />
-                            </Button>
-                            <Typography>{file?.name}</Typography>
+                        <Button component='label' variant='contained' startIcon={<CloudUploadIcon />}>
+                            Upload file
+                            <VisuallyHiddenInput type='file' name='file' onChange={handleFileChange} />
+                        </Button>
+                        <Typography>{file?.name}</Typography>
                     </div>
                 </DialogContent>
 

@@ -14,6 +14,7 @@ import {
     Alert,
     Box,
     Chip,
+    CircularProgress,
     Divider,
     FormControl,
     InputLabel,
@@ -24,61 +25,52 @@ import {
     TextField,
     Typography,
 } from '@mui/material';
+import LoadingModal from '@/components/modals/LoadingModal';
+import useSWR from 'swr';
+import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 
-const styles = {
-    searchInput: {
-        width: '18rem',
-        backgroundColor: '#fff',
-    },
-};
-
-export default function Professors() {
+export default function Classes() {
     const user = useUser();
+    const [data, setData] = useState([]);
     const [classes, setClasses] = useState([]);
     const [alert, setAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
-    const [alertSeverity, setAlertSeverity] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState('error');
     const [subjectSelected, setSubjectSelected] = useState([]);
     const [search, setSearch] = useState('');
-    const [subjects, setSubjects] = useState([]);
-    const [data, setData] = useState([]);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const camelCaseUserRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+    const [isLoading, setIsLoading] = useState(true);
+
+
+    const { data: subjects } = useSWR(
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`, user.token],
+        fetcherGetWithToken,
+        { fallbackData: [] }
+    );
 
     useEffect(() => {
-        if (user.id) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` },
-            };
-
-            if (user.role === 'student') {
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
-                    res.json().then(json => {
-                        const resrv = json.filter(reserv => reserv.status !== 'CANCELLED');
-                        setData(resrv);
-                        setClasses(resrv);
-                    });
-                });
-            } else {
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(
-                    res => {
-                        res.json().then(json => {
-                            const resrv = json.filter(reserv => reserv.status !== 'CANCELLED');
-                            setData(resrv);
-                            setClasses(resrv);
-                        });
-                    }
-                );
-            }
-
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Content-type': 'application/json',
+                Authorization: `Bearer ${user.token}`
+            },
+        };
+        setIsLoading(true);
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findBy${camelCaseUserRole}?${user.role}Id=${user.id}`, requestOptions)
+            .then(res => {
+                if (!res.ok) throw Error(res.status);
                 res.json().then(json => {
-                    setSubjects(json);
-                })
-            );
-        }
-    }, [user]);
+                    setData(json);
+                    setClasses(json);
+                });
+            }).catch(err => console.log(err))
+            .finally(() => setIsLoading(false));
+    }, [user])
 
     const handleCancel = id => {
+        setIsProcessing(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/cancel`, {
             method: 'POST',
             headers: {
@@ -97,7 +89,7 @@ export default function Professors() {
             } else {
                 setClasses(prevClasses => prevClasses.filter(reservation => reservation.id !== id));
             }
-        });
+        }).finally(() => setIsProcessing(false));
     };
 
     const handleSubjectChange = event => {
@@ -110,9 +102,9 @@ export default function Professors() {
                 data.filter(reservation =>
                     user.role === 'student'
                         ? reservation.professor.firstName.toLowerCase().includes(search.toLowerCase()) ||
-                          reservation.professor.lastName.toLowerCase().includes(search.toLowerCase())
+                        reservation.professor.lastName.toLowerCase().includes(search.toLowerCase())
                         : reservation.student.firstName.toLowerCase().includes(search.toLowerCase()) ||
-                          reservation.student.lastName.toLowerCase().includes(search.toLowerCase())
+                        reservation.student.lastName.toLowerCase().includes(search.toLowerCase())
                 )
             );
         } else if (search === '' && subjectSelected.length > 0) {
@@ -123,9 +115,9 @@ export default function Professors() {
                     reservation =>
                         (user.role === 'student'
                             ? reservation.professor.firstName.toLowerCase().includes(search.toLowerCase()) ||
-                              reservation.professor.lastName.toLowerCase().includes(search.toLowerCase())
+                            reservation.professor.lastName.toLowerCase().includes(search.toLowerCase())
                             : reservation.student.firstName.toLowerCase().includes(search.toLowerCase()) ||
-                              reservation.student.lastName.toLowerCase().includes(search.toLowerCase())) &&
+                            reservation.student.lastName.toLowerCase().includes(search.toLowerCase())) &&
                         subjectSelected.includes(reservation.subject.name)
                 )
             );
@@ -202,9 +194,28 @@ export default function Professors() {
                     </FormControl>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
-                    {classes.map((reservation, idx) => (
-                        <ClassCard key={idx} reservation={reservation} style={{ mr: 3, mt: 2 }} cancel={handleCancel} />
-                    ))}
+                    {isLoading ? (
+                        <>
+                            <CircularProgress />
+                            <Typography variant='h4' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
+                                Loading...
+                            </Typography>
+                        </>
+                    ) : (
+                        <>
+                            {classes.length === 0 ? (
+                                <Typography variant='h4' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
+                                    No reservations found!
+                                </Typography>
+                            ) : (
+                                <>
+                                    {classes.map((reservation, idx) => (
+                                        <ClassCard key={idx} reservation={reservation} style={{ mr: 3, mt: 2 }} cancel={handleCancel} />
+                                    ))}
+                                </>
+                            )}
+                        </>
+                    )}
                 </Box>
             </Box>
 
@@ -212,10 +223,12 @@ export default function Professors() {
                 open={alert}
                 autoHideDuration={3000}
                 onClose={() => setAlert(false)}
-                anchorOrigin={{ vertical: 'top', horizontal: 'top' }}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
             >
                 <Alert severity={alertSeverity}>{alertMessage}</Alert>
             </Snackbar>
+
+            <LoadingModal isOpen={isProcessing} message={'Processing cancelation...'} />
         </>
     );
 }

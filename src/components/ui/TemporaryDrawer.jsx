@@ -3,8 +3,8 @@ import { AutoStories, HomeMaxOutlined, Person } from '@mui/icons-material';
 import HomeIcon from '@mui/icons-material/Home';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import SettingsIcon from '@mui/icons-material/Settings';
-import LogoutIcon from '@mui/icons-material/Logout';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemText, Stack, Typography } from '@mui/material';
 import router from 'next/router';
 
@@ -28,17 +28,17 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
         },
         ...(user.role !== 'admin'
             ? [
-                  {
-                      href: '/classes',
-                      icon: <BookmarkIcon />,
-                      primary: 'Class Reservations',
-                  },
-                  {
-                      href: '/personal-data',
-                      icon: <SettingsIcon />,
-                      primary: 'Personal information',
-                  },
-              ]
+                {
+                    href: '/classes',
+                    icon: <BookmarkIcon />,
+                    primary: 'Class Reservations',
+                },
+                {
+                    href: '/personal-data',
+                    icon: <SettingsIcon />,
+                    primary: 'Personal information',
+                },
+            ]
             : [
                   {
                       href: '/all-professors',
@@ -57,6 +57,11 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
             primary: 'Log out',
         },
     ];
+    if (user.role === 'student') drawerItems.splice(1, 0, {
+        href: '/professors',
+        icon: <PersonSearchIcon />,
+        primary: 'Professors',
+    })
 
     const drawerItem = (href, icon, primary, key) => {
         //Agg seleccionado o no
@@ -80,10 +85,7 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
                     <Typography variant={'h5'}>Leherer</Typography>
                     <Divider style={{ color: 'transparent', width: '100%' }} />
                     <List>
-                        {
-                            drawerItems.map((item, index) => drawerItem(item.href, item.icon, item.primary, index))
-                            // filtrar por rol
-                        }
+                        {drawerItems.map((item, index) => drawerItem(item.href, item.icon, item.primary, index))}
                     </List>
                 </Stack>
             </Box>
