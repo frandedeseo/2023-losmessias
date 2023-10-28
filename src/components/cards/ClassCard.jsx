@@ -8,6 +8,7 @@ import {
     CardContent,
     Dialog,
     DialogActions,
+    DialogContentText,
     DialogTitle,
     List,
     ListItem,
@@ -37,10 +38,35 @@ function parseTime(reservation) {
     return start + ' - ' + end;
 }
 
+function check_cancellation_late(reservation, curr_date) {
+    if (
+        parseInt(reservation.day[2]) >= parseInt(curr_date[2]) - 2 &&
+        parseInt(reservation.day[1]) === parseInt(curr_date[1]) &&
+        parseInt(reservation.day[0]) === parseInt(curr_date[0])
+    )
+        return true;
+
+    return false;
+}
+
+function check_cancellation_valid(reservation, curr_date) {
+    if (
+        parseInt(reservation.day[2]) < parseInt(curr_date[2]) &&
+        parseInt(reservation.day[1]) === parseInt(curr_date[1]) &&
+        parseInt(reservation.day[0]) === parseInt(curr_date[0])
+    )
+        return false;
+    else if (parseInt(reservation.day[1]) < parseInt(curr_date[1]) && parseInt(reservation.day[0]) === parseInt(curr_date[0])) return true;
+    else if (parseInt(reservation.day[0]) < parseInt(curr_date[0])) return true;
+
+    return true;
+}
+
 export default function ClassCard({ reservation, style, cancel }) {
     const user = useUser();
     const [showConfirmCancel, setShowConfirmCancel] = useState(false);
     const userId = user.role === 'student' ? reservation.professor : reservation.student;
+    var curr_date = new Date().toISOString().split('T')[0].split('-');
 
     const handleAbort = () => {
         setShowConfirmCancel(false);
@@ -101,17 +127,27 @@ export default function ClassCard({ reservation, style, cancel }) {
                         </CardContent>
                     </Link>
                 </CardActionArea>
-                <CardActions>
-                    <ListItem sx={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                        <Button variant='contained' color='error' onClick={() => setShowConfirmCancel(true)}>
-                            Cancel
-                        </Button>
-                    </ListItem>
-                </CardActions>
+                {check_cancellation_valid(reservation, curr_date) && (
+                    <CardActions>
+                        <ListItem sx={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                            <Button variant='contained' color='error' onClick={() => setShowConfirmCancel(true)}>
+                                Cancel
+                            </Button>
+                        </ListItem>
+                    </CardActions>
+                )}
             </Card>
 
             <Dialog open={showConfirmCancel}>
                 <DialogTitle>Confirm Cancelation</DialogTitle>
+
+                {check_cancellation_late(reservation, curr_date) && (
+                    <DialogContentText sx={{ padding: '1rem' }}>
+                        <Typography>
+                            You are cancelling the reservation less than 48 hours before. 50% of the price will be charged
+                        </Typography>
+                    </DialogContentText>
+                )}
                 <DialogActions>
                     <Button onClick={handleAbort} color='error'>
                         Abort
