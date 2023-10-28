@@ -96,52 +96,66 @@ export default function Reservation() {
         };
 
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/downloadFile?id=${file.id}`, requestOptions)
-        .then(response => response.blob())
-        .then(blob => {
-            const url = window.URL.createObjectURL(new Blob([blob]));
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = file.fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-        })
-        .catch(error => console.error('Error:', error));
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(new Blob([blob]));
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = file.fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => console.error('Error:', error));
     };
 
     return (
         <div style={{ width: '90%', margin: '2rem auto' }}>
             <div style={{ display: 'flex', alignItems: 'end', justifyContent: 'space-between' }}>
                 <HorizontalProfessorCard professor={userInfo} />
-                <Upload id={router.query.id} />
+                <Upload id={router.query.id} setFiles={setFiles} setComments={setComments} />
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'baseline', width: '80%', margin: '2rem auto', justifyContent: 'space-between' }}>
-                <List>
-                    {comments.map((com, idx) => {
-                        let author = userInfo;
-                        if (com.role === user.role) author = user;
+            <div style={{ display: 'flex', alignItems: 'baseline', margin: '2rem auto', justifyContent: 'space-between' }}>
+                <div style={{ width: '50%' }}>
+                    <List>
+                        {comments.map((com, idx) => {
+                            let author = userInfo;
+                            if (com.role.toLowerCase() === user.role) author = user;
 
-                        return (
-                            <ListItemButton onClick={() => handleClick(com.comment)} key={idx}>
-                                <ListItemIcon>
-                                    <SendIcon />
-                                </ListItemIcon>
-                                <Typography>{author.firstName + ' ' + author.lastName + ' - ' + parse(com.uploadedDateTime)}</Typography>
-                            </ListItemButton>
-                        );
-                    })}
-                </List>
+                            return (
+                                <ListItemButton onClick={() => handleClick(com.comment)} key={idx}>
+                                    <ListItemIcon>
+                                        <SendIcon />
+                                    </ListItemIcon>
+                                    <Typography>
+                                        {author.firstName + ' ' + author.lastName + ' - ' + parse(com.uploadedDateTime)}
+                                    </Typography>
+                                </ListItemButton>
+                            );
+                        })}
+                    </List>
+                </div>
 
                 <Divider orientation='vertical' flexItem />
 
-                {files.map((file, idx) => (
-                    <Button onClick={() => handleDownload(file)} key={idx}>
-                        <PictureAsPdfIcon fontSize='large' />
-                        <Typography sx={{ marginLeft: '0.5rem' }}>{file.fileName}</Typography>
-                    </Button>
-                ))}
+                <div style={{ width: '50%', padding: '1.5rem' }}>
+                    {files.map((file, idx) => {
+                        let author = userInfo;
+                        if (file.role.toLowerCase() === user.role) author = user;
+
+                        return (
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <Button onClick={() => handleDownload(file)} key={idx}>
+                                    <PictureAsPdfIcon fontSize='large' />
+                                    <Typography sx={{ marginLeft: '0.5rem' }}>{file.fileName}</Typography>
+                                </Button>
+                                <Typography>{' - ' + author.firstName + ' ' + author.lastName}</Typography>
+                            </div>
+                        );
+                    })}
+                </div>
             </div>
 
             <Dialog open={open} onClose={handleClose} fullWidth>

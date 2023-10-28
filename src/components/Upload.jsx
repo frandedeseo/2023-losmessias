@@ -16,7 +16,7 @@ import { ChangeEvent, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
-export default function Upload({ id }) {
+export default function Upload({ id, setFiles, setComments }) {
     const user = useUser();
     const [file, setFile] = useState(null);
     const [alert, setAlert] = useState(false);
@@ -37,7 +37,7 @@ export default function Upload({ id }) {
         width: 1,
     });
 
-    const handleFileChange = (e) => {
+    const handleFileChange = e => {
         if (e.target.files) {
             setFile(e.target.files[0]);
         }
@@ -53,39 +53,41 @@ export default function Upload({ id }) {
         if (file !== null) {
             console.log(file);
             var data = new FormData();
-            data.append("file", file);
+            data.append('file', file);
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/uploadFile`, {
                 method: 'POST',
                 headers: {
                     Authorization: `Bearer ${user.token}`,
                 },
                 body: data,
-            }).then(res => {
-                if (res.status === 200) {
-                    setAlertMessage('File uploaded successfully!');
-                    setAlertSeverity('success');
-                    return res.json();
-                } else {
-                    setAlertSeverity('error');
-                    setAlertMessage('There was an error uploading the file!');
-                }
-
-            }).then(json => {
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/setUploadInformation`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${user.token}`,
-                    },
-                    body: JSON.stringify({
-                        idFile: json.fileId,
-                        classReservation: parseInt(id),
-                        role: user.role.toUpperCase(),
-                        uploadedDateTime: new Date().toISOString().split('.')[0],
-                        associatedId: user.id,
-                    })
-                });
             })
+                .then(res => {
+                    if (res.status === 200) {
+                        setAlertMessage('File uploaded successfully!');
+                        setAlertSeverity('success');
+                        setFiles(prevFiles => [...prevFiles, { fileName: file.name, role: user.role }]);
+                        return res.json();
+                    } else {
+                        setAlertSeverity('error');
+                        setAlertMessage('There was an error uploading the file!');
+                    }
+                })
+                .then(json => {
+                    fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/setUploadInformation`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${user.token}`,
+                        },
+                        body: JSON.stringify({
+                            idFile: json.fileId,
+                            classReservation: parseInt(id),
+                            role: user.role.toUpperCase(),
+                            uploadedDateTime: new Date().toISOString().split('.')[0],
+                            associatedId: user.id,
+                        }),
+                    });
+                });
         }
         if (newMessage !== '') {
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/comment/upload`, {
@@ -105,6 +107,17 @@ export default function Upload({ id }) {
                 if (res.status === 200) {
                     setAlertMessage('Message uploaded successfully!');
                     setAlertSeverity('success');
+                    setComments(prevComments => [
+                        ...prevComments,
+                        {
+                            comment: newMessage,
+                            role: user.role,
+                            uploadedDateTime: [
+                                ...new Date().toISOString().split('T')[0].split('-'),
+                                ...new Date().toISOString().split('T')[1].split('.')[0].split(':'),
+                            ],
+                        },
+                    ]);
                 } else {
                     setAlertSeverity('error');
                     setAlertMessage('There was an error uploading the message!');
