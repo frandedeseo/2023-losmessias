@@ -127,15 +127,18 @@ export default function ClassCard({ reservation, style, cancel }) {
                         </CardContent>
                     </Link>
                 </CardActionArea>
-                {check_cancellation_valid(reservation, curr_date) && (
-                    <CardActions>
-                        <ListItem sx={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                            <Button variant='contained' color='error' onClick={() => setShowConfirmCancel(true)}>
-                                Cancel
-                            </Button>
-                        </ListItem>
-                    </CardActions>
-                )}
+                <CardActions>
+                    <ListItem sx={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        <Button
+                            variant='contained'
+                            color='error'
+                            onClick={() => setShowConfirmCancel(true)}
+                            disabled={!check_cancellation_valid(reservation, curr_date)}
+                        >
+                            Cancel
+                        </Button>
+                    </ListItem>
+                </CardActions>
             </Card>
 
             <Dialog open={showConfirmCancel}>
