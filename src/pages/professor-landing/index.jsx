@@ -29,6 +29,8 @@ export default function ProfessorLandingPage() {
     const [alertSeverity, setAlertSeverity] = useState('error');
     const [disabledBlocks, setDisabledBlocks] = useState([]);
     const user = useUser();
+    const [giveFeedback, setGiveFeedback] = useState(true);
+    const [feedback, setFeedback] = useState({ rating: 0, time: 0, material: 0, kind: 0 });
     const [userName, setUserName] = useState('');
     const [tab, setTab] = useState(0);
 
@@ -119,6 +121,20 @@ export default function ProfessorLandingPage() {
 
         setAlertSeverity('success');
         setAlertMessage('Block has been disabled successfully!');
+    };
+
+    const handleFeedback = () => {
+        setGiveFeedback(false);
+        console.log('Send feedback');
+    };
+
+    const handleFeedbackClick = opt => {
+        console.log('hola');
+        if (feedback[opt] !== 0) {
+            setFeedback(prev => ({ ...prev, [opt]: 0 }));
+        } else {
+            setFeedback(prev => ({ ...prev, [opt]: 1 }));
+        }
     };
 
     return (
@@ -218,6 +234,65 @@ export default function ProfessorLandingPage() {
                 </>
             )}
             {tab === 1 && <Dashboard id={user.id} />}
+
+            <Dialog open={giveFeedback} onClose={() => setGiveFeedback(false)}>
+                <DialogTitle>Give Feedback to Francisco de Deseo</DialogTitle>
+                <DialogContent>
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <Rating
+                            precision={0.5}
+                            value={feedback.rating}
+                            onChange={(event, newValue) => {
+                                setFeedback(prev => ({ ...prev, rating: newValue }));
+                            }}
+                            sx={{ fontSize: 42 }}
+                            max={3}
+                            size='large'
+                        />
+                    </div>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            gap: 10,
+                            marginBlock: '1.5rem',
+                        }}
+                    >
+                        <Tooltip title='Is always on time'>
+                            <AccessTimeIcon
+                                fontSize='large'
+                                sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                onClick={() => handleFeedbackClick('time')}
+                                color={feedback.time === 1 ? 'black' : 'disabled'}
+                            />
+                        </Tooltip>
+
+                        <Tooltip title='Has extra material to practice'>
+                            <InsertDriveFileIcon
+                                fontSize='large'
+                                sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                onClick={() => handleFeedbackClick('material')}
+                                color={feedback.material === 1 ? 'black' : 'disabled'}
+                            />
+                        </Tooltip>
+
+                        <Tooltip title='Is respectful and patient'>
+                            <SentimentSatisfiedAltIcon
+                                fontSize='large'
+                                sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                onClick={() => handleFeedbackClick('kind')}
+                                color={feedback.kind === 1 ? 'black' : 'disabled'}
+                            />
+                        </Tooltip>
+                    </div>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setGiveFeedback(false)}>Close</Button>
+                    <Button variant='contained' onClick={handleFeedback}>
+                        Submit
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }

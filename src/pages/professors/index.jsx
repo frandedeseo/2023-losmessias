@@ -37,7 +37,6 @@ export default function Professors() {
     const [subjectSelected, setSubjectSelected] = useState([]);
     const [giveFeedback, setGiveFeedback] = useState(true);
     const [feedback, setFeedback] = useState({ rating: 0, time: 0, material: 0, kind: 0 });
-    console.log(feedback);
     const user = useUser();
 
     const { data, isLoading } = useSWR([`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, user.token], fetcherGetWithToken, {
