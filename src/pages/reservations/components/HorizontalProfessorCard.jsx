@@ -1,5 +1,17 @@
 import { Business, MailOutline, Phone } from '@mui/icons-material';
-import { Card, CardActionArea, CardContent, CardMedia, List, ListItem, ListItemIcon, Rating, Skeleton, Typography } from '@mui/material';
+import {
+    Card,
+    CardActionArea,
+    CardContent,
+    CardMedia,
+    List,
+    ListItem,
+    ListItemIcon,
+    Rating,
+    Skeleton,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
@@ -88,9 +100,24 @@ export default function HorizontalProfessorCard({ professor }) {
                             rowGap: 0,
                         }}
                     >
-                        <AccessTimeIcon fontSize='large' sx={{ gridColumn: 1 / 3, row: 1 }} />
-                        <SentimentSatisfiedAltIcon fontSize='large' sx={{ gridColumn: 1 / 3, row: 1 }} />
-                        <InsertDriveFileIcon fontSize='large' sx={{ gridColumn: 1 / 3, row: 1 }} />
+                        <Tooltip title='Is always on time'>
+                            <AccessTimeIcon fontSize='large' sx={{ gridColumn: 1 / 3, row: 1 }} />
+                        </Tooltip>
+
+                        <Tooltip
+                            title={professor?.role?.toLowerCase() === 'student' ? 'Do the homework' : 'Has extra material to practice'}
+                        >
+                            <InsertDriveFileIcon fontSize='large' sx={{ gridColumn: 1 / 3, row: 1 }} />
+                        </Tooltip>
+
+                        <Tooltip
+                            title={
+                                professor?.role?.toLowerCase() === 'student' ? 'Pays attention and listens' : 'Is respectful and patient'
+                            }
+                        >
+                            <SentimentSatisfiedAltIcon fontSize='large' sx={{ gridColumn: 1 / 3, row: 1 }} />
+                        </Tooltip>
+
                         <Typography sx={{ gridColumn: 1 / 3 }}>1</Typography>
                         <Typography sx={{ gridColumn: 1 / 3 }}>2</Typography>
                         <Typography sx={{ gridColumn: 1 / 3 }}>3</Typography>
