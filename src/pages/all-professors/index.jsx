@@ -21,6 +21,7 @@ import {
     DialogTitle,
     Divider,
     Paper,
+    Rating,
     Table,
     TableBody,
     TableCell,
@@ -28,10 +29,14 @@ import {
     TableHead,
     TablePagination,
     TableRow,
+    Tooltip,
     Typography,
 } from '@mui/material';
 import Dashboard from '@/components/Dashboard.jsx';
 import MonthlyChart from '@/components/MonthlyChart.jsx';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 
 export default function AllProfessors() {
     const [allProfessors, setAllProfessors] = useState([]);
@@ -51,12 +56,14 @@ export default function AllProfessors() {
                 headers: { Authorization: `Bearer ${user.token}` },
             };
             setIsLoading(true);
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, requestOptions).then(res =>
-                res.json().then(json => {
-                    setAllProfessors(json);
-                    setProfessors(json);
-                })
-            ).finally(() => setIsLoading(false));
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, requestOptions)
+                .then(res =>
+                    res.json().then(json => {
+                        setAllProfessors(json);
+                        setProfessors(json);
+                    })
+                )
+                .finally(() => setIsLoading(false));
         }
     }, [user]);
 
@@ -117,7 +124,24 @@ export default function AllProfessors() {
                     <TableHead>
                         <TableRow>
                             <TableCell>Name</TableCell>
+                            <TableCell>Email</TableCell>
                             <TableCell>Subjects</TableCell>
+                            <TableCell>Rating</TableCell>
+                            <TableCell align='center'>
+                                <Tooltip title='Is always on time'>
+                                    <AccessTimeIcon />
+                                </Tooltip>
+                            </TableCell>
+                            <TableCell align='center'>
+                                <Tooltip title='Has extra material to practice'>
+                                    <InsertDriveFileIcon />
+                                </Tooltip>
+                            </TableCell>
+                            <TableCell align='center'>
+                                <Tooltip title='Is respectful and patient'>
+                                    <SentimentSatisfiedAltIcon />
+                                </Tooltip>
+                            </TableCell>
                             <TableCell align='right'>Monthly Mean</TableCell>
                         </TableRow>
                     </TableHead>
@@ -127,12 +151,14 @@ export default function AllProfessors() {
                             <>
                                 <TableRow>
                                     <TableCell colSpan={3} align='center'>
-                                        <Box sx={{
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            flexDirection: 'row',
-                                        }}>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                flexDirection: 'row',
+                                            }}
+                                        >
                                             <CircularProgress sx={{ mr: 2 }} />
                                             <Typography variant='h4'>Loading professors...</Typography>
                                         </Box>
@@ -152,6 +178,7 @@ export default function AllProfessors() {
                                         {professors.map(prof => (
                                             <TableRow key={prof.id} onClick={() => handleClick(prof.id)}>
                                                 <TableCell>{`${prof.firstName} ${prof.lastName}`}</TableCell>
+                                                <TableCell>{prof.email}</TableCell>
                                                 <TableCell>
                                                     {prof.subjects.map(subject => (
                                                         <Chip
@@ -164,6 +191,12 @@ export default function AllProfessors() {
                                                         />
                                                     ))}
                                                 </TableCell>
+                                                <TableCell>
+                                                    <Rating precision={0.5} value={1.5} max={3} readOnly />
+                                                </TableCell>
+                                                <TableCell align='center'>0</TableCell>
+                                                <TableCell align='center'>0</TableCell>
+                                                <TableCell align='center'>0</TableCell>
                                                 <TableCell align='right'>
                                                     <Button variant='contained' onClick={() => handleClick(prof.id)}>
                                                         Dashboard

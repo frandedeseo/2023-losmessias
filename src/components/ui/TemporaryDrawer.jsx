@@ -7,6 +7,8 @@ import BookmarkIcon from '@mui/icons-material/Bookmark';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { Box, Divider, Drawer, List, ListItem, ListItemButton, ListItemText, Stack, Typography } from '@mui/material';
 import router from 'next/router';
+import SchoolIcon from '@mui/icons-material/School';
+import ThumbUpAltIcon from '@mui/icons-material/ThumbUpAlt';
 
 export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
     const handleRedirect = href => {
@@ -47,8 +49,13 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
                   },
                   {
                       href: '/all-students',
-                      icon: <PersonSearchIcon />,
+                      icon: <SchoolIcon />,
                       primary: 'Students',
+                  },
+                  {
+                      href: '/feedbacks',
+                      icon: <ThumbUpAltIcon />,
+                      primary: 'Feedbacks',
                   },
                   {
                       href: '/validator',
