@@ -28,22 +28,27 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
         },
         ...(user.role !== 'admin'
             ? [
-                {
-                    href: '/classes',
-                    icon: <BookmarkIcon />,
-                    primary: 'Class Reservations',
-                },
-                {
-                    href: '/personal-data',
-                    icon: <SettingsIcon />,
-                    primary: 'Personal information',
-                },
-            ]
+                  {
+                      href: '/classes',
+                      icon: <BookmarkIcon />,
+                      primary: 'Class Reservations',
+                  },
+                  {
+                      href: '/personal-data',
+                      icon: <SettingsIcon />,
+                      primary: 'Personal information',
+                  },
+              ]
             : [
                   {
                       href: '/all-professors',
                       icon: <PersonSearchIcon />,
                       primary: 'Professors',
+                  },
+                  {
+                      href: '/all-students',
+                      icon: <PersonSearchIcon />,
+                      primary: 'Students',
                   },
                   {
                       href: '/validator',
@@ -57,11 +62,12 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
             primary: 'Log out',
         },
     ];
-    if (user.role === 'student') drawerItems.splice(1, 0, {
-        href: '/professors',
-        icon: <PersonSearchIcon />,
-        primary: 'Professors',
-    })
+    if (user.role === 'student')
+        drawerItems.splice(1, 0, {
+            href: '/professors',
+            icon: <PersonSearchIcon />,
+            primary: 'Professors',
+        });
 
     const drawerItem = (href, icon, primary, key) => {
         //Agg seleccionado o no
@@ -84,9 +90,7 @@ export default function TemporaryDrawer({ toggleDrawer, menuIsOpen }) {
                 <Stack direction={'column'} spacing={2} sx={{ m: 2, pt: 2 }} justifyContent={'start'} alignItems={'center'}>
                     <Typography variant={'h5'}>Leherer</Typography>
                     <Divider style={{ color: 'transparent', width: '100%' }} />
-                    <List>
-                        {drawerItems.map((item, index) => drawerItem(item.href, item.icon, item.primary, index))}
-                    </List>
+                    <List>{drawerItems.map((item, index) => drawerItem(item.href, item.icon, item.primary, index))}</List>
                 </Stack>
             </Box>
         </Drawer>
