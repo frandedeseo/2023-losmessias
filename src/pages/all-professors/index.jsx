@@ -192,11 +192,11 @@ export default function AllProfessors() {
                                                     ))}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Rating precision={0.5} value={1.5} max={3} readOnly />
+                                                    <Rating precision={0.5} value={prof.avgRating} max={3} readOnly />
                                                 </TableCell>
-                                                <TableCell align='center'>0</TableCell>
-                                                <TableCell align='center'>0</TableCell>
-                                                <TableCell align='center'>0</TableCell>
+                                                <TableCell align='center'>{prof.sumPunctuality}</TableCell>
+                                                <TableCell align='center'>{prof.sumMaterial}</TableCell>
+                                                <TableCell align='center'>{prof.sumEducated}</TableCell>
                                                 <TableCell align='right'>
                                                     <Button variant='contained' onClick={() => handleClick(prof.id)}>
                                                         Dashboard

@@ -165,11 +165,11 @@ export default function AllStudents() {
                                                 <TableCell>{`${stu.firstName} ${stu.lastName}`}</TableCell>
                                                 <TableCell>{stu.email}</TableCell>
                                                 <TableCell>
-                                                    <Rating precision={0.5} value={1.5} max={3} readOnly />
+                                                    <Rating precision={0.5} value={stu.avgRating} max={3} readOnly />
                                                 </TableCell>
-                                                <TableCell align='center'>0</TableCell>
-                                                <TableCell align='center'>0</TableCell>
-                                                <TableCell align='center'>0</TableCell>
+                                                <TableCell align='center'>{stu.sumPunctuality}</TableCell>
+                                                <TableCell align='center'>{stu.sumMaterial}</TableCell>
+                                                <TableCell align='center'>{stu.sumEducated}</TableCell>
                                             </TableRow>
                                         ))}
                                     </>

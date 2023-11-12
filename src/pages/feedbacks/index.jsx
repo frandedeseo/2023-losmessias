@@ -46,19 +46,19 @@ export default function Feedbacks() {
 
     useEffect(() => {
         if (user.id) {
-            // const requestOptions = {
-            //     method: 'GET',
-            //     headers: { Authorization: `Bearer ${user.token}` },
-            // };
-            // setIsLoading(true);
-            // fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/all`, requestOptions)
-            //     .then(res =>
-            //         res.json().then(json => {
-            //             setAllFeedbacks(json);
-            //             setFeedbacks(json);
-            //         })
-            //     )
-            //     .finally(() => setIsLoading(false));
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${user.token}` },
+            };
+            setIsLoading(true);
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/getAllFeedbacks`, requestOptions)
+                .then(res =>
+                    res.json().then(json => {
+                        setAllFeedbacks(json);
+                        setFeedbacks(json);
+                    })
+                )
+                .finally(() => setIsLoading(false));
         }
     }, [user]);
 
@@ -68,9 +68,11 @@ export default function Feedbacks() {
         if (searchValue !== '') {
             setFeedbacks(
                 allFeedbacks.filter(
-                    prevStudents =>
-                        prevStudents.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
-                        prevStudents.lastName.toLowerCase().includes(searchValue.toLowerCase())
+                    prevFeedbacks =>
+                        prevFeedbacks.professor.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+                        prevFeedbacks.professor.lastName.toLowerCase().includes(searchValue.toLowerCase()) ||
+                        prevFeedbacks.student.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+                        prevFeedbacks.student.lastName.toLowerCase().includes(searchValue.toLowerCase())
                 )
             );
         } else setFeedbacks(allFeedbacks);
@@ -112,6 +114,7 @@ export default function Feedbacks() {
                         <TableRow>
                             <TableCell>Giver</TableCell>
                             <TableCell>Receiver</TableCell>
+                            <TableCell>Date</TableCell>
                             <TableCell>Rating</TableCell>
                             <TableCell align='center'>
                                 <AccessTimeIcon />
@@ -154,16 +157,27 @@ export default function Feedbacks() {
                                     </TableRow>
                                 ) : (
                                     <>
-                                        {feedbacks.map(stu => (
-                                            <TableRow key={stu.id}>
-                                                <TableCell>{`${stu.firstName} ${stu.lastName}`}</TableCell>
-                                                <TableCell>{stu.email}</TableCell>
+                                        {feedbacks.map(feed => (
+                                            <TableRow key={feed.id}>
                                                 <TableCell>
-                                                    <Rating precision={0.5} value={1.5} max={3} readOnly />
+                                                    {feed.receptorRole === 'STUDENT'
+                                                        ? `${feed.professor.firstName} ${feed.professor.lastName}`
+                                                        : `${feed.student.firstName} ${feed.student.lastName}`}
                                                 </TableCell>
-                                                <TableCell align='center'>0</TableCell>
-                                                <TableCell align='center'>0</TableCell>
-                                                <TableCell align='center'>0</TableCell>
+                                                <TableCell>
+                                                    {feed.receptorRole === 'STUDENT'
+                                                        ? `${feed.student.firstName} ${feed.student.lastName}`
+                                                        : `${feed.professor.firstName} ${feed.professor.lastName}`}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {`${feed.dateTimeOfFeedback[2]}-${feed.dateTimeOfFeedback[1]}-${feed.dateTimeOfFeedback[0]}`}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Rating precision={0.5} value={feed.rating} max={3} readOnly />
+                                                </TableCell>
+                                                <TableCell align='center'>{feed.feedbackOptions.includes('PUNCTUALITY') ? 1 : 0}</TableCell>
+                                                <TableCell align='center'>{feed.feedbackOptions.includes('MATERIAL') ? 1 : 0}</TableCell>
+                                                <TableCell align='center'>{feed.feedbackOptions.includes('POLITE') ? 1 : 0}</TableCell>
                                             </TableRow>
                                         ))}
                                     </>
