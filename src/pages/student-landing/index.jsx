@@ -11,8 +11,9 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 export default function StudentLandingPage() {
     const [week, setWeek] = useState(0);
     const [disabledBlocks, setDisabledBlocks] = useState([]);
-    const [giveFeedback, setGiveFeedback] = useState(true);
+    const [giveFeedback, setGiveFeedback] = useState(false);
     const [feedback, setFeedback] = useState({ rating: 0, time: 0, material: 0, kind: 0 });
+    const [pendingFeedback, setPendingFeedback] = useState([]);
     const user = useUser();
 
     var router = useRouter();
@@ -44,6 +45,30 @@ export default function StudentLandingPage() {
                         );
                     });
                 });
+
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions).then(res => {
+                    res.json().then(json => {
+                        json.pendingClassesFeedbacks.map(reservation => {
+                            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
+                                res2.json().then(json2 => {
+                                    if (json2.receiverRole.toUpperCase() === 'PROFESSOR') {
+                                        setPendingFeedback(prev => [
+                                            ...prev,
+                                            {
+                                                reservation_id: reservation,
+                                                receiver: {
+                                                    id: json2.professor.id,
+                                                    name: `${json2.professor.firstName} ${json2.professor.lastName}`,
+                                                },
+                                            },
+                                        ]);
+                                    }
+                                });
+                            });
+                            setGiveFeedback(true);
+                        });
+                    });
+                });
             }
         } else {
             router.push('/');
@@ -52,11 +77,32 @@ export default function StudentLandingPage() {
 
     const handleFeedback = () => {
         setGiveFeedback(false);
-        console.log('Send feedback');
+
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback/${reservation}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${user.token}`,
+            },
+            body: JSON.stringify({
+                studentId: user.id,
+                professorId: pendingFeedback[0].receiver.id,
+                roleReceptor: 'PROFESSOR',
+                classId: pendingFeedback[0].reservation_id,
+                rating: feedback.rating,
+                material: feedback.material,
+                punctuality: feedback.time,
+                educated: feedback.kind,
+            }),
+        }).then(res => {
+            if (res.status === 200) {
+                if (pendingFeedback.lengt === 1) giveFeedback(false);
+                setPendingFeedback(prev => prev.shift());
+            }
+        });
     };
 
     const handleFeedbackClick = opt => {
-        console.log('hola');
         if (feedback[opt] !== 0) {
             setFeedback(prev => ({ ...prev, [opt]: 0 }));
         } else {
@@ -121,64 +167,66 @@ export default function StudentLandingPage() {
                 showData
             />
 
-            <Dialog open={giveFeedback} onClose={() => setGiveFeedback(false)}>
-                <DialogTitle>Give Feedback to Francisco de Deseo</DialogTitle>
-                <DialogContent>
-                    <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <Rating
-                            precision={0.5}
-                            value={feedback.rating}
-                            onChange={(event, newValue) => {
-                                setFeedback(prev => ({ ...prev, rating: newValue }));
+            {giveFeedback && (
+                <Dialog open={giveFeedback} onClose={() => setGiveFeedback(false)}>
+                    <DialogTitle>{`Give Feedback to ${pendingFeedback[0].receiver.name}`}</DialogTitle>
+                    <DialogContent>
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            <Rating
+                                precision={0.5}
+                                value={feedback.rating}
+                                onChange={(event, newValue) => {
+                                    setFeedback(prev => ({ ...prev, rating: newValue }));
+                                }}
+                                sx={{ fontSize: 42 }}
+                                max={3}
+                                size='large'
+                            />
+                        </div>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                gap: 10,
+                                marginBlock: '1.5rem',
                             }}
-                            sx={{ fontSize: 42 }}
-                            max={3}
-                            size='large'
-                        />
-                    </div>
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            gap: 10,
-                            marginBlock: '1.5rem',
-                        }}
-                    >
-                        <Tooltip title='Is always on time'>
-                            <AccessTimeIcon
-                                fontSize='large'
-                                sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
-                                onClick={() => handleFeedbackClick('time')}
-                                color={feedback.time === 1 ? 'black' : 'disabled'}
-                            />
-                        </Tooltip>
+                        >
+                            <Tooltip title='Is always on time'>
+                                <AccessTimeIcon
+                                    fontSize='large'
+                                    sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                    onClick={() => handleFeedbackClick('time')}
+                                    color={feedback.time === 1 ? 'black' : 'disabled'}
+                                />
+                            </Tooltip>
 
-                        <Tooltip title='Has extra material to practice'>
-                            <InsertDriveFileIcon
-                                fontSize='large'
-                                sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
-                                onClick={() => handleFeedbackClick('material')}
-                                color={feedback.material === 1 ? 'black' : 'disabled'}
-                            />
-                        </Tooltip>
+                            <Tooltip title='Has extra material to practice'>
+                                <InsertDriveFileIcon
+                                    fontSize='large'
+                                    sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                    onClick={() => handleFeedbackClick('material')}
+                                    color={feedback.material === 1 ? 'black' : 'disabled'}
+                                />
+                            </Tooltip>
 
-                        <Tooltip title='Is respectful and patient'>
-                            <SentimentSatisfiedAltIcon
-                                fontSize='large'
-                                sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
-                                onClick={() => handleFeedbackClick('kind')}
-                                color={feedback.kind === 1 ? 'black' : 'disabled'}
-                            />
-                        </Tooltip>
-                    </div>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setGiveFeedback(false)}>Close</Button>
-                    <Button variant='contained' onClick={handleFeedback}>
-                        Submit
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                            <Tooltip title='Is respectful and patient'>
+                                <SentimentSatisfiedAltIcon
+                                    fontSize='large'
+                                    sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                    onClick={() => handleFeedbackClick('kind')}
+                                    color={feedback.kind === 1 ? 'black' : 'disabled'}
+                                />
+                            </Tooltip>
+                        </div>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={() => setGiveFeedback(false)}>Close</Button>
+                        <Button variant='contained' onClick={handleFeedback}>
+                            Submit
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            )}
         </div>
     );
 }

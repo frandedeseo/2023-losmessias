@@ -58,6 +58,25 @@ export default function ProfessorLandingPage() {
                 if (res.status === 200)
                     return res.json().then(json => {
                         setUserName(json.firstName + ' ' + json.lastName);
+                        json.pendingClassesFeedbacks.map(reservation => {
+                            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
+                                res2.json().then(json2 => {
+                                    if (json2.receiverRole.toUpperCase() === 'STUDENT') {
+                                        setPendingFeedback(prev => [
+                                            ...prev,
+                                            {
+                                                reservation_id: reservation,
+                                                receiver: {
+                                                    id: json2.student.id,
+                                                    name: `${json2.student.firstName} ${json2.student.lastName}`,
+                                                },
+                                            },
+                                        ]);
+                                    }
+                                });
+                            });
+                            setGiveFeedback(true);
+                        });
                     });
                 else return [];
             });
@@ -125,11 +144,32 @@ export default function ProfessorLandingPage() {
 
     const handleFeedback = () => {
         setGiveFeedback(false);
-        console.log('Send feedback');
+
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback/${reservation}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${user.token}`,
+            },
+            body: JSON.stringify({
+                studentId: user.id,
+                professorId: pendingFeedback[0].receiver.id,
+                roleReceptor: 'PROFESSOR',
+                classId: pendingFeedback[0].reservation_id,
+                rating: feedback.rating,
+                material: feedback.material,
+                punctuality: feedback.time,
+                educated: feedback.kind,
+            }),
+        }).then(res => {
+            if (res.status === 200) {
+                if (pendingFeedback.lengt === 1) giveFeedback(false);
+                setPendingFeedback(prev => prev.shift());
+            }
+        });
     };
 
     const handleFeedbackClick = opt => {
-        console.log('hola');
         if (feedback[opt] !== 0) {
             setFeedback(prev => ({ ...prev, [opt]: 0 }));
         } else {

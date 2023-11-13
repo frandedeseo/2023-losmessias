@@ -35,8 +35,8 @@ export default function Professors() {
     const [professors, setProfessors] = useState([]);
     const [locationSelected, setLocationSelected] = useState([]);
     const [subjectSelected, setSubjectSelected] = useState([]);
-    const [giveFeedback, setGiveFeedback] = useState(true);
     const [feedback, setFeedback] = useState({ rating: 0, time: 0, material: 0, kind: 0 });
+    const [pendingFeedback, setPendingFeedback] = useState([]);
     const user = useUser();
 
     const { data, isLoading } = useSWR([`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, user.token], fetcherGetWithToken, {
@@ -49,6 +49,35 @@ export default function Professors() {
     useEffect(() => {
         setProfessors(data);
     }, [data]);
+
+    useEffect(() => {
+        const requestOptions = {
+            method: 'GET',
+            headers: { Authorization: `Bearer ${user.token}` },
+        };
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions).then(res => {
+            res.json().then(json => {
+                json.pendingClassesFeedbacks.map(reservation => {
+                    fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
+                        res2.json().then(json2 => {
+                            if (json2.receiverRole.toUpperCase() === 'STUDENT') {
+                                setPendingFeedback(prev => [
+                                    ...prev,
+                                    {
+                                        reservation_id: reservation,
+                                        receiver: {
+                                            id: json2.professor.id,
+                                            name: `${json2.professor.firstName} ${json2.professor.lastName}`,
+                                        },
+                                    },
+                                ]);
+                            }
+                        });
+                    });
+                });
+            });
+        });
+    }, []);
 
     const handleFilter = () => {
         if (locationSelected.length > 0 && subjectSelected.length === 0) {
@@ -77,12 +106,28 @@ export default function Professors() {
     };
 
     const handleFeedback = () => {
-        setGiveFeedback(false);
-        console.log('Send feedback');
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback/${reservation}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${user.token}`,
+            },
+            body: JSON.stringify({
+                studentId: user.id,
+                professorId: pendingFeedback[0].receiver.id,
+                roleReceptor: 'PROFESSOR',
+                classId: pendingFeedback[0].reservation_id,
+                rating: feedback.rating,
+                material: feedback.material,
+                punctuality: feedback.time,
+                educated: feedback.kind,
+            }),
+        }).then(res => {
+            if (res.status === 200) setPendingFeedback(prev => prev.shift());
+        });
     };
 
     const handleFeedbackClick = opt => {
-        console.log('hola');
         if (feedback[opt] !== 0) {
             setFeedback(prev => ({ ...prev, [opt]: 0 }));
         } else {
@@ -164,7 +209,7 @@ export default function Professors() {
                         </Select>
                     </FormControl>
                 </Box>
-                {!giveFeedback && (
+                {pendingFeedback.length === 0 && (
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
                         {isLoading ? (
                             <>
@@ -205,9 +250,9 @@ export default function Professors() {
                         )}
                     </Box>
                 )}
-                {giveFeedback && (
+                {pendingFeedback.length > 0 && (
                     <Card sx={{ padding: '1rem', height: 'fit-content', margin: 'auto' }}>
-                        <Typography>Give Feedback to Francisco de Deseo</Typography>
+                        <Typography>{`Give Feedback to ${pendingFeedback[0].receiver.name}`}</Typography>
                         <div style={{ display: 'flex', justifyContent: 'center' }}>
                             <Rating
                                 precision={0.5}
