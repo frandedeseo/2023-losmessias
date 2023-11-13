@@ -60,18 +60,16 @@ export default function Professors() {
                 json.pendingClassesFeedbacks.map(reservation => {
                     fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
                         res2.json().then(json2 => {
-                            if (json2.receiverRole.toUpperCase() === 'STUDENT') {
-                                setPendingFeedback(prev => [
-                                    ...prev,
-                                    {
-                                        reservation_id: reservation,
-                                        receiver: {
-                                            id: json2.professor.id,
-                                            name: `${json2.professor.firstName} ${json2.professor.lastName}`,
-                                        },
+                            setPendingFeedback(prev => [
+                                ...prev,
+                                {
+                                    reservation_id: reservation,
+                                    receiver: {
+                                        id: json2.professor.id,
+                                        name: `${json2.professor.firstName} ${json2.professor.lastName}`,
                                     },
-                                ]);
-                            }
+                                },
+                            ]);
                         });
                     });
                 });
@@ -106,7 +104,7 @@ export default function Professors() {
     };
 
     const handleFeedback = () => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback/${reservation}`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -120,10 +118,14 @@ export default function Professors() {
                 rating: feedback.rating,
                 material: feedback.material,
                 punctuality: feedback.time,
-                educated: feedback.kind,
+                polite: feedback.kind,
             }),
         }).then(res => {
-            if (res.status === 200) setPendingFeedback(prev => prev.shift());
+            if (res.status === 200)
+                setPendingFeedback(prev => {
+                    prev.shift();
+                    return prev;
+                });
         });
     };
 

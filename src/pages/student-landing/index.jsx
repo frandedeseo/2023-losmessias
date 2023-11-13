@@ -51,18 +51,16 @@ export default function StudentLandingPage() {
                         json.pendingClassesFeedbacks.map(reservation => {
                             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
                                 res2.json().then(json2 => {
-                                    if (json2.receiverRole.toUpperCase() === 'PROFESSOR') {
-                                        setPendingFeedback(prev => [
-                                            ...prev,
-                                            {
-                                                reservation_id: reservation,
-                                                receiver: {
-                                                    id: json2.professor.id,
-                                                    name: `${json2.professor.firstName} ${json2.professor.lastName}`,
-                                                },
+                                    setPendingFeedback(prev => [
+                                        ...prev,
+                                        {
+                                            reservation_id: reservation,
+                                            receiver: {
+                                                id: json2.professor.id,
+                                                name: `${json2.professor.firstName} ${json2.professor.lastName}`,
                                             },
-                                        ]);
-                                    }
+                                        },
+                                    ]);
                                 });
                             });
                             setGiveFeedback(true);
@@ -76,9 +74,7 @@ export default function StudentLandingPage() {
     }, [user]);
 
     const handleFeedback = () => {
-        setGiveFeedback(false);
-
-        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback/${reservation}`, {
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -167,7 +163,7 @@ export default function StudentLandingPage() {
                 showData
             />
 
-            {giveFeedback && (
+            {pendingFeedback.length > 0 && (
                 <Dialog open={giveFeedback} onClose={() => setGiveFeedback(false)}>
                     <DialogTitle>{`Give Feedback to ${pendingFeedback[0].receiver.name}`}</DialogTitle>
                     <DialogContent>
