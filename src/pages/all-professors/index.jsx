@@ -37,6 +37,7 @@ import MonthlyChart from '@/components/MonthlyChart.jsx';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import { useRouter } from 'next/router';
 
 export default function AllProfessors() {
     const [allProfessors, setAllProfessors] = useState([]);
@@ -46,26 +47,33 @@ export default function AllProfessors() {
     const [open, setOpen] = useState(false);
     const [professorId, setProfessorId] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
+    const router = useRouter();
 
     const user = useUser();
 
     useEffect(() => {
-        if (user.id) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` },
-            };
-            setIsLoading(true);
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, requestOptions)
-                .then(res =>
-                    res.json().then(json => {
-                        setAllProfessors(json);
-                        setProfessors(json);
-                    })
-                )
-                .finally(() => setIsLoading(false));
+        setIsLoading(true);
+        if (router.isReady && user.id) {
+            if (user.authenticated){
+                if (user.role == 'professor') {
+                    router.push('/professor-landing');
+                } else if (user.role === 'student') {
+                    router.push('/student-landing');
+                } else {
+                    const requestOptions = {
+                        method: 'GET',
+                        headers: { Authorization: `Bearer ${user.token}` },
+                    };
+                    fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, requestOptions).then(res =>
+                        res.json().then(json => {
+                            setAllProfessors(json);
+                            setProfessors(json);
+                        })
+                    ).finally(() => setIsLoading(false));
+                }
+            }
         }
-    }, [user]);
+    }, [user, router.isReady]);
 
     const handleSearch = (searchValue, filterValues) => {
         if (searchValue !== '' && filterValues.length === 0) {

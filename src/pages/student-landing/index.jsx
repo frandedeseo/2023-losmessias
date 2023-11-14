@@ -1,7 +1,7 @@
 import Calendar from '@/components/Calendar';
 import CalendarPagination from '@/components/CalendarPagination';
 import { useUser } from '@/context/UserContext';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Rating, Tooltip, Typography } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Rating, Tooltip, Typography, Box, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -15,34 +15,39 @@ export default function StudentLandingPage() {
     const [feedback, setFeedback] = useState({ rating: 0, time: 0, material: 0, kind: 0 });
     const [pendingFeedback, setPendingFeedback] = useState([]);
     const user = useUser();
+    const [isLoading, setIsLoading] = useState(false);
 
     var router = useRouter();
 
     useEffect(() => {
-        if (router.isReady && user.authenticated) {
-            if (user.role == 'admin') {
-                router.push('/admin-landing');
-            } else if (user.role == 'professor') {
-                router.push('/professor-landing');
-            } else {
-                const requestOptions = {
-                    method: 'GET',
-                    headers: { Authorization: `Bearer ${user.token}` },
-                };
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
-                    res.json().then(json => {
-                        setDisabledBlocks(
-                            json.map(e => {
-                                if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
-                                if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                                if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
-                                if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
-                                if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
-                                if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
+        setIsLoading(true);
+        if (router.isReady && user.id) {
+            if (user.authenticated){
+                if (user.role == 'professor') {
+                    router.push('/professor-landing');
+                } else if (user.role === 'admin') {
+                    router.push('/admin-landing');
+                } else {
+                    const requestOptions = {
+                        method: 'GET',
+                        headers: { Authorization: `Bearer ${user.token}` },
+                    };
+                    fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
+                        res.json().then(json => {
+                            setDisabledBlocks(
+                                json.map(e => {
+                                    if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
+                                    if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                    if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
+                                    if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
+                                    if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
+                                    if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
 
-                                return e;
-                            })
-                        );
+                                    return e;
+                                })
+                            );
+                            setIsLoading(false);
+                        });
                     });
                 });
 
@@ -66,12 +71,13 @@ export default function StudentLandingPage() {
                             setGiveFeedback(true);
                         });
                     });
-                });
+                });            
             }
-        } else {
-            router.push('/');
+            else {
+                router.push('/');
+            }
         }
-    }, [user]);
+    }, [user, router.isReady]);
 
     const handleFeedback = () => {
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
@@ -108,6 +114,21 @@ export default function StudentLandingPage() {
 
     return (
         <div style={{ width: '95%', margin: 'auto' }}>
+            {isLoading ? (
+                <>
+                    <Box
+                        sx={{
+                            height: 300,
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <CircularProgress />
+                    </Box>
+                </>
+            ) : (
+            <>
             <Typography variant='h4' sx={{ margin: '2% 0' }}>
                 Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
             </Typography>
@@ -222,6 +243,7 @@ export default function StudentLandingPage() {
                         </Button>
                     </DialogActions>
                 </Dialog>
+            </>
             )}
         </div>
     );

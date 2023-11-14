@@ -51,25 +51,35 @@ export default function ProfessorLandingPage() {
     const [pendingFeedback, setPendingFeedback] = useState([]);
     const [userName, setUserName] = useState('');
     const [tab, setTab] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
-        if (user.id) {
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` },
-            };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
-                if (res.status === 200)
-                    res.json().then(json => {
-                        setDisabledBlocks(
-                            json.map(e => {
-                                if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                                return e;
-                            })
-                        );
+        setIsLoading(true);
+        if (router.isReady && user.id) {
+            if (user.authenticated){
+                if (user.role == 'student') {
+                    router.push('/student-landing');
+                } else if (user.role === 'admin') {
+                    router.push('/admin-landing');
+                } else {
+                    const requestOptions = {
+                        method: 'GET',
+                        headers: { Authorization: `Bearer ${user.token}` },
+                    };
+                    fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
+                        if (res.status === 200)
+                            res.json().then(json => {
+                                setDisabledBlocks(
+                                    json.map(e => {
+                                        if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                        return e;
+                                    })
+                                );
+                                setIsLoading(false);
+                            });
                     });
             });
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res => {
@@ -94,8 +104,11 @@ export default function ProfessorLandingPage() {
                             setGiveFeedback(true);
                         });
                     });
-                else return [];
-            });
+                }
+            }
+            else {
+                router.push('/');
+            }
         }
     }, [user, router.isReady]);
 
@@ -195,6 +208,21 @@ export default function ProfessorLandingPage() {
     };
 
     return (
+        <>
+        {isLoading ? (
+            <>
+                <Box
+                    sx={{
+                        height: 300,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    <CircularProgress />
+                </Box>
+            </>
+        ) : (
         <div style={{ width: '95%', margin: 'auto' }}>
             <Typography variant='h4' sx={{ margin: '2% 0' }}>
                 Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
@@ -353,5 +381,7 @@ export default function ProfessorLandingPage() {
                 </Dialog>
             )}
         </div>
+        )}
+        </>
     );
 }

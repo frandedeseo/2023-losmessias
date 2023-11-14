@@ -38,6 +38,7 @@ export default function Professors() {
     const [feedback, setFeedback] = useState({ rating: 0, time: 0, material: 0, kind: 0 });
     const [pendingFeedback, setPendingFeedback] = useState([]);
     const user = useUser();
+    const router = useRouter();
 
     const { data, isLoading } = useSWR([`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, user.token], fetcherGetWithToken, {
         fallbackData: [],
@@ -47,8 +48,18 @@ export default function Professors() {
     });
 
     useEffect(() => {
-        setProfessors(data);
-    }, [data]);
+        if (router.isReady && user.id) {
+            if (user.authenticated){
+                if (user.role == 'professor') {
+                    router.push('/professor-landing');
+                } else if (user.role === 'admin') {
+                    router.push('/admin-landing');
+                } else {
+                    setProfessors(data)
+                }
+            }
+        }
+    }, [data, user, router.isReady]);
 
     useEffect(() => {
         const requestOptions = {
