@@ -30,6 +30,7 @@ import {
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import { useRouter } from 'next/router';
 
 export default function Professors() {
     const [professors, setProfessors] = useState([]);
@@ -49,13 +50,13 @@ export default function Professors() {
 
     useEffect(() => {
         if (router.isReady && user.id) {
-            if (user.authenticated){
+            if (user.authenticated) {
                 if (user.role == 'professor') {
                     router.push('/professor-landing');
                 } else if (user.role === 'admin') {
                     router.push('/admin-landing');
                 } else {
-                    setProfessors(data)
+                    setProfessors(data);
                 }
             }
         }
