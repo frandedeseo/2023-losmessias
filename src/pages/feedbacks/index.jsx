@@ -33,6 +33,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import SearchIcon from '@mui/icons-material/Search';
+import { useRouter } from 'next/router.js';
 
 export default function Feedbacks() {
     const [allFeedbacks, setAllFeedbacks] = useState([]);
@@ -43,9 +44,12 @@ export default function Feedbacks() {
     const [searchValue, setSearchValue] = useState('');
 
     const user = useUser();
+    const router = useRouter();
 
     useEffect(() => {
         if (user.id) {
+            if (user.role === 'professor') router.push('/professor-landing');
+            if (user.role === 'student') router.push('/student-landing');
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
@@ -59,6 +63,8 @@ export default function Feedbacks() {
                     })
                 )
                 .finally(() => setIsLoading(false));
+        } else {
+            router.push('/');
         }
     }, [user]);
 
@@ -132,7 +138,7 @@ export default function Feedbacks() {
                         {isLoading ? (
                             <>
                                 <TableRow>
-                                    <TableCell colSpan={3} align='center'>
+                                    <TableCell colSpan={8} align='center'>
                                         <Box
                                             sx={{
                                                 display: 'flex',
@@ -151,7 +157,7 @@ export default function Feedbacks() {
                             <>
                                 {feedbacks.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={3} align='center'>
+                                        <TableCell colSpan={8} align='center'>
                                             <Typography variant='h4'>No students found</Typography>
                                         </TableCell>
                                     </TableRow>

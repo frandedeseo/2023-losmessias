@@ -62,31 +62,27 @@ export default function ProfessorLandingPage() {
         setIsLoading(true);
         if (router.isReady && user.id) {
             if (user.authenticated) {
-                if (user.role == 'student') {
-                    router.push('/student-landing');
-                } else if (user.role === 'admin') {
-                    router.push('/admin-landing');
-                } else {
-                    const requestOptions = {
-                        method: 'GET',
-                        headers: { Authorization: `Bearer ${user.token}` },
-                    };
-                    fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(
-                        res => {
-                            if (res.status === 200) {
-                                res.json().then(json => {
-                                    setDisabledBlocks(
-                                        json.map(e => {
-                                            if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                                            return e;
-                                        })
-                                    );
-                                    setIsLoading(false);
-                                });
-                            }
+                if (user.role == 'student') router.push('/student-landing');
+                if (user.role === 'admin') router.push('/admin-landing');
+                const requestOptions = {
+                    method: 'GET',
+                    headers: { Authorization: `Bearer ${user.token}` },
+                };
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(
+                    res => {
+                        if (res.status === 200) {
+                            res.json().then(json => {
+                                setDisabledBlocks(
+                                    json.map(e => {
+                                        if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                        return e;
+                                    })
+                                );
+                                setIsLoading(false);
+                            });
                         }
-                    );
-                }
+                    }
+                );
                 fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res => {
                     if (res.status === 200) {
                         return res.json().then(json => {

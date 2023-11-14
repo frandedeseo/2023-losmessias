@@ -32,7 +32,6 @@ import {
     Tooltip,
     Typography,
 } from '@mui/material';
-import Dashboard from '@/components/Dashboard.jsx';
 import MonthlyChart from '@/components/MonthlyChart.jsx';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
@@ -54,24 +53,20 @@ export default function AllProfessors() {
     useEffect(() => {
         setIsLoading(true);
         if (router.isReady && user.id) {
-            if (user.authenticated){
-                if (user.role == 'professor') {
-                    router.push('/professor-landing');
-                } else if (user.role === 'student') {
-                    router.push('/student-landing');
-                } else {
-                    const requestOptions = {
-                        method: 'GET',
-                        headers: { Authorization: `Bearer ${user.token}` },
-                    };
-                    fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, requestOptions).then(res =>
-                        res.json().then(json => {
-                            setAllProfessors(json);
-                            setProfessors(json);
-                        })
-                    ).finally(() => setIsLoading(false));
-                }
-            }
+            if (user.role == 'professor') router.push('/professor-landing');
+            if (user.role === 'student') router.push('/student-landing');
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${user.token}` },
+            };
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, requestOptions).then(res =>
+                res.json().then(json => {
+                    setAllProfessors(json);
+                    setProfessors(json);
+                })
+            ).finally(() => setIsLoading(false));
+        } else {
+            router.push('/');
         }
     }, [user, router.isReady]);
 
@@ -158,7 +153,7 @@ export default function AllProfessors() {
                         {isLoading ? (
                             <>
                                 <TableRow>
-                                    <TableCell colSpan={3} align='center'>
+                                    <TableCell colSpan={8} align='center'>
                                         <Box
                                             sx={{
                                                 display: 'flex',
@@ -177,7 +172,7 @@ export default function AllProfessors() {
                             <>
                                 {professors.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={3} align='center'>
+                                        <TableCell colSpan={8} align='center'>
                                             <Typography variant='h4'>No professors found</Typography>
                                         </TableCell>
                                     </TableRow>
