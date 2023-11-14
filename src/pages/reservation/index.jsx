@@ -77,7 +77,7 @@ export default function Reservation() {
         } else {
             router.push('/');
         }
-    }, [user]);
+    }, [user, router]);
 
     const handleClick = message => {
         setMessage(message);

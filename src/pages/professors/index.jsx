@@ -80,7 +80,7 @@ export default function Professors() {
         } else {
             router.push('/');
         }
-    }, [data, user, router.isReady]);
+    }, [data, user, router]);
 
     const handleFilter = () => {
         if (locationSelected.length > 0 && subjectSelected.length === 0) {

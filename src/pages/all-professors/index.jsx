@@ -68,7 +68,7 @@ export default function AllProfessors() {
         } else {
             router.push('/');
         }
-    }, [user, router.isReady]);
+    }, [user, router]);
 
     const handleSearch = (searchValue, filterValues) => {
         if (searchValue !== '' && filterValues.length === 0) {

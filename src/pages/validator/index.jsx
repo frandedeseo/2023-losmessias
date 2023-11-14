@@ -40,7 +40,7 @@ export default function Validator() {
         } else {
             router.push('/');
         }
-    }, []);
+    }, [user]);
 
     const handleSearch = (searchValue, filterValues) => {
         if (searchValue !== '' && filterValues.length === 0) {

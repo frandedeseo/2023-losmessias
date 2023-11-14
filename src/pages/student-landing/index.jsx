@@ -84,7 +84,7 @@ export default function StudentLandingPage() {
                 router.push('/');
             }
         }
-    }, [user, router.isReady]);
+    }, [user, router]);
 
     const handleFeedback = () => {
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {

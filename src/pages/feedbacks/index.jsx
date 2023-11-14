@@ -66,7 +66,7 @@ export default function Feedbacks() {
         } else {
             router.push('/');
         }
-    }, [user]);
+    }, [user, router]);
 
     const handleSearch = e => {
         e.preventDefault();

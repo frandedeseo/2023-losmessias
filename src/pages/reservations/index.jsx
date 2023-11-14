@@ -100,7 +100,7 @@ export default function Reservation() {
         } else {
             router.push('/');
         }
-    }, [user, router.isReady]);
+    }, [user, router]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);

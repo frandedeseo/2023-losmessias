@@ -74,7 +74,7 @@ export default function Classes() {
         } else {
             router.push('/');
         }
-    }, [user])
+    }, [user, camelCaseUserRole])
 
     const handleCancel = id => {
         setIsProcessing(true);

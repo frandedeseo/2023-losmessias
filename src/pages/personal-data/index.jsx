@@ -25,7 +25,7 @@ export default function PersonalData() {
 
     useEffect(() => {
         if (!user.id) router.push('/');
-    },[])
+    }, [router, user])
 
 
     const { data, isLoading, mutate } = useSWR(
