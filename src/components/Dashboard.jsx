@@ -23,16 +23,20 @@ export default function Dashboard({ id }) {
     const [config, setConfig] = useState(null);
     const [configDonut, setConfigDonut] = useState(null);
 
-    const { data, isLoading } = useSWR([
-        `${process.env.NEXT_PUBLIC_API_URI}/api/reservation/getStatistics?professorId=${id}`,
-        user.token,
-    ], fetcherGetWithTokenDashboard,
-        { fallbackData: [] })
-
+    const { data, isLoading } = useSWR(
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/getStatistics?professorId=${id}`, user.token],
+        fetcherGetWithTokenDashboard,
+        { fallbackData: [] }
+    );
 
     useEffect(() => {
         if (data.length > 0) {
             const colors = data[0]?.classes.map(val => {
+                if (val.type !== 'Cancelled') return getColor(val.type);
+                return '#ADB5BD';
+            });
+
+            const colors2 = data[2]?.classes.map(val => {
                 if (val.type !== 'Cancelled') return getColor(val.type);
                 return '#ADB5BD';
             });
@@ -79,7 +83,7 @@ export default function Dashboard({ id }) {
                 radius: 1,
                 innerRadius: 0.55,
                 legend: false,
-                color: colors,
+                color: colors2,
                 label: {
                     type: 'inner',
                     offset: '-50%',
@@ -121,11 +125,13 @@ export default function Dashboard({ id }) {
                 <div style={{ display: 'flex' }}>
                     <div style={{ width: '70%' }}>
                         {isLoading ? (
-                            <Box sx={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignContent: 'center',
-                            }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignContent: 'center',
+                                }}
+                            >
                                 <CircularProgress sx={{ mr: 2 }} />
                                 <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '1rem', textAlign: 'center' }}>
                                     Loading...
@@ -134,9 +140,7 @@ export default function Dashboard({ id }) {
                         ) : (
                             <>
                                 {data.length > 0 ? (
-                                    <>
-                                        {config && <Pie {...config} />}
-                                    </>
+                                    <>{config && <Pie {...config} />}</>
                                 ) : (
                                     <>
                                         <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '3.5rem', textAlign: 'center' }}>
@@ -176,12 +180,21 @@ export default function Dashboard({ id }) {
                                 <PaidIcon sx={{ fontSize: 30 }} />
                                 <Typography variant='h6'>{data[0]?.income}</Typography>
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                                    {incomePercentage < 0 && <ArrowDropDownIcon color='error' sx={{ fontSize: 34 }} />}
-                                    {incomePercentage > 0 && <ArrowDropUpIcon color='success' sx={{ fontSize: 34 }} />}
-                                    {incomePercentage !== 0 && (
-                                        <Typography variant='h6' sx={{ fontSize: 16, color: 'green' }}>
-                                            {incomePercentage + '%'}
-                                        </Typography>
+                                    {incomePercentage < 0 && (
+                                        <>
+                                            <ArrowDropDownIcon color='error' sx={{ fontSize: 34 }} />
+                                            <Typography variant='h6' sx={{ fontSize: 16, color: 'red' }}>
+                                                {(incomePercentage * 100).toFixed(2) + '%'}
+                                            </Typography>
+                                        </>
+                                    )}
+                                    {incomePercentage > 0 && (
+                                        <>
+                                            <ArrowDropUpIcon color='success' sx={{ fontSize: 34 }} />
+                                            <Typography variant='h6' sx={{ fontSize: 16, color: 'green' }}>
+                                                {(incomePercentage * 100).toFixed(2) + '%'}
+                                            </Typography>
+                                        </>
                                     )}
                                 </div>
                             </div>
@@ -193,20 +206,20 @@ export default function Dashboard({ id }) {
                 <Typography variant='h5'>Monthly Mean</Typography>
                 <div style={{ justifyContent: 'center', display: 'flex' }}>
                     {isLoading ? (
-                        <Box sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignContent: 'center',
-                        }}>
+                        <Box
+                            sx={{
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignContent: 'center',
+                            }}
+                        >
                             <CircularProgress sx={{ mr: 2 }} />
                             <Typography variant='h5' sx={{ marginBottom: '4rem', marginTop: '1rem', textAlign: 'center' }}>
                                 Loading...
                             </Typography>
                         </Box>
                     ) : (
-                        <>
-                            {configDonut && <Pie {...configDonut} style={{ width: '68%' }} />}
-                        </>
+                        <>{configDonut && <Pie {...configDonut} style={{ width: '68%' }} />}</>
                     )}
                 </div>
                 <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '1rem', textAlign: 'center' }}>
