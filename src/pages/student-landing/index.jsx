@@ -1,7 +1,19 @@
 import Calendar from '@/components/Calendar';
 import CalendarPagination from '@/components/CalendarPagination';
 import { useUser } from '@/context/UserContext';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Rating, Tooltip, Typography, Box, CircularProgress } from '@mui/material';
+import {
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    Rating,
+    Tooltip,
+    Typography,
+    Box,
+    CircularProgress,
+} from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -22,7 +34,7 @@ export default function StudentLandingPage() {
     useEffect(() => {
         setIsLoading(true);
         if (router.isReady && user.id) {
-            if (user.authenticated){
+            if (user.authenticated) {
                 if (user.role == 'professor') {
                     router.push('/professor-landing');
                 } else if (user.role === 'admin') {
@@ -32,24 +44,26 @@ export default function StudentLandingPage() {
                         method: 'GET',
                         headers: { Authorization: `Bearer ${user.token}` },
                     };
-                    fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
-                        res.json().then(json => {
-                            setDisabledBlocks(
-                                json.map(e => {
-                                    if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
-                                    if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                                    if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
-                                    if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
-                                    if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
-                                    if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
+                    fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(
+                        res => {
+                            res.json().then(json => {
+                                setDisabledBlocks(
+                                    json.map(e => {
+                                        if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
+                                        if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                        if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
+                                        if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
+                                        if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
+                                        if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
 
-                                    return e;
-                                })
-                            );
-                            setIsLoading(false);
-                        });
-                    });
-                });
+                                        return e;
+                                    })
+                                );
+                                setIsLoading(false);
+                            });
+                        }
+                    );
+                }
 
                 fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions).then(res => {
                     res.json().then(json => {
@@ -71,9 +85,8 @@ export default function StudentLandingPage() {
                             setGiveFeedback(true);
                         });
                     });
-                });            
-            }
-            else {
+                });
+            } else {
                 router.push('/');
             }
         }
@@ -128,122 +141,123 @@ export default function StudentLandingPage() {
                     </Box>
                 </>
             ) : (
-            <>
-            <Typography variant='h4' sx={{ margin: '2% 0' }}>
-                Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
-            </Typography>
+                <>
+                    <Typography variant='h4' sx={{ margin: '2% 0' }}>
+                        Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
+                    </Typography>
 
-            <Typography variant='h4'>Agenda</Typography>
-            <Divider />
-            <div style={{ paddingBlock: '0.75rem' }} />
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <table style={{ height: '35px' }}>
-                    <tbody>
-                        <tr>
-                            <td
-                                style={{
-                                    width: '130px',
-                                    borderBlock: '1px solid #338aed70',
-                                    backgroundColor: '#338aed90',
-                                    textAlign: 'center',
-                                }}
-                            >
-                                <Typography>Selected block</Typography>
-                            </td>
-                            <td
-                                style={{
-                                    textAlign: 'center',
-                                    width: '130px',
-                                    borderBlock: '1px solid #e64b4b70',
-                                    backgroundColor: '#e64b4b90',
-                                }}
-                            >
-                                <Typography>Reserved Class</Typography>
-                            </td>
-                            <td
-                                style={{
-                                    textAlign: 'center',
-                                    width: '130px',
-                                    borderBlock: '1px solid #adadad70',
-                                    backgroundColor: '#adadad90',
-                                }}
-                            >
-                                <Typography>Unavailable</Typography>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={() => {}} />
-            </div>
-            <Calendar
-                selectedBlocks={[]}
-                setSelectedBlocks={() => {}}
-                disabledBlocks={disabledBlocks}
-                week={week}
-                interactive={false}
-                showData
-            />
+                    <Typography variant='h4'>Agenda</Typography>
+                    <Divider />
+                    <div style={{ paddingBlock: '0.75rem' }} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <table style={{ height: '35px' }}>
+                            <tbody>
+                                <tr>
+                                    <td
+                                        style={{
+                                            width: '130px',
+                                            borderBlock: '1px solid #338aed70',
+                                            backgroundColor: '#338aed90',
+                                            textAlign: 'center',
+                                        }}
+                                    >
+                                        <Typography>Selected block</Typography>
+                                    </td>
+                                    <td
+                                        style={{
+                                            textAlign: 'center',
+                                            width: '130px',
+                                            borderBlock: '1px solid #e64b4b70',
+                                            backgroundColor: '#e64b4b90',
+                                        }}
+                                    >
+                                        <Typography>Reserved Class</Typography>
+                                    </td>
+                                    <td
+                                        style={{
+                                            textAlign: 'center',
+                                            width: '130px',
+                                            borderBlock: '1px solid #adadad70',
+                                            backgroundColor: '#adadad90',
+                                        }}
+                                    >
+                                        <Typography>Unavailable</Typography>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={() => {}} />
+                    </div>
+                    <Calendar
+                        selectedBlocks={[]}
+                        setSelectedBlocks={() => {}}
+                        disabledBlocks={disabledBlocks}
+                        week={week}
+                        interactive={false}
+                        showData
+                    />
 
-            {pendingFeedback.length > 0 && (
-                <Dialog open={giveFeedback} onClose={() => setGiveFeedback(false)}>
-                    <DialogTitle>{`Give Feedback to ${pendingFeedback[0].receiver.name}`}</DialogTitle>
-                    <DialogContent>
-                        <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Rating
-                                precision={0.5}
-                                value={feedback.rating}
-                                onChange={(event, newValue) => {
-                                    setFeedback(prev => ({ ...prev, rating: newValue }));
-                                }}
-                                sx={{ fontSize: 42 }}
-                                max={3}
-                                size='large'
-                            />
-                        </div>
-                        <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                gap: 10,
-                                marginBlock: '1.5rem',
-                            }}
-                        >
-                            <Tooltip title='Is always on time'>
-                                <AccessTimeIcon
-                                    fontSize='large'
-                                    sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
-                                    onClick={() => handleFeedbackClick('time')}
-                                    color={feedback.time === 1 ? 'black' : 'disabled'}
-                                />
-                            </Tooltip>
+                    {pendingFeedback.length > 0 && (
+                        <Dialog open={giveFeedback} onClose={() => setGiveFeedback(false)}>
+                            <DialogTitle>{`Give Feedback to ${pendingFeedback[0].receiver.name}`}</DialogTitle>
+                            <DialogContent>
+                                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                    <Rating
+                                        precision={0.5}
+                                        value={feedback.rating}
+                                        onChange={(event, newValue) => {
+                                            setFeedback(prev => ({ ...prev, rating: newValue }));
+                                        }}
+                                        sx={{ fontSize: 42 }}
+                                        max={3}
+                                        size='large'
+                                    />
+                                </div>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        gap: 10,
+                                        marginBlock: '1.5rem',
+                                    }}
+                                >
+                                    <Tooltip title='Is always on time'>
+                                        <AccessTimeIcon
+                                            fontSize='large'
+                                            sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                            onClick={() => handleFeedbackClick('time')}
+                                            color={feedback.time === 1 ? 'black' : 'disabled'}
+                                        />
+                                    </Tooltip>
 
-                            <Tooltip title='Has extra material to practice'>
-                                <InsertDriveFileIcon
-                                    fontSize='large'
-                                    sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
-                                    onClick={() => handleFeedbackClick('material')}
-                                    color={feedback.material === 1 ? 'black' : 'disabled'}
-                                />
-                            </Tooltip>
+                                    <Tooltip title='Has extra material to practice'>
+                                        <InsertDriveFileIcon
+                                            fontSize='large'
+                                            sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                            onClick={() => handleFeedbackClick('material')}
+                                            color={feedback.material === 1 ? 'black' : 'disabled'}
+                                        />
+                                    </Tooltip>
 
-                            <Tooltip title='Is respectful and patient'>
-                                <SentimentSatisfiedAltIcon
-                                    fontSize='large'
-                                    sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
-                                    onClick={() => handleFeedbackClick('kind')}
-                                    color={feedback.kind === 1 ? 'black' : 'disabled'}
-                                />
-                            </Tooltip>
-                        </div>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button onClick={() => setGiveFeedback(false)}>Close</Button>
-                        <Button variant='contained' onClick={handleFeedback}>
-                            Submit
-                        </Button>
-                    </DialogActions>
-                </Dialog>
-            </>
+                                    <Tooltip title='Is respectful and patient'>
+                                        <SentimentSatisfiedAltIcon
+                                            fontSize='large'
+                                            sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                            onClick={() => handleFeedbackClick('kind')}
+                                            color={feedback.kind === 1 ? 'black' : 'disabled'}
+                                        />
+                                    </Tooltip>
+                                </div>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={() => setGiveFeedback(false)}>Close</Button>
+                                <Button variant='contained' onClick={handleFeedback}>
+                                    Submit
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
+                    )}
+                </>
             )}
         </div>
     );
