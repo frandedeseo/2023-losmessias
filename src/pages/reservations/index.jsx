@@ -76,40 +76,42 @@ export default function Reservation() {
     //     { fallbackData: [] });
 
     useEffect(() => {
-        if (router.isReady && user.authenticated) {
-            if (user.role == 'admin') {
-                router.push('/admin-landing');
-            } else if (user.role == 'professor') {
-                router.push('/professor-landing');
-            } else {
-                const requestOptions = {
-                    method: 'GET',
-                    headers: { Authorization: `Bearer ${user.token}` },
-                };
-                fetch(
-                    `${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${router.query.professorId}`,
-                    requestOptions
-                ).then(res => {
-                    res.json().then(json => {
-                        setDisabledBlocks(
-                            json.map(e => {
-                                if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
-                                if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                                if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
-                                if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
-                                if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
-                                if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
+        if (router.isReady && user.id) {
+            if (user.authenticated){
+                if (user.role == 'professor') {
+                    router.push('/professor-landing');
+                } else if (user.role === 'admin') {
+                    router.push('/admin-landing');
+                } else {
+                    const requestOptions = {
+                        method: 'GET',
+                        headers: { Authorization: `Bearer ${user.token}` },
+                    };
+                    fetch(
+                        `${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${router.query.professorId}`,
+                        requestOptions
+                    ).then(res => {
+                        res.json().then(json => {
+                            setDisabledBlocks(
+                                json.map(e => {
+                                    if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
+                                    if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                    if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
+                                    if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
+                                    if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
+                                    if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
 
-                                return e;
-                            })
-                        );
+                                    return e;
+                                })
+                            );
+                        });
                     });
-                });
+                }
+            } else {
+                router.push('/');
             }
-        } else {
-            router.push('/');
         }
-    }, [user]);
+    }, [user, router.isReady]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
