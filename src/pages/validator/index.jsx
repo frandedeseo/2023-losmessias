@@ -33,6 +33,15 @@ export default function Validator() {
         fetcherGetWithToken,
         { fallbackData: [] })
 
+    useEffect(() => {
+        if (user.id) {
+            if (user.role === 'student') router.push('/student-landing');
+            if (user.role === 'professor') router.push('/professor-landing');
+        } else {
+            router.push('/');
+        }
+    }, [user]);
+
     const handleSearch = (searchValue, filterValues) => {
         if (searchValue !== '' && filterValues.length === 0) {
             setTeachersSubjects(

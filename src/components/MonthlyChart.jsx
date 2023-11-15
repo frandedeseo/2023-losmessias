@@ -82,7 +82,7 @@ export default function MonthlyChart({ id, legend = false }) {
                     }}
                 >
                     <CircularProgress />
-                    <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '1rem', textAlign: 'center' }}>
+                    <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '1rem', textAlign: 'center', marginLeft: "0.5rem" }}>
                         Loading...
                     </Typography>
                 </Box>

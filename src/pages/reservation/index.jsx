@@ -40,11 +40,11 @@ export default function Reservation() {
 
     useEffect(() => {
         if (user.id) {
+            if (user.role === 'admin') router.push('/admin-landing');
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
-
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/get-uploaded-data?id=${router.query.id}`, requestOptions).then(res => {
                 res.json().then(json => {
                     console.log(json);
@@ -74,8 +74,10 @@ export default function Reservation() {
                     });
                 });
             }
+        } else {
+            router.push('/');
         }
-    }, [user]);
+    }, [user, router]);
 
     const handleClick = message => {
         setMessage(message);

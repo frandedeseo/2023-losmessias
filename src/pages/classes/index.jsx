@@ -50,24 +50,31 @@ export default function Classes() {
     );
 
     useEffect(() => {
-        const requestOptions = {
-            method: 'GET',
-            headers: {
-                'Content-type': 'application/json',
-                Authorization: `Bearer ${user.token}`
-            },
-        };
-        setIsLoading(true);
-        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findBy${camelCaseUserRole}?${user.role}Id=${user.id}`, requestOptions)
-            .then(res => {
-                if (!res.ok) throw Error(res.status);
-                res.json().then(json => {
-                    setData(json);
-                    setClasses(json);
-                });
-            }).catch(err => console.log(err))
-            .finally(() => setIsLoading(false));
-    }, [user])
+        if (user.id) {
+            if (user.role === 'admin') router.push('/admin-landing');
+            if (user.role === 'professor') router.push('/professor-landing');
+            // if (user.role === 'student') router.push('/student-landing');
+            setIsLoading(true);
+            const requestOptions = {
+                method: 'GET',
+                headers: {
+                    'Content-type': 'application/json',
+                    Authorization: `Bearer ${user.token}`
+                },
+            };
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findBy${camelCaseUserRole}?${user.role}Id=${user.id}`, requestOptions)
+                .then(res => {
+                    if (!res.ok) throw Error(res.status);
+                    res.json().then(json => {
+                        setData(json);
+                        setClasses(json);
+                    });
+                }).catch(err => console.log(err))
+                .finally(() => setIsLoading(false));
+        } else {
+            router.push('/');
+        }
+    }, [user, camelCaseUserRole])
 
     const handleCancel = id => {
         setIsProcessing(true);

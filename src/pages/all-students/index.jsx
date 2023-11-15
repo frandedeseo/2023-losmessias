@@ -46,6 +46,8 @@ export default function AllStudents() {
 
     useEffect(() => {
         if (user.id) {
+            if (user.role === 'admin') router.push('/admin-landing');
+            if (user.role === 'professor') router.push('/professor-landing');
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
@@ -59,6 +61,8 @@ export default function AllStudents() {
                     })
                 )
                 .finally(() => setIsLoading(false));
+        } else {
+            router.push('/');
         }
     }, [user]);
 
@@ -135,7 +139,7 @@ export default function AllStudents() {
                         {isLoading ? (
                             <>
                                 <TableRow>
-                                    <TableCell colSpan={3} align='center'>
+                                    <TableCell colSpan={8} align='center'>
                                         <Box
                                             sx={{
                                                 display: 'flex',
@@ -154,7 +158,7 @@ export default function AllStudents() {
                             <>
                                 {students.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={3} align='center'>
+                                        <TableCell colSpan={8} align='center'>
                                             <Typography variant='h4'>No students found</Typography>
                                         </TableCell>
                                     </TableRow>
