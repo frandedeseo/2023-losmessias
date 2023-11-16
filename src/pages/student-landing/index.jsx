@@ -87,6 +87,7 @@ export default function StudentLandingPage() {
     }, [user, router]);
 
     const handleFeedback = () => {
+        setIsLoading(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
             method: 'POST',
             headers: {
@@ -108,6 +109,7 @@ export default function StudentLandingPage() {
                 if (pendingFeedback.lengt === 1) giveFeedback(false);
                 setPendingFeedback(prev => prev.shift());
             }
+            setIsLoading(false);
         });
     };
 
