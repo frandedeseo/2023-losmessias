@@ -152,7 +152,6 @@ export default function ProfessorLandingPage() {
                     setAlertSeverity('error');
                     setAlertMessage('There was an error disabling the block!');
                 } else {
-                    console.log(new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0].split('-'));
                     setDisabledBlocks(prevDisabled => [
                         ...prevDisabled,
                         {

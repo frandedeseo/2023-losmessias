@@ -53,8 +53,6 @@ export default function Classes() {
     useEffect(() => {
         if (user.id) {
             if (user.role === 'admin') router.push('/admin-landing');
-           // if (user.role === 'professor') router.push('/professor-landing');
-            // if (user.role === 'student') router.push('/student-landing');
             setIsLoading(true);
             const requestOptions = {
                 method: 'GET',
@@ -69,14 +67,13 @@ export default function Classes() {
                     res.json().then(json => {
                         setData(json);
                         setClasses(json);
-                        console.log(json);
                     });
                 }).catch(err => console.log(err))
                 .finally(() => setIsLoading(false));
         } else {
             router.push('/');
         }
-    }, [user, camelCaseUserRole])
+    }, [router, user, camelCaseUserRole])
 
     const handleCancel = id => {
         setIsProcessing(true);

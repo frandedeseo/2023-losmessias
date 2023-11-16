@@ -68,7 +68,7 @@ export default function AllStudents() {
                 router.push('/');
             }
         }
-    }, [user]);
+    }, [router, user]);
 
     const handleSearch = e => {
         e.preventDefault();

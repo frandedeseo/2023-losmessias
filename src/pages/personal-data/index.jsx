@@ -24,7 +24,6 @@ export default function PersonalData() {
     const router = useRouter();
 
     useEffect(() => {
-        console.log(user);
         if (user.token!=undefined){ 
             if (!user.authenticated){
                 router.push('/');

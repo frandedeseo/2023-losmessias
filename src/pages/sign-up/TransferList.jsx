@@ -33,7 +33,6 @@ export default function TransferList({ request, setPage }) {
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`)
             .then(response => response.json())
             .then(json => {
-                console.log(json);
                 setLeft(json);
             })
             .catch(error => {
