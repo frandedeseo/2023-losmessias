@@ -173,6 +173,7 @@ export default function ProfessorLandingPage() {
     };
 
     const handleFeedback = () => {
+        setIsLoading(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
             method: 'POST',
             headers: {
@@ -191,7 +192,7 @@ export default function ProfessorLandingPage() {
             }),
         }).then(res => {
             if (res.status === 200) {
-                if (pendingFeedback.length === 1) giveFeedback(false);
+                if (pendingFeedback.length === 1) setGiveFeedback(false);
                 setPendingFeedback(prev => {
                     prev.shift();
                     return prev;

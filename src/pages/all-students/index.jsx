@@ -41,28 +41,30 @@ export default function AllStudents() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [isLoading, setIsLoading] = useState(true);
     const [searchValue, setSearchValue] = useState('');
-
+    const router = useRouter();
     const user = useUser();
 
     useEffect(() => {
-        if (user.id) {
-            if (user.role === 'admin') router.push('/admin-landing');
-            if (user.role === 'professor') router.push('/professor-landing');
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` },
-            };
-            setIsLoading(true);
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/all`, requestOptions)
-                .then(res =>
-                    res.json().then(json => {
-                        setAllStudents(json);
-                        setStudents(json);
-                    })
-                )
-                .finally(() => setIsLoading(false));
-        } else {
-            router.push('/');
+        if (router.isReady && user.id) {
+            if (user.authenticated) {
+                if (user.role === 'admin') router.push('/admin-landing');
+                if (user.role === 'professor') router.push('/professor-landing');
+                const requestOptions = {
+                    method: 'GET',
+                    headers: { Authorization: `Bearer ${user.token}` },
+                };
+                setIsLoading(true);
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/all`, requestOptions)
+                    .then(res =>
+                        res.json().then(json => {
+                            setAllStudents(json);
+                            setStudents(json);
+                        })
+                    )
+                    .finally(() => setIsLoading(false));
+            } else {
+                router.push('/');
+            }
         }
     }, [user]);
 
