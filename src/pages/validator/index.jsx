@@ -12,6 +12,7 @@ import useSWR from 'swr';
 import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 
 import { useUser } from '@/context/UserContext';
+import { useRouter } from 'next/router';
 
 export async function getServerSideProps() {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`);
@@ -27,6 +28,7 @@ export default function Validator() {
     const [alertMessage, setAlertMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('');
     const user = useUser();
+    const router = useRouter();
     const { data, isLoading, mutate } = useSWR([
         `${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`,
         user.token],
@@ -37,10 +39,12 @@ export default function Validator() {
         if (user.id) {
             if (user.role === 'student') router.push('/student-landing');
             if (user.role === 'professor') router.push('/professor-landing');
+            setTeachersSubjects(data);
+            setAllTeachersSubjects(data);
         } else {
             router.push('/');
         }
-    }, [user]);
+    }, [user, router]);
 
     const handleSearch = (searchValue, filterValues) => {
         if (searchValue !== '' && filterValues.length === 0) {
