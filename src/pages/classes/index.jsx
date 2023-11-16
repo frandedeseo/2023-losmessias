@@ -66,7 +66,7 @@ export default function Classes() {
                     if (!res.ok) throw Error(res.status);
                     res.json().then(json => {
                         setData(json);
-                        setClasses(json);
+                        setClasses(json.filter((resrv) => resrv.status !== "NOT_AVAILABLE"));
                     });
                 }).catch(err => console.log(err))
                 .finally(() => setIsLoading(false));
