@@ -78,9 +78,10 @@ export default function ProfessorLandingPage() {
                                         return e;
                                     })
                                 );
-                                setIsLoading(false);
+                                
                             });
                         }
+                        setIsLoading(false);
                     }
                 );
                 fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res => {
