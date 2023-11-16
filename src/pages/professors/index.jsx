@@ -49,8 +49,12 @@ export default function Professors() {
     });
 
     useEffect(() => {
+        setProfessors(data);
+    }, [data]);
+
+    useEffect(() => {
         if (router.isReady && user) {
-            if (user.authenticated){
+            if (user.authenticated) {
                 if (user.role == 'professor') router.push('/professor-landing');
                 if (user.role === 'admin') router.push('/admin-landing');
                 const requestOptions = {
@@ -77,13 +81,11 @@ export default function Professors() {
                         });
                     });
                 });
-                setProfessors(data);
-            
             } else {
                 router.push('/');
             }
         }
-    }, [data, user, router]);
+    }, [user, router]);
 
     const handleFilter = () => {
         if (locationSelected.length > 0 && subjectSelected.length === 0) {
