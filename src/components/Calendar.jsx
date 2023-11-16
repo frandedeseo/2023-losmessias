@@ -84,9 +84,9 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
                 setSelectedBlocks(prevBlocks => [...prevBlocks, { day, time: block }]);
             }
         } else {
-            let id = redirect_to_reservation(showData, block, day);
+            let { id, otherUserId } = redirect_to_reservation(showData, block, day);
 
-            if (id !== undefined) router.push('reservation?id=' + id + '&userId=' + user.id);
+            if (id !== undefined) router.push('reservation?id=' + id + '&userId=' + otherUserId);
         }
     };
 
@@ -131,6 +131,7 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
                     user.role === 'student'
                         ? disabledBlocks[blockDisabled].professor.firstName + ' ' + disabledBlocks[blockDisabled].professor.lastName
                         : disabledBlocks[blockDisabled].student.firstName + ' ' + disabledBlocks[blockDisabled].student.lastName;
+
                 return {
                     id: disabledBlocks[blockDisabled].id,
                     subject: disabledBlocks[blockDisabled].subject.name,
@@ -147,7 +148,13 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
                 blk => blockDate === blk.day.join('-') && blk.status === 'CONFIRMED' && compare_time(block, blk)
             );
             if (blockDisabled !== -1) {
-                return disabledBlocks[blockDisabled].id;
+                return {
+                    id: disabledBlocks[blockDisabled].id,
+                    otherUserId:
+                        user.role.toLowerCase() === 'student'
+                            ? disabledBlocks[blockDisabled].professor.id
+                            : disabledBlocks[blockDisabled].student.id,
+                };
             }
         }
     };

@@ -22,6 +22,8 @@ export default function HorizontalProfessorCard({ professor }) {
         professor && professor.sex == 'FEMALE'
             ? 'https://cdn1.vectorstock.com/i/1000x1000/38/15/foreign-language-woman-teacher-icon-flat-style-vector-36033815.jpg'
             : 'https://www.w3schools.com/howto/img_avatar.png';
+
+    console.log(professor);
     return (
         <div style={{ display: 'flex', gap: 20 }}>
             <Card>
@@ -87,7 +89,7 @@ export default function HorizontalProfessorCard({ professor }) {
             <Card>
                 <CardContent>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <Rating name='read-only' precision={0.5} value={professor?.avgRating} max={3} size='large' readOnly />
+                        <Rating precision={0.5} value={parseFloat(professor?.avgRating)} max={3} size='large' readOnly />
                     </div>
                     <div
                         style={{
