@@ -16,7 +16,7 @@ import Link from 'next/link';
 import PersonIcon from '@mui/icons-material/Person';
 import { getColor } from '@/utils/getColor';
 
-export default function ProfessorCard({ professorId, studentId, name, email, phone, sex, office, officeHours, image, style, subjects }) {
+export default function ProfessorCard({ professorId, studentId, name, email, phone, sex, office, officeHours, image, style, subjects, rating }) {
     const prepare_subjects = () => {
         return subjects.map(subject => subject.name).join('-');
     };
@@ -44,7 +44,7 @@ export default function ProfessorCard({ professorId, studentId, name, email, pho
                     )}
                     <CardContent>
                         <ListItem sx={{ display: 'flex', justifyContent: 'center' }}>
-                            <Rating name='read-only' precision={0.5} value={1.5} max={3} size='large' readOnly />
+                            <Rating name='read-only' precision={0.5} value={rating} max={3} size='large' readOnly />
                         </ListItem>
                         <ListItem>
                             <ListItemIcon>

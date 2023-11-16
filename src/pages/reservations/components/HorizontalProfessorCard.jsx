@@ -18,6 +18,7 @@ import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 
 export default function HorizontalProfessorCard({ professor }) {
+    console.log(professor.avgRating);
     const link =
         professor && professor.sex == 'FEMALE'
             ? 'https://cdn1.vectorstock.com/i/1000x1000/38/15/foreign-language-woman-teacher-icon-flat-style-vector-36033815.jpg'

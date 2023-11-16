@@ -49,36 +49,39 @@ export default function Professors() {
     });
 
     useEffect(() => {
-        if (router.isReady && user.id) {
-            if (user.role == 'professor') router.push('/professor-landing');
-            if (user.role === 'admin') router.push('/admin-landing');
-            const requestOptions = {
-                method: 'GET',
-                headers: { Authorization: `Bearer ${user.token}` },
-            };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions).then(res => {
-                res.json().then(json => {
-                    json.pendingClassesFeedbacks.map(reservation => {
-                        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
-                            res2.json().then(json2 => {
-                                setPendingFeedback(prev => [
-                                    ...prev,
-                                    {
-                                        reservation_id: reservation,
-                                        receiver: {
-                                            id: json2.professor.id,
-                                            name: `${json2.professor.firstName} ${json2.professor.lastName}`,
+        if (router.isReady && user) {
+            if (user.authenticated){
+                if (user.role == 'professor') router.push('/professor-landing');
+                if (user.role === 'admin') router.push('/admin-landing');
+                const requestOptions = {
+                    method: 'GET',
+                    headers: { Authorization: `Bearer ${user.token}` },
+                };
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions).then(res => {
+                    res.json().then(json => {
+                        json.pendingClassesFeedbacks.map(reservation => {
+                            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
+                                res2.json().then(json2 => {
+                                    setPendingFeedback(prev => [
+                                        ...prev,
+                                        {
+                                            reservation_id: reservation,
+                                            receiver: {
+                                                id: json2.professor.id,
+                                                name: `${json2.professor.firstName} ${json2.professor.lastName}`,
+                                            },
                                         },
-                                    },
-                                ]);
+                                    ]);
+                                });
                             });
                         });
                     });
                 });
-            });
-            setProfessors(data);
-        } else {
-            router.push('/');
+                setProfessors(data);
+            
+            } else {
+                router.push('/');
+            }
         }
     }, [data, user, router]);
 
@@ -247,6 +250,7 @@ export default function Professors() {
                                                         office={profesor.location}
                                                         style={{ mr: 3, mt: 2 }}
                                                         subjects={profesor.subjects}
+                                                        rating={profesor.avgRating}
                                                     />
                                                 );
                                             }

@@ -9,6 +9,8 @@ import { getColor } from '@/utils/getColor.js';
 // styles
 import { styles } from '../../styles/validator-styles.js';
 
+import { useRouter } from "next/router";
+
 // Mui
 import {
     Box,
@@ -47,7 +49,7 @@ export default function AllStudents() {
     useEffect(() => {
         if (router.isReady && user.id) {
             if (user.authenticated) {
-                if (user.role === 'admin') router.push('/admin-landing');
+                if (user.role === 'student') router.push('/student-landing');
                 if (user.role === 'professor') router.push('/professor-landing');
                 const requestOptions = {
                     method: 'GET',
@@ -175,7 +177,7 @@ export default function AllStudents() {
                                                 </TableCell>
                                                 <TableCell align='center'>{stu.sumPunctuality}</TableCell>
                                                 <TableCell align='center'>{stu.sumMaterial}</TableCell>
-                                                <TableCell align='center'>{stu.sumEducated}</TableCell>
+                                                <TableCell align='center'>{stu.sumPolite}</TableCell>
                                             </TableRow>
                                         ))}
                                     </>
