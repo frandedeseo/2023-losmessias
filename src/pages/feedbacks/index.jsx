@@ -148,7 +148,7 @@ export default function Feedbacks() {
                                             }}
                                         >
                                             <CircularProgress sx={{ mr: 2 }} />
-                                            <Typography variant='h4'>Loading professors...</Typography>
+                                            <Typography variant='h4'>Loading feedbacks...</Typography>
                                         </Box>
                                     </TableCell>
                                 </TableRow>
