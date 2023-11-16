@@ -66,7 +66,6 @@ export default function Validator() {
     };
 
     const handleApprove = teacherSubject => {
-        console.log(teacherSubject);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/approve`, {
             method: 'POST',
             headers: {

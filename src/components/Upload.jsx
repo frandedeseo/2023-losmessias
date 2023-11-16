@@ -51,7 +51,6 @@ export default function Upload({ id, setFiles, setComments }) {
     const handleSave = () => {
         var response;
         if (file !== null) {
-            console.log(file);
             var data = new FormData();
             data.append('file', file);
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/uploadFile`, {

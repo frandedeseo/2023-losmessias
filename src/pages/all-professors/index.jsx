@@ -199,7 +199,7 @@ export default function AllProfessors() {
                                                 </TableCell>
                                                 <TableCell align='center'>{prof.sumPunctuality}</TableCell>
                                                 <TableCell align='center'>{prof.sumMaterial}</TableCell>
-                                                <TableCell align='center'>{prof.sumEducated}</TableCell>
+                                                <TableCell align='center'>{prof.sumPolite}</TableCell>
                                                 <TableCell align='right'>
                                                     <Button variant='contained' onClick={() => handleClick(prof.id)}>
                                                         Dashboard

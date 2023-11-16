@@ -47,7 +47,6 @@ export default function Reservation() {
             };
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/get-uploaded-data?id=${router.query.id}`, requestOptions).then(res => {
                 res.json().then(json => {
-                    console.log(json);
                     let comments = [];
                     let files = [];
 

@@ -87,7 +87,7 @@ export default function HorizontalProfessorCard({ professor }) {
             <Card>
                 <CardContent>
                     <div style={{ display: 'flex', justifyContent: 'center' }}>
-                        <Rating name='read-only' precision={0.5} value={1.5} max={3} size='large' readOnly />
+                        <Rating name='read-only' precision={0.5} value={professor?.avgRating} max={3} size='large' readOnly />
                     </div>
                     <div
                         style={{
@@ -118,9 +118,10 @@ export default function HorizontalProfessorCard({ professor }) {
                             <SentimentSatisfiedAltIcon fontSize='large' sx={{ gridColumn: 1 / 3, row: 1 }} />
                         </Tooltip>
 
-                        <Typography sx={{ gridColumn: 1 / 3 }}>1</Typography>
-                        <Typography sx={{ gridColumn: 1 / 3 }}>2</Typography>
-                        <Typography sx={{ gridColumn: 1 / 3 }}>3</Typography>
+                        <Typography sx={{ gridColumn: 1 / 3 }}>{professor?.sumPunctuality}</Typography>
+                        <Typography sx={{ gridColumn: 1 / 3 }}>{professor?.sumMaterial}</Typography>
+                        {/* <Typography sx={{ gridColumn: 1 / 3 }}>{professor ? professor.sumPolite : 0}</Typography> */}
+                        <Typography sx={{ gridColumn: 1 / 3 }}>{professor?.sumPolite}</Typography>
                     </div>
                 </CardContent>
             </Card>

@@ -152,7 +152,6 @@ export default function ProfessorLandingPage() {
                     setAlertSeverity('error');
                     setAlertMessage('There was an error disabling the block!');
                 } else {
-                    console.log(new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0].split('-'));
                     setDisabledBlocks(prevDisabled => [
                         ...prevDisabled,
                         {
@@ -173,6 +172,7 @@ export default function ProfessorLandingPage() {
     };
 
     const handleFeedback = () => {
+        setIsLoading(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
             method: 'POST',
             headers: {
@@ -191,7 +191,7 @@ export default function ProfessorLandingPage() {
             }),
         }).then(res => {
             if (res.status === 200) {
-                if (pendingFeedback.length === 1) giveFeedback(false);
+                if (pendingFeedback.length === 1) setGiveFeedback(false);
                 setPendingFeedback(prev => {
                     prev.shift();
                     return prev;

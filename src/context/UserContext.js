@@ -8,6 +8,7 @@ const initialUser = {
     authenticated: false,
     token: '',
     role: '',
+    loaded: false
 };
 
 export function useUser() {
