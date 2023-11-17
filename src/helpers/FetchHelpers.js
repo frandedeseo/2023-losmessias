@@ -38,7 +38,6 @@ export const fetchGetWithTokenCalendar = async ([url, token]) => {
                 })
             )
         );
-        console.log(res);
         return res;
     } catch (error) {
         console.log(error);

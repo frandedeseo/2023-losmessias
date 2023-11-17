@@ -110,7 +110,7 @@ export default function ProfessorLandingPage() {
         } else {
             router.push('/');
         }
-    }, []);
+    }, [router, user]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);

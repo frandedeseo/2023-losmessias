@@ -14,6 +14,7 @@ import {
     List,
     ListItemButton,
     ListItemIcon,
+    Skeleton,
     Typography,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
@@ -122,24 +123,20 @@ export default function Reservation() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'baseline', margin: '2rem auto', justifyContent: 'space-between' }}>
-                <div style={{ width: '50%' }}>
+                <div style={{ width: '50%', padding: '1.5rem' }}>
                     {isLoadingContent ?
-                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            <CircularProgress sx={{ mr: 2 }} />
-                            <Typography>Loading comments...</Typography>
-                        </div>
+                        <Skeleton variant='rectangular' height={60} style={{ borderRadius: 10 }} />
                         :
                         <List>
                             {uploadingComments.map((comment, idx) => (
                                 <div key={idx} style={{ flexDirection: "row", display: "flex", alignItems: 'center', backgroundColor: 'rgb(144, 199, 255)', height: 50, borderRadius: 10 }}>
                                     <CircularProgress size={30} sx={{ ml: 2, mr: 2 }} />
-                                    <Typography>Posting </Typography> <Typography sx={{ ml: 1, fontWeight: 'bold', fontStyle: 'italic' }}> "{comment}"</Typography>
+                                    <Typography>Posting </Typography> <Typography sx={{ ml: 1, fontWeight: 'bold', fontStyle: 'italic' }}> {comment}</Typography>
                                 </div>
                             ))}
                             {comments.map((com, idx) => {
                                 let author = userInfo;
                                 if (com.role.toLowerCase() === user.role) author = user;
-                                console.log(com.role.toLowerCase(), user.role);
                                 return (
                                     <ListItemButton
                                         onClick={() => handleClick(com.comment)}
@@ -165,16 +162,13 @@ export default function Reservation() {
 
                 <div style={{ width: '50%', padding: '1.5rem' }}>
                     {isLoadingContent ? (
-                        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                            <CircularProgress sx={{ mr: 2 }} />
-                            <Typography>Loading files...</Typography>
-                        </div>
+                        <Skeleton variant='rectangular' height={60} style={{ borderRadius: 10 }} />
                     ) : (
                         <>
                             {uploadingFileNames.map((fileName, idx) => (
                                 <div key={idx} style={{ flexDirection: "row", display: "flex", alignItems: 'center', backgroundColor: 'rgb(144, 199, 255)', height: 50, borderRadius: 10 }}>
                                     <CircularProgress size={30} sx={{ ml: 2, mr: 2 }} />
-                                    <Typography>Uploading </Typography> <Typography sx={{ ml: 1, fontWeight: 'bold', fontStyle: 'italic' }}> "{fileName}"</Typography>
+                                    <Typography>Uploading </Typography> <Typography sx={{ ml: 1, fontWeight: 'bold', fontStyle: 'italic' }}> {fileName}</Typography>
                                     <PictureAsPdfIcon fontSize='large' sx={{ ml: 2, mr: 2, color: 'gray' }} />
                                 </div>
                             ))}
