@@ -23,7 +23,6 @@ export default function HorizontalProfessorCard({ professor }) {
             ? 'https://cdn1.vectorstock.com/i/1000x1000/38/15/foreign-language-woman-teacher-icon-flat-style-vector-36033815.jpg'
             : 'https://www.w3schools.com/howto/img_avatar.png';
 
-    console.log(professor);
     return (
         <div style={{ display: 'flex', gap: 20 }}>
             <Card>

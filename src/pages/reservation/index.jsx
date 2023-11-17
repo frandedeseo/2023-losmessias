@@ -5,16 +5,16 @@ import { useEffect, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import {
     Button,
+    CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
-    DialogContentText,
     DialogTitle,
     Divider,
     List,
-    ListItem,
     ListItemButton,
     ListItemIcon,
+    Skeleton,
     Typography,
 } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
@@ -36,11 +36,15 @@ export default function Reservation() {
     const [open, setOpen] = useState(false);
     const [message, setMessage] = useState('');
     const [files, setFiles] = useState([]);
+    const [uploadingFileNames, setUploadingFileNames] = useState([]);
+    const [uploadingComments, setUploadingComments] = useState([]);
+    const [isLoadingContent, setIsLoadingContent] = useState(true);
     const user = useUser();
 
     useEffect(() => {
         if (user.id) {
             if (user.role === 'admin') router.push('/admin-landing');
+            setIsLoadingContent(true);
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
@@ -58,7 +62,7 @@ export default function Reservation() {
                     setFiles(files);
                     setComments(comments);
                 });
-            });
+            }).finally(() => setIsLoadingContent(false));
 
             if (user.role === 'student') {
                 fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${router.query.userId}`, requestOptions).then(res => {
@@ -115,47 +119,75 @@ export default function Reservation() {
         <div style={{ width: '90%', margin: '2rem auto' }}>
             <div style={{ display: 'flex', alignItems: 'end', justifyContent: 'space-between' }}>
                 <HorizontalProfessorCard professor={userInfo} />
-                <Upload id={router.query.id} setFiles={setFiles} setComments={setComments} />
+                <Upload id={router.query.id} setFiles={setFiles} setComments={setComments} setUploadingFileNames={setUploadingFileNames} setUploadingComments={setUploadingComments} />
             </div>
 
             <div style={{ display: 'flex', alignItems: 'baseline', margin: '2rem auto', justifyContent: 'space-between' }}>
-                <div style={{ width: '50%' }}>
-                    <List>
-                        {comments.map((com, idx) => {
-                            let author = userInfo;
-                            if (com.role.toLowerCase() === user.role) author = user;
-
-                            return (
-                                <ListItemButton onClick={() => handleClick(com.comment)} key={idx}>
-                                    <ListItemIcon>
-                                        <SendIcon />
-                                    </ListItemIcon>
-                                    <Typography>
-                                        {author.firstName + ' ' + author.lastName + ' - ' + parse(com.uploadedDateTime)}
-                                    </Typography>
-                                </ListItemButton>
-                            );
-                        })}
-                    </List>
+                <div style={{ width: '50%', padding: '1.5rem' }}>
+                    {isLoadingContent ?
+                        <Skeleton variant='rectangular' height={60} style={{ borderRadius: 10 }} />
+                        :
+                        <List>
+                            {uploadingComments.map((comment, idx) => (
+                                <div key={idx} style={{ flexDirection: "row", display: "flex", alignItems: 'center', backgroundColor: 'rgb(144, 199, 255)', height: 50, borderRadius: 10 }}>
+                                    <CircularProgress size={30} sx={{ ml: 2, mr: 2 }} />
+                                    <Typography>Posting </Typography> <Typography sx={{ ml: 1, fontWeight: 'bold', fontStyle: 'italic' }}> {comment}</Typography>
+                                </div>
+                            ))}
+                            {comments.map((com, idx) => {
+                                let author = userInfo;
+                                if (com.role.toLowerCase() === user.role) author = user;
+                                return (
+                                    <ListItemButton
+                                        onClick={() => handleClick(com.comment)}
+                                        key={idx}
+                                        style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: com.role.toLowerCase() !== user.role ? 'flex-end' : 'flex-start',
+                                        }}
+                                    >
+                                        <Typography>
+                                            {author.firstName + ' ' + author.lastName + ' - ' + com.comment}
+                                        </Typography>
+                                        <Typography variant='caption' sx={{ marginLeft: '0.5rem' }} >{parse(com.uploadedDateTime)}</Typography>
+                                    </ListItemButton>
+                                );
+                            })}
+                        </List>
+                    }
                 </div>
 
                 <Divider orientation='vertical' flexItem />
 
                 <div style={{ width: '50%', padding: '1.5rem' }}>
-                    {files.map((file, idx) => {
-                        let author = userInfo;
-                        if (file.role.toLowerCase() === user.role) author = user;
+                    {isLoadingContent ? (
+                        <Skeleton variant='rectangular' height={60} style={{ borderRadius: 10 }} />
+                    ) : (
+                        <>
+                            {uploadingFileNames.map((fileName, idx) => (
+                                <div key={idx} style={{ flexDirection: "row", display: "flex", alignItems: 'center', backgroundColor: 'rgb(144, 199, 255)', height: 50, borderRadius: 10 }}>
+                                    <CircularProgress size={30} sx={{ ml: 2, mr: 2 }} />
+                                    <Typography>Uploading </Typography> <Typography sx={{ ml: 1, fontWeight: 'bold', fontStyle: 'italic' }}> {fileName}</Typography>
+                                    <PictureAsPdfIcon fontSize='large' sx={{ ml: 2, mr: 2, color: 'gray' }} />
+                                </div>
+                            ))}
+                            {files.map((file, idx) => {
+                                let author = userInfo;
+                                if (file.role.toLowerCase() === user.role) author = user;
 
-                        return (
-                            <div style={{ display: 'flex', alignItems: 'center' }} key={idx}>
-                                <Button onClick={() => handleDownload(file)}>
-                                    <PictureAsPdfIcon fontSize='large' />
-                                    <Typography sx={{ marginLeft: '0.5rem' }}>{file.fileName}</Typography>
-                                </Button>
-                                <Typography>{' - ' + author.firstName + ' ' + author.lastName}</Typography>
-                            </div>
-                        );
-                    })}
+                                return (
+                                    <div style={{ display: 'flex', alignItems: 'center' }} key={idx}>
+                                        <Button onClick={() => handleDownload(file)}>
+                                            <PictureAsPdfIcon fontSize='large' />
+                                            <Typography sx={{ marginLeft: '0.5rem' }}>{file.fileName}</Typography>
+                                        </Button>
+                                        <Typography>{' - ' + author.firstName + ' ' + author.lastName}</Typography>
+                                    </div>
+                                );
+                            })}
+                        </>
+                    )}
                 </div>
             </div>
 

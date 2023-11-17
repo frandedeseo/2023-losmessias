@@ -16,7 +16,7 @@ import { ChangeEvent, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
-export default function Upload({ id, setFiles, setComments }) {
+export default function Upload({ id, setFiles, setComments, setUploadingFileNames, setUploadingComments }) {
     const user = useUser();
     const [file, setFile] = useState(null);
     const [alert, setAlert] = useState(false);
@@ -52,6 +52,7 @@ export default function Upload({ id, setFiles, setComments }) {
         var response;
         if (file !== null) {
             var data = new FormData();
+            setUploadingFileNames(prevNames => [...prevNames, file.name]);
             data.append('file', file);
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/uploadFile`, {
                 method: 'POST',
@@ -86,9 +87,13 @@ export default function Upload({ id, setFiles, setComments }) {
                             associatedId: user.id,
                         }),
                     });
-                });
+                }).catch(err => {
+                    setAlertSeverity('error');
+                    setAlertMessage('There was an error uploading the file!');
+                }).finally(() => setUploadingFileNames(prevNames => prevNames.filter(name => name !== file.name)));
         }
         if (newMessage !== '') {
+            setUploadingComments(prevComments => [...prevComments, newMessage]);
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/comment/upload`, {
                 method: 'POST',
                 headers: {
@@ -121,7 +126,7 @@ export default function Upload({ id, setFiles, setComments }) {
                     setAlertSeverity('error');
                     setAlertMessage('There was an error uploading the message!');
                 }
-            });
+            }).finally(() => setUploadingComments(prevComments => prevComments.filter(comment => comment !== newMessage)));
         }
         setOpen(false);
         setAlert(true);

@@ -13,6 +13,8 @@ import {
     Typography,
     Box,
     CircularProgress,
+    Snackbar,
+    Alert,
 } from '@mui/material';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -28,66 +30,68 @@ export default function StudentLandingPage() {
     const [pendingFeedback, setPendingFeedback] = useState([]);
     const user = useUser();
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
+    const [feedbackStatus, setFeedbackStatus] = useState("info");
+    const [autoHideDuration, setAutoHideDuration] = useState(null);
 
     var router = useRouter();
 
     useEffect(() => {
         setIsLoading(true);
-        if (router.isReady && user.id) {
-            if (user.authenticated) {
-                if (user.role == 'professor') router.push('/professor-landing');
-                if (user.role === 'admin') router.push('/admin-landing');
-                const requestOptions = {
-                    method: 'GET',
-                    headers: { Authorization: `Bearer ${user.token}` },
-                };
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(
-                    res => {
-                        res.json().then(json => {
-                            setDisabledBlocks(
-                                json.map(e => {
-                                    if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
-                                    if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                                    if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
-                                    if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
-                                    if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
-                                    if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
-                                    return e;
-                                })
-                            );
-                        });
-                    }
-                );
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions).then(res => {
+        if (user.id && router.isReady) {
+            if (user.role == 'professor') router.push('/professor-landing');
+            if (user.role === 'admin') router.push('/admin-landing');
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${user.token}` },
+            };
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(
+                res => {
                     res.json().then(json => {
-                        json.pendingClassesFeedbacks.map(reservation => {
-                            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
-                                res2.json().then(json2 => {
-                                    setPendingFeedback(prev => [
-                                        ...prev,
-                                        {
-                                            reservation_id: reservation,
-                                            receiver: {
-                                                id: json2.professor.id,
-                                                name: `${json2.professor.firstName} ${json2.professor.lastName}`,
-                                            },
+                        setDisabledBlocks(
+                            json.map(e => {
+                                if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
+                                if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
+                                if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
+                                if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
+                                if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
+                                return e;
+                            })
+                        );
+                    });
+                }
+            );
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions).then(res => {
+                res.json().then(json => {
+                    json.pendingClassesFeedbacks.map(reservation => {
+                        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
+                            res2.json().then(json2 => {
+                                setPendingFeedback(prev => [
+                                    ...prev,
+                                    {
+                                        reservation_id: reservation,
+                                        receiver: {
+                                            id: json2.professor.id,
+                                            name: `${json2.professor.firstName} ${json2.professor.lastName}`,
                                         },
-                                    ]);
-                                });
+                                    },
+                                ]);
                             });
-                            setGiveFeedback(true);
                         });
+                        setGiveFeedback(true);
                     });
                 });
-                setIsLoading(false);
-            } else {
-                router.push('/');
-            }
+            });
+            setIsLoading(false);
+        } else {
+            router.push('/');
         }
     }, [user, router]);
 
     const handleFeedback = () => {
-        setIsLoading(true);
+        setIsLoadingFeedback(true);
+        setFeedbackStatus("info");
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
             method: 'POST',
             headers: {
@@ -109,7 +113,11 @@ export default function StudentLandingPage() {
                 if (pendingFeedback.lengt === 1) giveFeedback(false);
                 setPendingFeedback(prev => prev.shift());
             }
-            setIsLoading(false);
+            setFeedbackStatus("success");
+        }).catch(() => {
+            setFeedbackStatus("error");
+        }).finally(() => {
+            setAutoHideDuration(6000);
         });
     };
 
@@ -138,6 +146,22 @@ export default function StudentLandingPage() {
                 </>
             ) : (
                 <>
+                    <Snackbar
+                        open={isLoadingFeedback}
+                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                        severity={feedbackStatus}
+                        autoHideDuration={autoHideDuration}
+                        onClose={() => {
+                            setFeedbackStatus("info");
+                            setAutoHideDuration(null);
+                            setIsLoadingFeedback(false);
+                        }}
+                    >
+                        <Alert severity={feedbackStatus}>
+                            {feedbackStatus === "info" ? "Sending feedback..." : feedbackStatus === "success" ? "Feedback sent!" : "Error sending feedback"}
+                        </Alert>
+                    </Snackbar>
+
                     <Typography variant='h4' sx={{ margin: '2% 0' }}>
                         Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
                     </Typography>
