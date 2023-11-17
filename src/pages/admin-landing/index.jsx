@@ -39,33 +39,28 @@ export default function AdminLandingPage() {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        if (router.isReady && user.authenticated) {
-            if (user.role == 'student') {
-                router.push('/student-landing');
-            } else if (user.role == 'professor') {
-                router.push('/professor-landing');
-            } else {
-                const requestOptions = {
-                    method: 'GET',
-                    headers: { Authorization: `Bearer ${user.token}` },
-                };
-                setIsLoading(true);
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/todaySummary`, requestOptions)
-                    .then(res =>
-                        res.json().then(json => {
-                            setAllProfessors(json);
-                            setProfessors(json);
-                            setShownProfessors(json.slice(0, rowsPerPage));
-                        })
-                    )
-                    .finally(() => setIsLoading(false));
-
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
+        setIsLoading(true);
+        if (router.isReady && user.id) {
+            if (user.role === 'professor') router.push('/professor-landing');
+            if (user.role == 'student') router.push('/student-landing');
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${user.token}` },
+            };
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/todaySummary`, requestOptions)
+                .then(res =>
                     res.json().then(json => {
-                        setSubjects(json);
+                        setAllProfessors(json);
+                        setProfessors(json);
+                        setShownProfessors(json.slice(0, rowsPerPage));
                     })
-                );
-            }
+                )
+                .finally(() => setIsLoading(false));
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
+                res.json().then(json => {
+                    setSubjects(json);
+                })
+            );
         } else {
             router.push('/');
         }

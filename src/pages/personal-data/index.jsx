@@ -2,7 +2,7 @@ import { Box, Fab, Typography } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from '@mui/icons-material/Check';
 import { Cancel } from "@mui/icons-material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PersonalDataDisplay from "./components/PersonalDataDisplay";
 import PersonalDataEdit from "./components/PersonalDataEdit";
 import { styles } from "../../styles/personal-data-styles";
@@ -10,6 +10,7 @@ import { useUser } from "@/context/UserContext";
 import useSWR from "swr";
 import { fetcherGetWithToken } from "@/helpers/FetchHelpers";
 import LoadingModal from "@/components/modals/LoadingModal";
+import { useRouter } from "next/router";
 
 
 
@@ -20,6 +21,15 @@ export default function PersonalData() {
     const [phone, setPhone] = useState("");
     const [isProcessing, setIsProcessing] = useState(false);
     const user = useUser();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (user.token!=undefined){ 
+            if (!user.authenticated){
+                router.push('/');
+            }
+        }
+    }, [router, user])
 
 
     const { data, isLoading, mutate } = useSWR(

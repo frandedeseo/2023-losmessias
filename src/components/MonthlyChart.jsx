@@ -12,16 +12,15 @@ export default function MonthlyChart({ id, legend = false }) {
     const user = useUser();
     const [configDonut, setConfigDonut] = useState(null);
 
-    const { data, isLoading } = useSWR([
-        `${process.env.NEXT_PUBLIC_API_URI}/api/reservation/getStatistics?professorId=${id}`,
-        user.token]
-        , fetcherGetWithTokenDashboard,
-        { fallbackData: [] });
-
+    const { data, isLoading } = useSWR(
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/getStatistics?professorId=${id}`, user.token],
+        fetcherGetWithTokenDashboard,
+        { fallbackData: [] }
+    );
 
     useEffect(() => {
         if (data.length > 0) {
-            const colors = data[0]?.classes.map(val => {
+            const colors = data[2]?.classes.map(val => {
                 if (val.type !== 'Cancelled') return getColor(val.type);
 
                 return '#ADB5BD';
@@ -75,13 +74,15 @@ export default function MonthlyChart({ id, legend = false }) {
     return (
         <>
             {isLoading ? (
-                <Box sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
                     <CircularProgress />
-                    <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '1rem', textAlign: 'center' }}>
+                    <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '1rem', textAlign: 'center', marginLeft: "0.5rem" }}>
                         Loading...
                     </Typography>
                 </Box>

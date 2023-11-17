@@ -17,7 +17,7 @@ export default function Home() {
         if (token != undefined) {
             confirmToken(token);
         }
-    }, [token]);
+    }, [token, confirmToken]);
 
     return (
         <>

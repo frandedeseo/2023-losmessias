@@ -2,7 +2,9 @@
 import { Typography } from '@mui/material';
 
 // Utils
-import { compare_time, parseDate } from '@/utils/compareDate';
+import { compare_time, first_block, parseDate } from '@/utils/compareDate';
+import { useUser } from '@/context/UserContext';
+import { useRouter } from 'next/router';
 
 const blocks = [
     '09:00 - 09:30',
@@ -63,9 +65,11 @@ const styles = {
     },
 };
 
-export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBlocks, week, interactive = true }) {
+export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBlocks, week, interactive = true, showData = false }) {
     var curr_date = new Date();
     var first = curr_date.getDate() - curr_date.getDay();
+    const user = useUser();
+    const router = useRouter();
 
     const handleBlockSelection = (block, day) => {
         if (!block_disabled(block, day)) {
@@ -79,6 +83,10 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
             } else {
                 setSelectedBlocks(prevBlocks => [...prevBlocks, { day, time: block }]);
             }
+        } else {
+            let { id, otherUserId } = redirect_to_reservation(showData, block, day);
+
+            if (id !== undefined) router.push('reservation?id=' + id + '&userId=' + otherUserId);
         }
     };
 
@@ -112,6 +120,45 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
         return false;
     };
 
+    const show_data = (flag, block, day) => {
+        if (flag) {
+            const blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toISOString().split('T')[0];
+            const blockDisabled = disabledBlocks.findIndex(
+                blk => blockDate === blk.day.join('-') && blk.status === 'CONFIRMED' && first_block(block, blk)
+            );
+            if (blockDisabled !== -1) {
+                let name =
+                    user.role === 'student'
+                        ? disabledBlocks[blockDisabled].professor.firstName + ' ' + disabledBlocks[blockDisabled].professor.lastName
+                        : disabledBlocks[blockDisabled].student.firstName + ' ' + disabledBlocks[blockDisabled].student.lastName;
+
+                return {
+                    id: disabledBlocks[blockDisabled].id,
+                    subject: disabledBlocks[blockDisabled].subject.name,
+                    name,
+                };
+            }
+        }
+    };
+
+    const redirect_to_reservation = (flag, block, day) => {
+        if (flag) {
+            const blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toISOString().split('T')[0];
+            const blockDisabled = disabledBlocks.findIndex(
+                blk => blockDate === blk.day.join('-') && blk.status === 'CONFIRMED' && compare_time(block, blk)
+            );
+            if (blockDisabled !== -1) {
+                return {
+                    id: disabledBlocks[blockDisabled].id,
+                    otherUserId:
+                        user.role.toLowerCase() === 'student'
+                            ? disabledBlocks[blockDisabled].professor.id
+                            : disabledBlocks[blockDisabled].student.id,
+                };
+            }
+        }
+    };
+
     const day_disabled = (day, block) => {
         if (week === 0 && curr_date.getDay() > daysNumber[day]) {
             return true;
@@ -130,7 +177,7 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
 
         if (active(block, day)) style = styles.selected;
         else if (day_disabled(day, block)) style = styles.disabled;
-        else if (block_reserved(block, day)) style = styles.reserved;
+        else if (block_reserved(block, day)) style = showData ? { ...styles.reserved, cursor: 'pointer' } : styles.reserved;
         else if (block_not_available(block, day)) style = styles.disabled;
 
         return style;
@@ -158,9 +205,20 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
                                 <Typography variant='body1'>{block}</Typography>
                             </td>
 
-                            {days.map(day => (
-                                <td style={style_of_block(block, day)} onClick={() => handleBlockSelection(block, day)} key={day} />
-                            ))}
+                            {days.map(day => {
+                                const data = show_data(showData, block, day);
+
+                                return (
+                                    <td style={style_of_block(block, day)} onClick={() => handleBlockSelection(block, day)} key={day}>
+                                        <Typography fontSize={14} align='center'>
+                                            {data?.subject}
+                                        </Typography>
+                                        <Typography fontSize={14} align='center'>
+                                            {data?.name}
+                                        </Typography>
+                                    </td>
+                                );
+                            })}
                         </tr>
                     ))}
                 </tbody>

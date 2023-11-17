@@ -28,7 +28,6 @@ export const useApi = () => {
     const getTokenValues = token => {
         const loggedInUser = localStorage.getItem("user");
         if (loggedInUser != null) {
-            console.log(loggedInUser);
             throw Error("User already logged in");
         } else {
             const decoded = jwt_decode(token);
@@ -37,7 +36,6 @@ export const useApi = () => {
             const lastName = decoded.surname;
             const email = decoded.sub;
             const role = decoded.role.toLowerCase();
-            console.log(lastName);
             dispatch({ type: 'login', payload: { id: id, token: token, role: role, email: email, firstName: firstName, lastName: lastName } });
             if (role == "professor") {
                 router.push("/professor-landing");
@@ -71,7 +69,7 @@ export const useApi = () => {
                     showAlert({ message: "Email is already taken", status: 500 });
                 } else {
                     showAlert({ message: "We have sent you an email. Please confirm email adress", status: 200 });
-                    router.push(`/${request.role}-landing`);
+                    router.push(`/`);
                 }
             }).finally(() => {
                 setLoading(false);
@@ -116,8 +114,6 @@ export const useApi = () => {
         setIsLoading(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/authentication`, requestOptions)
             .then(response => {
-                console.log(response.status);
-                console.log(response);
                 if (response.status === 200) {
                     return response.json();
                 } else {
@@ -208,7 +204,6 @@ export const useApi = () => {
         try {
             let response = await fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/validate-email?email=${request.email}`, { method: 'POST' })
             let json = await response.json();
-            console.log(response);
             if (response.status === 200) {
                 return true;
             } else {
@@ -232,10 +227,8 @@ export const useApi = () => {
 
     const confirmToken = token => {
         if (token === null || token === undefined) return;
-        console.log(token);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/registration/confirm?token=${token}`)
             .then(response => {
-                console.log(response.status);
                 if (response.status === 200) {
                     return response.json();
                 } else {

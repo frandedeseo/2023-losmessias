@@ -10,17 +10,20 @@ import ForgotPassword from './ForgotPassword';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useUser, useUserDispatch } from '@/context/UserContext';
+import { CircularProgress } from '@mui/material';
 
 const defaultTheme = createTheme();
 
 export default function Page({ page, setPage }) {
     
     const [request, setRequest] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const user = useUser();
     const dispatch = useUserDispatch();
 
     useEffect(() => {
+        setIsLoading(true);
         if (router.isReady && user.authenticated) {
             if (user.role=='student'){
                 router.push("/student-landing");
@@ -30,10 +33,25 @@ export default function Page({ page, setPage }) {
                 router.push("/admin-landing");
             }
         }
+        setIsLoading(false);
     }, [router, user]);
 
     return (
         <ThemeProvider theme={defaultTheme}>
+            {isLoading ? (
+                <>
+                    <Box
+                        sx={{
+                            height: 300,
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <CircularProgress />
+                    </Box>
+                </>
+            ) : (
             <Grid container component='main' justifyContent='center' direction='row' sx={{ height: '91vh' }}>
                 <CssBaseline />
                 <Grid
@@ -68,7 +86,7 @@ export default function Page({ page, setPage }) {
                         {page=="transferlist"  && <TransferList request={request} setPage={setPage}></TransferList>}
                     </Box>
                 </Grid>
-            </Grid>
+            </Grid>)}
         </ThemeProvider>
     );
 }

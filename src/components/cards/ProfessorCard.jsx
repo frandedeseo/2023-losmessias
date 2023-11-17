@@ -1,12 +1,22 @@
 import { AccessTime, Business, MailOutline, Phone } from '@mui/icons-material';
-import { Card, CardActionArea, CardContent, CardMedia, Chip, List, ListItem, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import {
+    Card,
+    CardActionArea,
+    CardContent,
+    CardMedia,
+    Chip,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    Rating,
+    Typography,
+} from '@mui/material';
 import Link from 'next/link';
 import PersonIcon from '@mui/icons-material/Person';
 import { getColor } from '@/utils/getColor';
 
-
-export default function ProfessorCard({ professorId, studentId, name, email, phone, sex, office, officeHours, image, style, subjects }) {
-
+export default function ProfessorCard({ professorId, studentId, name, email, phone, sex, office, officeHours, image, style, subjects, rating }) {
     const prepare_subjects = () => {
         return subjects.map(subject => subject.name).join('-');
     };
@@ -21,9 +31,21 @@ export default function ProfessorCard({ professorId, studentId, name, email, pho
                 style={{ textDecoration: 'none' }}
             >
                 <CardActionArea>
-                    {(sex == "MALE") && <CardMedia component='img' height='140' image='https://www.w3schools.com/howto/img_avatar.png' alt='Professor' />}
-                    {(sex == "FEMALE") && <CardMedia component='img' height='140' image='https://cdn1.vectorstock.com/i/1000x1000/38/15/foreign-language-woman-teacher-icon-flat-style-vector-36033815.jpg' alt='Professor' />}
+                    {sex == 'MALE' && (
+                        <CardMedia component='img' height='140' image='https://www.w3schools.com/howto/img_avatar.png' alt='Professor' />
+                    )}
+                    {sex == 'FEMALE' && (
+                        <CardMedia
+                            component='img'
+                            height='140'
+                            image='https://cdn1.vectorstock.com/i/1000x1000/38/15/foreign-language-woman-teacher-icon-flat-style-vector-36033815.jpg'
+                            alt='Professor'
+                        />
+                    )}
                     <CardContent>
+                        <ListItem sx={{ display: 'flex', justifyContent: 'center' }}>
+                            <Rating name='read-only' precision={0.5} value={rating} max={3} size='large' readOnly />
+                        </ListItem>
                         <ListItem>
                             <ListItemIcon>
                                 <PersonIcon />
@@ -57,6 +79,7 @@ export default function ProfessorCard({ professorId, studentId, name, email, pho
                                     {office}
                                 </Typography>
                             </ListItem>
+
                             <ListItem sx={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
                                 {subjects.map(subject => (
                                     <Chip key={subject.id} label={subject.name} sx={{ backgroundColor: getColor(subject.name) }} />

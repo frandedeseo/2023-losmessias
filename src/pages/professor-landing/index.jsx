@@ -3,7 +3,26 @@ import CalendarPagination from '@/components/CalendarPagination';
 import Dashboard from '@/components/Dashboard';
 import { useUser } from '@/context/UserContext';
 import { order_and_group } from '@/utils/order_and_group';
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, Snackbar, Tab, Tabs, Typography } from '@mui/material';
+import {
+    Alert,
+    Box,
+    Button,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    Divider,
+    Rating,
+    Snackbar,
+    Tab,
+    Tabs,
+    Tooltip,
+    Typography,
+} from '@mui/material';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 
@@ -29,40 +48,69 @@ export default function ProfessorLandingPage() {
     const [alertSeverity, setAlertSeverity] = useState('error');
     const [disabledBlocks, setDisabledBlocks] = useState([]);
     const user = useUser();
-    const [userName, setUserName] = useState('');
+    const [giveFeedback, setGiveFeedback] = useState(true);
+    const [feedback, setFeedback] = useState({ rating: 0, time: false, material: false, kind: false });
+    const [pendingFeedback, setPendingFeedback] = useState([]);
     const [tab, setTab] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
+    const [feedbackStatus, setFeedbackStatus] = useState("info");
+    const [autoHideDuration, setAutoHideDuration] = useState(null);
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
+        setIsLoading(true);
         if (user.id) {
+            if (user.role == 'student') router.push('/student-landing');
+            if (user.role === 'admin') router.push('/admin-landing');
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
-                if (res.status === 200)
-                    res.json().then(json => {
-                        setDisabledBlocks(
-                            json.map(e => {
-                                if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                                return e;
-                            })
-                        );
-                    });
-            });
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res => {
-                if (res.status === 200)
-                    return res.json().then(json => {
-                        setUserName(json.firstName + ' ' + json.lastName);
-                    })
-                else
-                    return [];
-            }
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(
+                res => {
+                    if (res.status === 200) {
+                        res.json().then(json => {
+                            setDisabledBlocks(
+                                json.map(e => {
+                                    if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                    return e;
+                                })
+                            );
+                        });
+                    }
+                    setIsLoading(false);
+                }
             );
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res => {
+                if (res.status === 200) {
+                    return res.json().then(json => {
+                        json.pendingClassesFeedbacks.map(reservation => {
+                            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
+                                res2.json().then(json2 => {
+                                    setPendingFeedback(prev => [
+                                        ...prev,
+                                        {
+                                            reservation_id: reservation,
+                                            receiver: {
+                                                id: json2.student.id,
+                                                name: `${json2.student.firstName} ${json2.student.lastName}`,
+                                            },
+                                        },
+                                    ]);
+                                });
+                            });
+                            setGiveFeedback(true);
+                        });
+                    });
+                }
+            });
+        } else {
+            router.push('/');
         }
-    }, [user, router.isReady]);
+    }, [router, user]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
@@ -103,7 +151,6 @@ export default function ProfessorLandingPage() {
                     setAlertSeverity('error');
                     setAlertMessage('There was an error disabling the block!');
                 } else {
-                    console.log(new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0].split('-'));
                     setDisabledBlocks(prevDisabled => [
                         ...prevDisabled,
                         {
@@ -118,107 +165,246 @@ export default function ProfessorLandingPage() {
             });
         });
         handleCancel();
-
         setAlertSeverity('success');
         setAlertMessage('Block has been disabled successfully!');
     };
 
+    const handleFeedback = () => {
+        setIsLoadingFeedback(true);
+        setFeedbackStatus("info");
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${user.token}`,
+            },
+            body: JSON.stringify({
+                studentId: pendingFeedback[0].receiver.id,
+                professorId: user.id,
+                roleReceptor: 'STUDENT',
+                classId: pendingFeedback[0].reservation_id,
+                rating: feedback.rating,
+                material: feedback.material,
+                punctuality: feedback.time,
+                polite: feedback.kind,
+            }),
+        }).then(res => {
+            if (res.status === 200) {
+                if (pendingFeedback.length === 1) setGiveFeedback(false);
+                setPendingFeedback(prev => {
+                    prev.shift();
+                    return prev;
+                });
+            }
+            setFeedbackStatus("success");
+        }).catch(() => {
+            setFeedbackStatus("error");
+        }).finally(() => {
+            setAutoHideDuration(6000);
+        });
+    };
+
+    const handleFeedbackClick = opt => {
+        if (feedback[opt]) {
+            setFeedback(prev => ({ ...prev, [opt]: false }));
+        } else {
+            setFeedback(prev => ({ ...prev, [opt]: true }));
+        }
+    };
+
     return (
-        <div style={{ width: '95%', margin: 'auto' }}>
-            <Typography variant='h4' sx={{ margin: '2% 0' }}>
-                Hi{" " + user.firstName + " " + user.lastName}, welcome back!
-            </Typography>
-
-            <Tabs value={tab} onChange={handleTabChange}>
-                <Tab label='Agenda' />
-                <Tab label='Dashboard' />
-            </Tabs>
-            <div style={{ paddingBlock: '0.75rem' }} />
-            {tab === 0 && (
+        <>
+            {isLoading ? (
                 <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <table style={{ height: '35px' }}>
-                            <tbody>
-                                <tr>
-                                    <td
-                                        style={{
-                                            width: '130px',
-                                            borderBlock: '1px solid #338aed70',
-                                            backgroundColor: '#338aed90',
-                                            textAlign: 'center',
-                                        }}
-                                    >
-                                        <Typography>Selected block</Typography>
-                                    </td>
-                                    <td
-                                        style={{
-                                            textAlign: 'center',
-                                            width: '130px',
-                                            borderBlock: '1px solid #e64b4b70',
-                                            backgroundColor: '#e64b4b90',
-                                        }}
-                                    >
-                                        <Typography>Reserved Class</Typography>
-                                    </td>
-                                    <td
-                                        style={{
-                                            textAlign: 'center',
-                                            width: '130px',
-                                            borderBlock: '1px solid #adadad70',
-                                            backgroundColor: '#adadad90',
-                                        }}
-                                    >
-                                        <Typography>Unavailable</Typography>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
-                    </div>
-                    <Calendar
-                        selectedBlocks={selectedBlocks}
-                        setSelectedBlocks={setSelectedBlocks}
-                        disabledBlocks={disabledBlocks}
-                        week={week}
-                    />
-
-                    <div style={{ display: 'flex', justifyContent: 'right', margin: '1rem auto', width: '90%' }}>
-                        <Button onClick={handleCancel}>Cancel</Button>
-                        <Button variant='contained' onClick={handleConfirmationOpen} disabled={selectedBlocks.length === 0}>
-                            Disable
-                        </Button>
-                    </div>
-
-                    <Dialog open={showConfirmDisable}>
-                        <DialogTitle>Confirm Disable</DialogTitle>
-                        <DialogContent dividers>
-                            <div style={{ display: 'flex' }}>
-                                <div style={{ paddingInline: '2rem' }}>
-                                    {orderedSelectedBlocks.map((block, idx) => (
-                                        <Typography key={idx}>{block.day + ' ' + block.startingHour + ' - ' + block.endingHour}</Typography>
-                                    ))}
-                                </div>
-                            </div>
-                        </DialogContent>
-                        <DialogActions>
-                            <Button onClick={handleCancel}>Cancel</Button>
-                            <Button variant='contained' onClick={handleDisable}>
-                                Disable
-                            </Button>
-                        </DialogActions>
-                    </Dialog>
-
-                    <Snackbar
-                        open={alert}
-                        autoHideDuration={3000}
-                        onClose={() => setAlert(false)}
-                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                    <Box
+                        sx={{
+                            height: 300,
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}
                     >
-                        <Alert severity={alertSeverity}>{alertMessage}</Alert>
-                    </Snackbar>
+                        <CircularProgress />
+                    </Box>
                 </>
+            ) : (
+                <div style={{ width: '95%', margin: 'auto' }}>
+                    <Snackbar
+                        open={isLoadingFeedback}
+                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                        severity={feedbackStatus}
+                        autoHideDuration={autoHideDuration}
+                        onClose={() => {
+                            setFeedbackStatus("info");
+                            setAutoHideDuration(null);
+                            setIsLoadingFeedback(false);
+                        }}
+                    >
+                        <Alert severity={feedbackStatus}>
+                            {feedbackStatus === "info" ? "Sending feedback..." : feedbackStatus === "success" ? "Feedback sent!" : "Error sending feedback"}
+                        </Alert>
+                    </Snackbar>
+
+                    <Typography variant='h4' sx={{ margin: '2% 0' }}>
+                        Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
+                    </Typography>
+
+                    <Tabs value={tab} onChange={handleTabChange}>
+                        <Tab label='Agenda' />
+                        <Tab label='Dashboard' />
+                    </Tabs>
+                    <div style={{ paddingBlock: '0.75rem' }} />
+                    {tab === 0 && (
+                        <>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <table style={{ height: '35px' }}>
+                                    <tbody>
+                                        <tr>
+                                            <td
+                                                style={{
+                                                    width: '130px',
+                                                    borderBlock: '1px solid #338aed70',
+                                                    backgroundColor: '#338aed90',
+                                                    textAlign: 'center',
+                                                }}
+                                            >
+                                                <Typography>Selected block</Typography>
+                                            </td>
+                                            <td
+                                                style={{
+                                                    textAlign: 'center',
+                                                    width: '130px',
+                                                    borderBlock: '1px solid #e64b4b70',
+                                                    backgroundColor: '#e64b4b90',
+                                                }}
+                                            >
+                                                <Typography>Reserved Class</Typography>
+                                            </td>
+                                            <td
+                                                style={{
+                                                    textAlign: 'center',
+                                                    width: '130px',
+                                                    borderBlock: '1px solid #adadad70',
+                                                    backgroundColor: '#adadad90',
+                                                }}
+                                            >
+                                                <Typography>Unavailable</Typography>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+                            </div>
+                            <Calendar
+                                selectedBlocks={selectedBlocks}
+                                setSelectedBlocks={setSelectedBlocks}
+                                disabledBlocks={disabledBlocks}
+                                week={week}
+                                showData
+                            />
+
+                            <div style={{ display: 'flex', justifyContent: 'right', margin: '1rem auto', width: '90%' }}>
+                                <Button onClick={handleCancel}>Cancel</Button>
+                                <Button variant='contained' onClick={handleConfirmationOpen} disabled={selectedBlocks.length === 0}>
+                                    Disable
+                                </Button>
+                            </div>
+
+                            <Dialog open={showConfirmDisable}>
+                                <DialogTitle>Confirm Disable</DialogTitle>
+                                <DialogContent dividers>
+                                    <div style={{ display: 'flex' }}>
+                                        <div style={{ paddingInline: '2rem' }}>
+                                            {orderedSelectedBlocks.map((block, idx) => (
+                                                <Typography key={idx}>
+                                                    {block.day + ' ' + block.startingHour + ' - ' + block.endingHour}
+                                                </Typography>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={handleCancel}>Cancel</Button>
+                                    <Button variant='contained' onClick={handleDisable}>
+                                        Disable
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
+
+                            <Snackbar
+                                open={alert}
+                                autoHideDuration={3000}
+                                onClose={() => setAlert(false)}
+                                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                            >
+                                <Alert severity={alertSeverity}>{alertMessage}</Alert>
+                            </Snackbar>
+                        </>
+                    )}
+                    {tab === 1 && <Dashboard id={user.id} />}
+
+                    {pendingFeedback.length > 0 && (
+                        <Dialog open={giveFeedback} onClose={() => setGiveFeedback(false)}>
+                            <DialogTitle>{`Give Feedback to ${pendingFeedback[0].receiver.name}`}</DialogTitle>
+                            <DialogContent>
+                                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                    <Rating
+                                        precision={0.5}
+                                        value={feedback.rating}
+                                        onChange={(event, newValue) => {
+                                            setFeedback(prev => ({ ...prev, rating: newValue }));
+                                        }}
+                                        sx={{ fontSize: 42 }}
+                                        max={3}
+                                        size='large'
+                                    />
+                                </div>
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        gap: 10,
+                                        marginBlock: '1.5rem',
+                                    }}
+                                >
+                                    <Tooltip title='Is always on time'>
+                                        <AccessTimeIcon
+                                            fontSize='large'
+                                            sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                            onClick={() => handleFeedbackClick('time')}
+                                            color={feedback.time ? 'black' : 'disabled'}
+                                        />
+                                    </Tooltip>
+
+                                    <Tooltip title='Has extra material to practice'>
+                                        <InsertDriveFileIcon
+                                            fontSize='large'
+                                            sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                            onClick={() => handleFeedbackClick('material')}
+                                            color={feedback.material ? 'black' : 'disabled'}
+                                        />
+                                    </Tooltip>
+
+                                    <Tooltip title='Is respectful and patient'>
+                                        <SentimentSatisfiedAltIcon
+                                            fontSize='large'
+                                            sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                            onClick={() => handleFeedbackClick('kind')}
+                                            color={feedback.kind ? 'black' : 'disabled'}
+                                        />
+                                    </Tooltip>
+                                </div>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={() => setGiveFeedback(false)}>Close</Button>
+                                <Button variant='contained' onClick={handleFeedback}>
+                                    Submit
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
+                    )}
+                </div>
             )}
-            {tab === 1 && <Dashboard id={user.id} />}
-        </div>
+        </>
     );
 }

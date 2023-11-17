@@ -59,6 +59,7 @@ export default function Reservation() {
     const [alertSeverity, setAlertSeverity] = useState('');
     const [open, setOpen] = useState();
     const [isProcessingReservation, setIsProcessingReservation] = useState(false);
+    const [disabledBlocks, setDisabledBlocks] = useState([]);
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
@@ -66,12 +67,40 @@ export default function Reservation() {
     const { data: professor, isLoading } = useSWR(
         [`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${router.query.professorId}`, user.token],
         fetcherGetWithToken,
-        { fallbackData: { subjects: [] } });
+        { fallbackData: { subjects: [] } }
+    );
 
-    const { data: disabledBlocks, isLoading: isLoadingDissabledBlocks } = useSWR(
-        [`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${router.query.professorId}`, user.token],
-        fetcherGetWithToken,
-        { fallbackData: [] });
+    useEffect(() => {
+        if (router.isReady && user.id) {
+            if (user.role == 'professor') router.push('/professor-landing');
+            if (user.role === 'admin') router.push('/admin-landing');
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${user.token}` },
+            };
+            fetch(
+                `${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${router.query.professorId}`,
+                requestOptions
+            ).then(res => {
+                res.json().then(json => {
+                    setDisabledBlocks(
+                        json.map(e => {
+                            if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
+                            if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                            if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
+                            if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
+                            if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
+                            if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
+
+                            return e;
+                        })
+                    );
+                });
+            });
+        } else {
+            router.push('/');
+        }
+    }, [user, router]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
@@ -100,15 +129,17 @@ export default function Reservation() {
                 body: JSON.stringify({
                     ...reservation,
                 }),
-            }).then(res => {
-                if (res.status !== 200) {
-                    setAlertSeverity('error');
-                    setAlertMessage('There was an error making the reservation!');
-                } else {
-                    router.push('/student-landing');
-                }
-                setAlert(true);
-            }).finally(() => setIsProcessingReservation(false));
+            })
+                .then(res => {
+                    if (res.status !== 200) {
+                        setAlertSeverity('error');
+                        setAlertMessage('There was an error making the reservation!');
+                    } else {
+                        router.push('/student-landing');
+                    }
+                    setAlert(true);
+                })
+                .finally(() => setIsProcessingReservation(false));
         });
         handleCancel();
 
@@ -127,8 +158,6 @@ export default function Reservation() {
         setShowConfirmationReservation(true);
     };
 
-      
-
     return (
         <>
             <div style={{ display: 'flex', width: '90%', margin: '2rem auto', alignItems: 'end', justifyContent: 'space-between' }}>
@@ -144,11 +173,15 @@ export default function Reservation() {
                     </Select>
                 </FormControl>
 
-                <Modal open={open} onClose={() => setOpen(false)} sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}>
+                <Modal
+                    open={open}
+                    onClose={() => setOpen(false)}
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                >
                     <Upload />
                 </Modal>
             </div>

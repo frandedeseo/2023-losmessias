@@ -41,6 +41,7 @@ export default function Classes() {
     const [isProcessing, setIsProcessing] = useState(false);
     const camelCaseUserRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
     const [isLoading, setIsLoading] = useState(true);
+    const router = useRouter();
 
 
     const { data: subjects } = useSWR(
@@ -50,24 +51,29 @@ export default function Classes() {
     );
 
     useEffect(() => {
-        const requestOptions = {
-            method: 'GET',
-            headers: {
-                'Content-type': 'application/json',
-                Authorization: `Bearer ${user.token}`
-            },
-        };
-        setIsLoading(true);
-        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findBy${camelCaseUserRole}?${user.role}Id=${user.id}`, requestOptions)
-            .then(res => {
-                if (!res.ok) throw Error(res.status);
-                res.json().then(json => {
-                    setData(json);
-                    setClasses(json);
-                });
-            }).catch(err => console.log(err))
-            .finally(() => setIsLoading(false));
-    }, [user])
+        if (user.id) {
+            if (user.role === 'admin') router.push('/admin-landing');
+            setIsLoading(true);
+            const requestOptions = {
+                method: 'GET',
+                headers: {
+                    'Content-type': 'application/json',
+                    Authorization: `Bearer ${user.token}`
+                },
+            };
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findBy${camelCaseUserRole}?${user.role}Id=${user.id}`, requestOptions)
+                .then(res => {
+                    if (!res.ok) throw Error(res.status);
+                    res.json().then(json => {
+                        setData(json);
+                        setClasses(json.filter((resrv) => resrv.status !== "NOT_AVAILABLE"));
+                    });
+                }).catch(err => console.log(err))
+                .finally(() => setIsLoading(false));
+        } else {
+            router.push('/');
+        }
+    }, [router, user, camelCaseUserRole])
 
     const handleCancel = id => {
         setIsProcessing(true);
