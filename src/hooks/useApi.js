@@ -71,7 +71,7 @@ export const useApi = () => {
                     showAlert({ message: "Email is already taken", status: 500 });
                 } else {
                     showAlert({ message: "We have sent you an email. Please confirm email adress", status: 200 });
-                    router.push(`/${request.role}-landing`);
+                    router.push(`/`);
                 }
             }).finally(() => {
                 setLoading(false);

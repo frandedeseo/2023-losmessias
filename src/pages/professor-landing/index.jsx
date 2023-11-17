@@ -51,68 +51,66 @@ export default function ProfessorLandingPage() {
     const [giveFeedback, setGiveFeedback] = useState(true);
     const [feedback, setFeedback] = useState({ rating: 0, time: false, material: false, kind: false });
     const [pendingFeedback, setPendingFeedback] = useState([]);
-    const [userName, setUserName] = useState('');
     const [tab, setTab] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
+    const [feedbackStatus, setFeedbackStatus] = useState("info");
+    const [autoHideDuration, setAutoHideDuration] = useState(null);
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
 
     useEffect(() => {
         setIsLoading(true);
-        if (router.isReady && user.id) {
-            if (user.authenticated) {
-                if (user.role == 'student') router.push('/student-landing');
-                if (user.role === 'admin') router.push('/admin-landing');
-                const requestOptions = {
-                    method: 'GET',
-                    headers: { Authorization: `Bearer ${user.token}` },
-                };
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(
-                    res => {
-                        if (res.status === 200) {
-                            res.json().then(json => {
-                                setDisabledBlocks(
-                                    json.map(e => {
-                                        if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                                        return e;
-                                    })
-                                );
-                                
-                            });
-                        }
-                        setIsLoading(false);
-                    }
-                );
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res => {
+        if (user.id) {
+            if (user.role == 'student') router.push('/student-landing');
+            if (user.role === 'admin') router.push('/admin-landing');
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${user.token}` },
+            };
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(
+                res => {
                     if (res.status === 200) {
-                        return res.json().then(json => {
-                            setUserName(json.firstName + ' ' + json.lastName);
-                            json.pendingClassesFeedbacks.map(reservation => {
-                                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
-                                    res2.json().then(json2 => {
-                                        setPendingFeedback(prev => [
-                                            ...prev,
-                                            {
-                                                reservation_id: reservation,
-                                                receiver: {
-                                                    id: json2.student.id,
-                                                    name: `${json2.student.firstName} ${json2.student.lastName}`,
-                                                },
-                                            },
-                                        ]);
-                                    });
-                                });
-                                setGiveFeedback(true);
-                            });
+                        res.json().then(json => {
+                            setDisabledBlocks(
+                                json.map(e => {
+                                    if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                    return e;
+                                })
+                            );
                         });
                     }
-                });
-            } else {
-                router.push('/');
-            }
+                    setIsLoading(false);
+                }
+            );
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res => {
+                if (res.status === 200) {
+                    return res.json().then(json => {
+                        json.pendingClassesFeedbacks.map(reservation => {
+                            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
+                                res2.json().then(json2 => {
+                                    setPendingFeedback(prev => [
+                                        ...prev,
+                                        {
+                                            reservation_id: reservation,
+                                            receiver: {
+                                                id: json2.student.id,
+                                                name: `${json2.student.firstName} ${json2.student.lastName}`,
+                                            },
+                                        },
+                                    ]);
+                                });
+                            });
+                            setGiveFeedback(true);
+                        });
+                    });
+                }
+            });
+        } else {
+            router.push('/');
         }
-    }, [user, router]);
+    }, []);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
@@ -167,13 +165,13 @@ export default function ProfessorLandingPage() {
             });
         });
         handleCancel();
-
         setAlertSeverity('success');
         setAlertMessage('Block has been disabled successfully!');
     };
 
     const handleFeedback = () => {
-        setIsLoading(true);
+        setIsLoadingFeedback(true);
+        setFeedbackStatus("info");
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
             method: 'POST',
             headers: {
@@ -198,6 +196,11 @@ export default function ProfessorLandingPage() {
                     return prev;
                 });
             }
+            setFeedbackStatus("success");
+        }).catch(() => {
+            setFeedbackStatus("error");
+        }).finally(() => {
+            setAutoHideDuration(6000);
         });
     };
 
@@ -226,6 +229,22 @@ export default function ProfessorLandingPage() {
                 </>
             ) : (
                 <div style={{ width: '95%', margin: 'auto' }}>
+                    <Snackbar
+                        open={isLoadingFeedback}
+                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                        severity={feedbackStatus}
+                        autoHideDuration={autoHideDuration}
+                        onClose={() => {
+                            setFeedbackStatus("info");
+                            setAutoHideDuration(null);
+                            setIsLoadingFeedback(false);
+                        }}
+                    >
+                        <Alert severity={feedbackStatus}>
+                            {feedbackStatus === "info" ? "Sending feedback..." : feedbackStatus === "success" ? "Feedback sent!" : "Error sending feedback"}
+                        </Alert>
+                    </Snackbar>
+
                     <Typography variant='h4' sx={{ margin: '2% 0' }}>
                         Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
                     </Typography>
