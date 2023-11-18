@@ -37,6 +37,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { useRouter } from 'next/router';
+import useWindowSize from '@/hooks/useWindowSize.js';
 
 export default function AllProfessors() {
     const [allProfessors, setAllProfessors] = useState([]);
@@ -47,6 +48,7 @@ export default function AllProfessors() {
     const [professorId, setProfessorId] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
+    const windowSize = useWindowSize();
 
     const user = useUser();
 
@@ -59,12 +61,14 @@ export default function AllProfessors() {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, requestOptions).then(res =>
-                res.json().then(json => {
-                    setAllProfessors(json);
-                    setProfessors(json);
-                })
-            ).finally(() => setIsLoading(false));
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/all`, requestOptions)
+                .then(res =>
+                    res.json().then(json => {
+                        setAllProfessors(json);
+                        setProfessors(json);
+                    })
+                )
+                .finally(() => setIsLoading(false));
         } else {
             router.push('/');
         }
@@ -119,6 +123,8 @@ export default function AllProfessors() {
             <Typography variant='h4'>Professors</Typography>
             <Divider />
             <div style={{ paddingBlock: '1rem' }} />
+
+            {windowSize.width > 500}
             <Searchbar search={handleSearch} />
             <div style={styles.divPadding} />
 
@@ -224,7 +230,7 @@ export default function AllProfessors() {
             </TableContainer>
 
             <Dialog open={open} onClose={handleClose} fullWidth>
-                <DialogTitle>Monthly Mean</DialogTitle>
+                <DialogTitle align={windowSize.width > 500 ? 'left' : 'center'}>Monthly Mean</DialogTitle>
 
                 <DialogContent>
                     <MonthlyChart id={professorId} legend />
