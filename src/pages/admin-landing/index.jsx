@@ -241,24 +241,46 @@ export default function AdminLandingPage() {
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>Subjects</DialogTitle>
 
-                <DialogContent dividers sx={{ display: 'flex', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', paddingInline: '2rem' }}>
-                        {subjects.map((sub, idx) => (
-                            <Chip key={idx} label={sub.name} sx={{ backgroundColor: getColor(sub.name) }} />
-                        ))}
-                    </div>
-                    <Divider orientation='vertical' flexItem />
-                    <div style={{ paddingInline: '2rem' }}>
-                        <TextField
-                            fullWidth
-                            value={subject}
-                            label='Subject'
-                            onChange={event => {
-                                setSubject(event.target.value);
-                            }}
-                        />
-                    </div>
-                </DialogContent>
+                {windowSize.width > 500 && (
+                    <DialogContent dividers sx={{ display: 'flex', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', paddingInline: '2rem' }}>
+                            {subjects.map((sub, idx) => (
+                                <Chip key={idx} label={sub.name} sx={{ backgroundColor: getColor(sub.name) }} />
+                            ))}
+                        </div>
+                        <Divider orientation='vertical' flexItem />
+                        <div style={{ paddingInline: '2rem' }}>
+                            <TextField
+                                fullWidth
+                                value={subject}
+                                label='Subject'
+                                onChange={event => {
+                                    setSubject(event.target.value);
+                                }}
+                            />
+                        </div>
+                    </DialogContent>
+                )}
+                {windowSize.width <= 500 && (
+                    <DialogContent dividers sx={{}}>
+                        <div style={{ paddingBlock: '2rem' }}>
+                            <TextField
+                                fullWidth
+                                value={subject}
+                                label='Subject'
+                                onChange={event => {
+                                    setSubject(event.target.value);
+                                }}
+                            />
+                        </div>
+                        <Divider />
+                        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', paddingBlock: '2rem' }}>
+                            {subjects.map((sub, idx) => (
+                                <Chip key={idx} label={sub.name} sx={{ backgroundColor: getColor(sub.name) }} />
+                            ))}
+                        </div>
+                    </DialogContent>
+                )}
 
                 <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>
