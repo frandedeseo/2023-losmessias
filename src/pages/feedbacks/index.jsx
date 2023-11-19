@@ -25,6 +25,7 @@ import {
     TableHead,
     TablePagination,
     TableRow,
+    TableSortLabel,
     TextField,
     Tooltip,
     Typography,
@@ -42,6 +43,7 @@ export default function Feedbacks() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [isLoading, setIsLoading] = useState(true);
     const [searchValue, setSearchValue] = useState('');
+    const [sorters, setSorters] = useState({ date: false, rating: false, sumPunctuality: false, sumMaterial: false, sumPolite: false });
 
     const user = useUser();
     const router = useRouter();
@@ -85,13 +87,101 @@ export default function Feedbacks() {
     };
 
     const handleChangePage = (event, newPage) => {
-        setShownTeachersSubjects(teachersSubjects.slice(newPage * rowsPerPage, (newPage + 1) * rowsPerPage));
         setPage(newPage);
     };
 
     const handleChangeRowsPerPage = event => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
+    };
+
+    function sortDataBy(field, direction) {
+        const ascSorter = (a, b) => {
+            return a[field] - b[field];
+        };
+
+        const descSorter = (a, b) => {
+            return (a[field] - b[field]) * -1;
+        };
+
+        const ascOptSorter = (a, b) => {
+            if (field === 'sumPunctuality') return a.feedbackOptions.includes('PUNCTUALITY') ? 1 : -1;
+            else if (field === 'sumMaterial') return a.feedbackOptions.includes('MATERIAL') ? 1 : -1;
+            else return a.feedbackOptions.includes('POLITE') ? 1 : -1;
+        };
+
+        const descOptSorter = (a, b) => {
+            if (field === 'sumPunctuality') return a.feedbackOptions.includes('PUNCTUALITY') ? -1 : 1;
+            else if (field === 'sumMaterial') return a.feedbackOptions.includes('MATERIAL') ? -1 : 1;
+            else return a.feedbackOptions.includes('POLITE') ? -1 : 1;
+        };
+
+        const ascDateSorter = (a, b) => {
+            if (a.dateTimeOfFeedback[0] > b.dateTimeOfFeedback[0]) return 1;
+            else if (a.dateTimeOfFeedback[0] < b.dateTimeOfFeedback[0]) return -1;
+            else {
+                if (a.dateTimeOfFeedback[1] > b.dateTimeOfFeedback[1]) return 1;
+                else if (a.dateTimeOfFeedback[1] < b.dateTimeOfFeedback[1]) return -1;
+                else {
+                    if (a.dateTimeOfFeedback[2] > b.dateTimeOfFeedback[2]) return 1;
+                    else if (a.dateTimeOfFeedback[2] < b.dateTimeOfFeedback[2]) return -1;
+                    else return 1;
+                }
+            }
+        };
+
+        const descDateSorter = (a, b) => {
+            if (a.dateTimeOfFeedback[0] > b.dateTimeOfFeedback[0]) return -1;
+            else if (a.dateTimeOfFeedback[0] < b.dateTimeOfFeedback[0]) return 1;
+            else {
+                if (a.dateTimeOfFeedback[1] > b.dateTimeOfFeedback[1]) return -1;
+                else if (a.dateTimeOfFeedback[1] < b.dateTimeOfFeedback[1]) return 1;
+                else {
+                    if (a.dateTimeOfFeedback[2] > b.dateTimeOfFeedback[2]) return -1;
+                    else if (a.dateTimeOfFeedback[2] < b.dateTimeOfFeedback[2]) return 1;
+                    else return -1;
+                }
+            }
+        };
+
+        let sortedStudents = allFeedbacks;
+
+        if (field === 'date') {
+            if (direction === 'asc') sortedStudents = allFeedbacks.sort(ascDateSorter);
+            else if (direction === 'desc') sortedStudents = allFeedbacks.sort(descDateSorter);
+        } else if (field === 'sumPunctuality' || field === 'sumMaterial' || field === 'sumPolite') {
+            if (direction === 'asc') sortedStudents = allFeedbacks.sort(ascOptSorter);
+            else if (direction === 'desc') sortedStudents = allFeedbacks.sort(descOptSorter);
+        } else {
+            if (direction === 'asc') sortedStudents = allFeedbacks.sort(ascSorter);
+            else if (direction === 'desc') sortedStudents = allFeedbacks.sort(descSorter);
+        }
+
+        if (searchValue !== '') {
+            sortedStudents = sortedStudents.filter(
+                prevFeedbacks =>
+                    prevFeedbacks.professor.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+                    prevFeedbacks.professor.lastName.toLowerCase().includes(searchValue.toLowerCase()) ||
+                    prevFeedbacks.student.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+                    prevFeedbacks.student.lastName.toLowerCase().includes(searchValue.toLowerCase())
+            );
+        }
+
+        setFeedbacks(sortedStudents);
+        setPage(0);
+    }
+
+    const handleSorterClick = property => {
+        let newSorter = {};
+        Object.keys(sorters).forEach(key => {
+            if (key === property) {
+                if (!sorters[key]) newSorter[key] = 'asc';
+                else if (sorters[key] === 'asc') newSorter[key] = 'desc';
+                else if (sorters[key] === 'desc') newSorter[key] = false;
+            } else newSorter[key] = false;
+        });
+        sortDataBy(property, newSorter[property]);
+        setSorters(newSorter);
     };
 
     return (
@@ -120,16 +210,56 @@ export default function Feedbacks() {
                         <TableRow>
                             <TableCell>Giver</TableCell>
                             <TableCell>Receiver</TableCell>
-                            <TableCell>Date</TableCell>
-                            <TableCell>Rating</TableCell>
-                            <TableCell align='center'>
-                                <AccessTimeIcon />
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sorters.date}
+                                    direction={!sorters.date ? 'asc' : sorters.date}
+                                    onClick={() => handleSorterClick('date')}
+                                >
+                                    Date
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sorters.rating}
+                                    direction={!sorters.rating ? 'asc' : sorters.rating}
+                                    onClick={() => handleSorterClick('rating')}
+                                >
+                                    Rating
+                                </TableSortLabel>
                             </TableCell>
                             <TableCell align='center'>
-                                <InsertDriveFileIcon />
+                                <Tooltip title='Is always on time'>
+                                    <TableSortLabel
+                                        active={sorters.sumPunctuality}
+                                        direction={!sorters.sumPunctuality ? 'asc' : sorters.sumPunctuality}
+                                        onClick={() => handleSorterClick('sumPunctuality')}
+                                    >
+                                        <AccessTimeIcon />
+                                    </TableSortLabel>
+                                </Tooltip>
                             </TableCell>
                             <TableCell align='center'>
-                                <SentimentSatisfiedAltIcon />
+                                <Tooltip title='Do the homework'>
+                                    <TableSortLabel
+                                        active={sorters.sumMaterial}
+                                        direction={!sorters.sumMaterial ? 'asc' : sorters.sumMaterial}
+                                        onClick={() => handleSorterClick('sumMaterial')}
+                                    >
+                                        <InsertDriveFileIcon />
+                                    </TableSortLabel>
+                                </Tooltip>
+                            </TableCell>
+                            <TableCell align='center'>
+                                <Tooltip title='Pays attention and listens'>
+                                    <TableSortLabel
+                                        active={sorters.sumPolite}
+                                        direction={!sorters.sumPolite ? 'asc' : sorters.sumPolite}
+                                        onClick={() => handleSorterClick('sumPolite')}
+                                    >
+                                        <SentimentSatisfiedAltIcon />
+                                    </TableSortLabel>
+                                </Tooltip>
                             </TableCell>
                         </TableRow>
                     </TableHead>
@@ -163,7 +293,7 @@ export default function Feedbacks() {
                                     </TableRow>
                                 ) : (
                                     <>
-                                        {feedbacks.map(feed => (
+                                        {feedbacks.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(feed => (
                                             <TableRow key={feed.id}>
                                                 <TableCell>
                                                     {feed.receptorRole === 'STUDENT'
@@ -179,7 +309,10 @@ export default function Feedbacks() {
                                                     {`${feed.dateTimeOfFeedback[2]}-${feed.dateTimeOfFeedback[1]}-${feed.dateTimeOfFeedback[0]}`}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Rating precision={0.5} value={feed.rating} max={3} readOnly />
+                                                    <div style={{ display: 'flex', gap: 5 }}>
+                                                        <Rating precision={0.5} value={feed.rating} max={3} readOnly />
+                                                        <Typography>{`(${feed.rating.toFixed(2)})`}</Typography>
+                                                    </div>
                                                 </TableCell>
                                                 <TableCell align='center'>{feed.feedbackOptions.includes('PUNCTUALITY') ? 1 : 0}</TableCell>
                                                 <TableCell align='center'>{feed.feedbackOptions.includes('MATERIAL') ? 1 : 0}</TableCell>

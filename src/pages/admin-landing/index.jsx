@@ -18,6 +18,7 @@ import {
     TableHead,
     TablePagination,
     TableRow,
+    TableSortLabel,
     TextField,
     Typography,
 } from '@mui/material';
@@ -37,6 +38,9 @@ export default function AdminLandingPage() {
     const user = useUser();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const [sorters, setSorters] = useState({ income: false, hours: false });
+    const [filterValues, setFilterValues] = useState([]);
+    const [searchValue, setSearchValue] = useState('');
 
     useEffect(() => {
         setIsLoading(true);
@@ -66,9 +70,7 @@ export default function AdminLandingPage() {
         }
     }, [user, rowsPerPage, router]);
 
-    const handleSearch = (searchValue, filterValues) => {
-        setPage(0);
-
+    const applySearchFilter = (searchValue, filterValues) => {
         if (searchValue !== '' && filterValues.length === 0) {
             const filterProfessors = allProfessors.filter(
                 prevTeacherSubject =>
@@ -94,6 +96,13 @@ export default function AdminLandingPage() {
             setProfessors(allProfessors);
             setShownProfessors(allProfessors.slice(0, rowsPerPage));
         }
+    };
+
+    const handleSearch = (searchValue, filterValues) => {
+        setPage(0);
+        applySearchFilter(searchValue, filterValues);
+        setSearchValue(searchValue);
+        setFilterValues(filterValues);
     };
 
     const handleChangePage = (event, newPage) => {
@@ -131,6 +140,39 @@ export default function AdminLandingPage() {
         handleClose();
     };
 
+    function sortDataBy(field, direction) {
+        const ascSorter = (a, b) => {
+            return a[field] - b[field];
+        };
+
+        const descSorter = (a, b) => {
+            return (a[field] - b[field]) * -1;
+        };
+
+        let sortedStudents = allProfessors;
+        if (direction === 'asc') sortedStudents = allProfessors.sort(ascSorter);
+        else if (direction === 'desc') sortedStudents = allProfessors.sort(descSorter);
+
+        if (searchValue !== '' || filterValues.length > 0) {
+            applySearchFilter(searchValue, filterValues);
+        }
+
+        setShownProfessors(sortedStudents);
+    }
+
+    const handleSorterClick = property => {
+        let newSorter = {};
+        Object.keys(sorters).forEach(key => {
+            if (key === property) {
+                if (!sorters[key]) newSorter[key] = 'asc';
+                else if (sorters[key] === 'asc') newSorter[key] = 'desc';
+                else if (sorters[key] === 'desc') newSorter[key] = false;
+            } else newSorter[key] = false;
+        });
+        sortDataBy(property, newSorter[property]);
+        setSorters(newSorter);
+    };
+
     return (
         <div style={{ margin: '2% auto', width: '95%' }}>
             <Typography variant='h4'>Today&apos;s Summary</Typography>
@@ -151,8 +193,24 @@ export default function AdminLandingPage() {
                         <TableRow>
                             <TableCell>Name</TableCell>
                             <TableCell>Subject</TableCell>
-                            <TableCell>Hours</TableCell>
-                            <TableCell>Income</TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sorters.hours}
+                                    direction={!sorters.hours ? 'asc' : sorters.hours}
+                                    onClick={() => handleSorterClick('hours')}
+                                >
+                                    Hours
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell sortDirection='asc'>
+                                <TableSortLabel
+                                    active={sorters.income}
+                                    direction={!sorters.income ? 'asc' : sorters.income}
+                                    onClick={() => handleSorterClick('income')}
+                                >
+                                    Income
+                                </TableSortLabel>
+                            </TableCell>
                         </TableRow>
                     </TableHead>
 
@@ -177,7 +235,7 @@ export default function AdminLandingPage() {
                             <>
                                 {professors.length > 0 ? (
                                     <>
-                                        {shownProfessors.map((prof, idx) => (
+                                        {shownProfessors.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map((prof, idx) => (
                                             <TableRow key={idx}>
                                                 <TableCell>{`${prof.professor.firstName} ${prof.professor.lastName}`}</TableCell>
                                                 <TableCell>
