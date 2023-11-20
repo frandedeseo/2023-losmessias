@@ -11,6 +11,7 @@ import { getColor } from '@/utils/getColor';
 
 // Mui
 import {
+    Grid,
     Alert,
     Box,
     Chip,
@@ -139,7 +140,7 @@ export default function Classes() {
 
     return (
         <>
-            <Box
+            <Grid container
                 sx={{
                     display: 'flex',
                     backgroundColor: '#F5F5F5',
@@ -151,9 +152,6 @@ export default function Classes() {
                         minWidth: 300,
                         minHeight: 300,
                         display: 'flex',
-                        borderColor: 'black',
-                        borderWidth: '1pt',
-                        borderRightStyle: 'solid',
                         px: 1,
                     }}
                 >
@@ -223,7 +221,7 @@ export default function Classes() {
                         </>
                     )}
                 </Box>
-            </Box>
+            </Grid>
 
             <Snackbar
                 open={alert}
