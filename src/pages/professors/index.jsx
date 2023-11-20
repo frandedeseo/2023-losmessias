@@ -71,16 +71,25 @@ export default function Professors() {
                         json.pendingClassesFeedbacks.map(reservation => {
                             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
                                 res2.json().then(json2 => {
-                                    setPendingFeedback(prev => [
-                                        ...prev,
-                                        {
-                                            reservation_id: reservation,
-                                            receiver: {
-                                                id: json2.professor.id,
-                                                name: `${json2.professor.firstName} ${json2.professor.lastName}`,
-                                            },
-                                        },
-                                    ]);
+                                    setPendingFeedback(prev => {
+                                        let exists = false;
+                                        prev.forEach(pfed => {
+                                            if (pfed.reservation_id === reservation) exists = true;
+                                        });
+
+                                        if (!exists)
+                                            return [
+                                                ...prev,
+                                                {
+                                                    reservation_id: reservation,
+                                                    receiver: {
+                                                        id: json2.professor.id,
+                                                        name: `${json2.professor.firstName} ${json2.professor.lastName}`,
+                                                    },
+                                                },
+                                            ];
+                                        else return prev;
+                                    });
                                 });
                             });
                         });
@@ -144,7 +153,10 @@ export default function Professors() {
                         return prev;
                     });
             })
-            .finally(() => setFeedbackLoading(false));
+            .finally(() => {
+                setFeedback({ rating: 0, time: 0, material: 0, kind: 0 });
+                setFeedbackLoading(false);
+            });
     };
 
     const handleFeedbackClick = opt => {
@@ -154,8 +166,6 @@ export default function Professors() {
             setFeedback(prev => ({ ...prev, [opt]: 1 }));
         }
     };
-
-    console.log(pendingFeedback);
 
     return (
         <>
@@ -335,12 +345,12 @@ export default function Professors() {
                             </>
                         )}
                         {feedbackLoading && (
-                            <>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem' }}>
                                 <CircularProgress />
                                 <Typography variant='h4' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
                                     Sending Feedback...
                                 </Typography>
-                            </>
+                            </div>
                         )}
                     </Dialog>
                 )}

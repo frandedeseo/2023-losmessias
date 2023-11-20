@@ -121,8 +121,12 @@ export default function StudentLandingPage() {
         })
             .then(res => {
                 if (res.status === 200) {
-                    if (pendingFeedback.lengt === 1) giveFeedback(false);
-                    setPendingFeedback(prev => prev.shift());
+                    if (pendingFeedback.length === 1) setGiveFeedback(false);
+                    else setGiveFeedback(true);
+                    setPendingFeedback(prev => {
+                        prev.shift();
+                        return prev;
+                    });
                 }
                 setFeedbackStatus('success');
             })
@@ -130,6 +134,7 @@ export default function StudentLandingPage() {
                 setFeedbackStatus('error');
             })
             .finally(() => {
+                setFeedback({ rating: 0, time: 0, material: 0, kind: 0 });
                 setAutoHideDuration(6000);
             });
     };
