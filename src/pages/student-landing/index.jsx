@@ -21,9 +21,11 @@ import { useEffect, useState } from 'react';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import useWindowSize from '@/hooks/useWindowSize';
 
 export default function StudentLandingPage() {
     const [week, setWeek] = useState(0);
+    const [day, setDay] = useState(1);
     const [disabledBlocks, setDisabledBlocks] = useState([]);
     const [giveFeedback, setGiveFeedback] = useState(false);
     const [feedback, setFeedback] = useState({ rating: 0, time: 0, material: 0, kind: 0 });
@@ -31,8 +33,9 @@ export default function StudentLandingPage() {
     const user = useUser();
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
-    const [feedbackStatus, setFeedbackStatus] = useState("info");
+    const [feedbackStatus, setFeedbackStatus] = useState('info');
     const [autoHideDuration, setAutoHideDuration] = useState(null);
+    const windowSize = useWindowSize();
 
     var router = useRouter();
 
@@ -45,23 +48,21 @@ export default function StudentLandingPage() {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(
-                res => {
-                    res.json().then(json => {
-                        setDisabledBlocks(
-                            json.map(e => {
-                                if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
-                                if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                                if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
-                                if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
-                                if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
-                                if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
-                                return e;
-                            })
-                        );
-                    });
-                }
-            );
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
+                res.json().then(json => {
+                    setDisabledBlocks(
+                        json.map(e => {
+                            if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
+                            if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                            if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
+                            if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
+                            if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
+                            if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
+                            return e;
+                        })
+                    );
+                });
+            });
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions).then(res => {
                 res.json().then(json => {
                     json.pendingClassesFeedbacks.map(reservation => {
@@ -91,7 +92,7 @@ export default function StudentLandingPage() {
 
     const handleFeedback = () => {
         setIsLoadingFeedback(true);
-        setFeedbackStatus("info");
+        setFeedbackStatus('info');
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
             method: 'POST',
             headers: {
@@ -108,17 +109,20 @@ export default function StudentLandingPage() {
                 punctuality: feedback.time,
                 educated: feedback.kind,
             }),
-        }).then(res => {
-            if (res.status === 200) {
-                if (pendingFeedback.lengt === 1) giveFeedback(false);
-                setPendingFeedback(prev => prev.shift());
-            }
-            setFeedbackStatus("success");
-        }).catch(() => {
-            setFeedbackStatus("error");
-        }).finally(() => {
-            setAutoHideDuration(6000);
-        });
+        })
+            .then(res => {
+                if (res.status === 200) {
+                    if (pendingFeedback.lengt === 1) giveFeedback(false);
+                    setPendingFeedback(prev => prev.shift());
+                }
+                setFeedbackStatus('success');
+            })
+            .catch(() => {
+                setFeedbackStatus('error');
+            })
+            .finally(() => {
+                setAutoHideDuration(6000);
+            });
     };
 
     const handleFeedbackClick = opt => {
@@ -152,21 +156,39 @@ export default function StudentLandingPage() {
                         severity={feedbackStatus}
                         autoHideDuration={autoHideDuration}
                         onClose={() => {
-                            setFeedbackStatus("info");
+                            setFeedbackStatus('info');
                             setAutoHideDuration(null);
                             setIsLoadingFeedback(false);
                         }}
                     >
                         <Alert severity={feedbackStatus}>
-                            {feedbackStatus === "info" ? "Sending feedback..." : feedbackStatus === "success" ? "Feedback sent!" : "Error sending feedback"}
+                            {feedbackStatus === 'info'
+                                ? 'Sending feedback...'
+                                : feedbackStatus === 'success'
+                                ? 'Feedback sent!'
+                                : 'Error sending feedback'}
                         </Alert>
                     </Snackbar>
 
-                    <Typography variant='h4' sx={{ margin: '2% 0' }}>
-                        Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
-                    </Typography>
+                    {windowSize.width > 500 && (
+                        <>
+                            <Typography variant='h4' sx={{ margin: '2% 0' }}>
+                                Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
+                            </Typography>
+                            <Typography variant='h4'>Agenda</Typography>
+                        </>
+                    )}
+                    {windowSize.width <= 500 && (
+                        <>
+                            <Typography variant='h5' sx={{ margin: '2% 0' }} textAlign='center'>
+                                Hi{' ' + user.firstName + ' ' + user.lastName}
+                            </Typography>
+                            <Typography variant='h5' textAlign='center'>
+                                Agenda
+                            </Typography>
+                        </>
+                    )}
 
-                    <Typography variant='h4'>Agenda</Typography>
                     <Divider />
                     <div style={{ paddingBlock: '0.75rem' }} />
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -206,13 +228,17 @@ export default function StudentLandingPage() {
                                 </tr>
                             </tbody>
                         </table>
-                        <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={() => { }} />
+                        {windowSize.width > 500 && <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={() => {}} />}
                     </div>
+                    {windowSize.width <= 500 && (
+                        <CalendarPagination week={week} setWeek={setWeek} day={day} setDay={setDay} setSelectedBlocks={() => {}} />
+                    )}
                     <Calendar
                         selectedBlocks={[]}
-                        setSelectedBlocks={() => { }}
+                        setSelectedBlocks={() => {}}
                         disabledBlocks={disabledBlocks}
                         week={week}
+                        day={day}
                         interactive={false}
                         showData
                     />
