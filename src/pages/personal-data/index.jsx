@@ -24,8 +24,8 @@ export default function PersonalData() {
     const router = useRouter();
 
     useEffect(() => {
-        if (user.token!=undefined){ 
-            if (!user.authenticated){
+        if (user.token != undefined) {
+            if (!user.authenticated) {
                 router.push('/');
             }
         }
@@ -74,7 +74,7 @@ export default function PersonalData() {
                     My personal information
                 </Typography>
                 {editMode ? (
-                    <Grid container justifyContent="flex-end" sx={{width: 230}}>
+                    <Grid container justifyContent="flex-end" sx={{ width: 230 }}>
                         <Fab
                             color="error"
                             aria-label="edit"
@@ -87,20 +87,20 @@ export default function PersonalData() {
                             color="success"
                             aria-label="edit"
                             onClick={() => handleSave()}
-                            
+
                         >
                             <CheckIcon />
                         </Fab>
                     </Grid>
                 ) : (
-                    <Grid container justifyContent="flex-end" sx={{width: 70}}>
+                    <Grid container justifyContent="flex-end" sx={{ width: 70 }}>
                         <Fab
                             color={"primary"}
                             aria-label="edit"
                             onClick={() => handleSave()}
-               
+
                         >
-                            {editMode ? <CheckIcon/> : (<EditIcon />)}
+                            {editMode ? <CheckIcon /> : (<EditIcon />)}
                         </Fab>
                     </Grid>
                 )}
