@@ -238,9 +238,11 @@ export default function AllStudents() {
                                             <TableRow key={stu.id}>
                                                 <TableCell>{`${stu.firstName} ${stu.lastName}`}</TableCell>
                                                 <TableCell>{stu.email}</TableCell>
-                                                <TableCell sx={{ display: 'flex', gap: 2 }}>
-                                                    <Rating precision={0.5} value={stu.avgRating} max={3} readOnly />
-                                                    <Typography>{`(${stu.avgRating.toFixed(2)})`}</Typography>
+                                                <TableCell>
+                                                    <div style={{ display: 'flex', gap: 5 }}>
+                                                        <Rating precision={0.5} value={stu.avgRating} max={3} readOnly />
+                                                        <Typography>{`(${stu.avgRating.toFixed(2)})`}</Typography>
+                                                    </div>
                                                 </TableCell>
                                                 <TableCell align='center'>{stu.sumPunctuality}</TableCell>
                                                 <TableCell align='center'>{stu.sumMaterial}</TableCell>

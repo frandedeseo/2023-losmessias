@@ -93,13 +93,19 @@ export default function TeachersTable({ data, approve, reject, isLoading }) {
                                                         }}
                                                     />
                                                 </TableCell>
-                                                <TableCell align='right' sx={styles.tableCell}>
-                                                    <Button variant='outlined' color='error' onClick={() => handleRejectClick(teacherSubject)}>
-                                                        Reject
-                                                    </Button>
-                                                    <Button variant='contained' onClick={() => handleApproveClick(teacherSubject)}>
-                                                        Approve
-                                                    </Button>
+                                                <TableCell align='right'>
+                                                    <div style={styles.tableCell}>
+                                                        <Button
+                                                            variant='outlined'
+                                                            color='error'
+                                                            onClick={() => handleRejectClick(teacherSubject)}
+                                                        >
+                                                            Reject
+                                                        </Button>
+                                                        <Button variant='contained' onClick={() => handleApproveClick(teacherSubject)}>
+                                                            Approve
+                                                        </Button>
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -108,13 +114,13 @@ export default function TeachersTable({ data, approve, reject, isLoading }) {
                                     <>
                                         <TableRow>
                                             <TableCell colSpan={3}>
-                                                <Box sx={{
-                                                    display: "flex",
-                                                    justifyContent: "center",
-                                                }}>
-                                                    <Typography >
-                                                        There are no professor-subjects to approve or reject!
-                                                    </Typography>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                    }}
+                                                >
+                                                    <Typography>There are no professor-subjects to approve or reject!</Typography>
                                                 </Box>
                                             </TableCell>
                                         </TableRow>
@@ -124,10 +130,12 @@ export default function TeachersTable({ data, approve, reject, isLoading }) {
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={3}>
-                                    <Box sx={{
-                                        display: "flex",
-                                        justifyContent: "center",
-                                    }}>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                        }}
+                                    >
                                         <CircularProgress />
                                     </Box>
                                 </TableCell>
