@@ -29,6 +29,7 @@ import {
     TableHead,
     TablePagination,
     TableRow,
+    TableSortLabel,
     Tooltip,
     Typography,
 } from '@mui/material';
@@ -49,6 +50,9 @@ export default function AllProfessors() {
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
     const windowSize = useWindowSize();
+    const [searchValue, setSearchValue] = useState('');
+    const [filterValues, setFilterValues] = useState([]);
+    const [sorters, setSorters] = useState({ avgRating: false, sumPunctuality: false, sumMaterial: false, sumPolite: false });
 
     const user = useUser();
 
@@ -74,7 +78,7 @@ export default function AllProfessors() {
         }
     }, [user, router]);
 
-    const handleSearch = (searchValue, filterValues) => {
+    const applySearchFilter = (searchValue, filterValues) => {
         if (searchValue !== '' && filterValues.length === 0) {
             setProfessors(
                 allProfessors.filter(
@@ -99,8 +103,14 @@ export default function AllProfessors() {
         } else setProfessors(allProfessors);
     };
 
+    const handleSearch = (searchValue, filterValues) => {
+        setPage(0);
+        applySearchFilter(searchValue, filterValues);
+        setSearchValue(searchValue);
+        setFilterValues(filterValues);
+    };
+
     const handleChangePage = (event, newPage) => {
-        setShownTeachersSubjects(teachersSubjects.slice(newPage * rowsPerPage, (newPage + 1) * rowsPerPage));
         setPage(newPage);
     };
 
@@ -116,6 +126,40 @@ export default function AllProfessors() {
 
     const handleClose = () => {
         setOpen(false);
+    };
+
+    function sortDataBy(field, direction) {
+        const ascSorter = (a, b) => {
+            return a[field] - b[field];
+        };
+
+        const descSorter = (a, b) => {
+            return (a[field] - b[field]) * -1;
+        };
+
+        let sortedStudents = allProfessors;
+        if (direction === 'asc') sortedStudents = allProfessors.sort(ascSorter);
+        else if (direction === 'desc') sortedStudents = allProfessors.sort(descSorter);
+
+        if (searchValue !== '' || filterValues.length > 0) {
+            applySearchFilter(searchValue, filterValues);
+        }
+
+        setProfessors(sortedStudents);
+        setPage(0);
+    }
+
+    const handleSorterClick = property => {
+        let newSorter = {};
+        Object.keys(sorters).forEach(key => {
+            if (key === property) {
+                if (!sorters[key]) newSorter[key] = 'asc';
+                else if (sorters[key] === 'asc') newSorter[key] = 'desc';
+                else if (sorters[key] === 'desc') newSorter[key] = false;
+            } else newSorter[key] = false;
+        });
+        sortDataBy(property, newSorter[property]);
+        setSorters(newSorter);
     };
 
     return (
@@ -135,20 +179,46 @@ export default function AllProfessors() {
                             <TableCell>Name</TableCell>
                             <TableCell>Email</TableCell>
                             <TableCell>Subjects</TableCell>
-                            <TableCell>Rating</TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sorters.avgRating}
+                                    direction={!sorters.avgRating ? 'asc' : sorters.avgRating}
+                                    onClick={() => handleSorterClick('avgRating')}
+                                >
+                                    Rating
+                                </TableSortLabel>
+                            </TableCell>
                             <TableCell align='center'>
                                 <Tooltip title='Is always on time'>
-                                    <AccessTimeIcon />
+                                    <TableSortLabel
+                                        active={sorters.sumPunctuality}
+                                        direction={!sorters.sumPunctuality ? 'asc' : sorters.sumPunctuality}
+                                        onClick={() => handleSorterClick('sumPunctuality')}
+                                    >
+                                        <AccessTimeIcon />
+                                    </TableSortLabel>
                                 </Tooltip>
                             </TableCell>
                             <TableCell align='center'>
-                                <Tooltip title='Has extra material to practice'>
-                                    <InsertDriveFileIcon />
+                                <Tooltip title='Do the homework'>
+                                    <TableSortLabel
+                                        active={sorters.sumMaterial}
+                                        direction={!sorters.sumMaterial ? 'asc' : sorters.sumMaterial}
+                                        onClick={() => handleSorterClick('sumMaterial')}
+                                    >
+                                        <InsertDriveFileIcon />
+                                    </TableSortLabel>
                                 </Tooltip>
                             </TableCell>
                             <TableCell align='center'>
-                                <Tooltip title='Is respectful and patient'>
-                                    <SentimentSatisfiedAltIcon />
+                                <Tooltip title='Pays attention and listens'>
+                                    <TableSortLabel
+                                        active={sorters.sumPolite}
+                                        direction={!sorters.sumPolite ? 'asc' : sorters.sumPolite}
+                                        onClick={() => handleSorterClick('sumPolite')}
+                                    >
+                                        <SentimentSatisfiedAltIcon />
+                                    </TableSortLabel>
                                 </Tooltip>
                             </TableCell>
                             <TableCell align='right'>Monthly Mean</TableCell>
@@ -184,7 +254,7 @@ export default function AllProfessors() {
                                     </TableRow>
                                 ) : (
                                     <>
-                                        {professors.map(prof => (
+                                        {professors.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(prof => (
                                             <TableRow key={prof.id} onClick={() => handleClick(prof.id)}>
                                                 <TableCell>{`${prof.firstName} ${prof.lastName}`}</TableCell>
                                                 <TableCell>{prof.email}</TableCell>
@@ -201,7 +271,10 @@ export default function AllProfessors() {
                                                     ))}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Rating precision={0.5} value={prof.avgRating} max={3} readOnly />
+                                                    <div style={{ display: 'flex', gap: 5 }}>
+                                                        <Rating precision={0.5} value={prof.avgRating} max={3} readOnly />
+                                                        <Typography>{`(${prof.avgRating.toFixed(2)})`}</Typography>
+                                                    </div>
                                                 </TableCell>
                                                 <TableCell align='center'>{prof.sumPunctuality}</TableCell>
                                                 <TableCell align='center'>{prof.sumMaterial}</TableCell>
