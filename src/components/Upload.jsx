@@ -15,6 +15,7 @@ import {
 import { ChangeEvent, useState } from 'react';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import useWindowSize from '@/hooks/useWindowSize';
 
 export default function Upload({ id, setFiles, setComments, setUploadingFileNames, setUploadingComments }) {
     const user = useUser();
@@ -24,6 +25,7 @@ export default function Upload({ id, setFiles, setComments, setUploadingFileName
     const [alertSeverity, setAlertSeverity] = useState('');
     const [open, setOpen] = useState(false);
     const [newMessage, setNewMessage] = useState('');
+    const windowSize = useWindowSize();
 
     const VisuallyHiddenInput = styled('input')({
         clip: 'rect(0 0 0 0)',
@@ -87,10 +89,12 @@ export default function Upload({ id, setFiles, setComments, setUploadingFileName
                             associatedId: user.id,
                         }),
                     });
-                }).catch(err => {
+                })
+                .catch(err => {
                     setAlertSeverity('error');
                     setAlertMessage('There was an error uploading the file!');
-                }).finally(() => setUploadingFileNames(prevNames => prevNames.filter(name => name !== file.name)));
+                })
+                .finally(() => setUploadingFileNames(prevNames => prevNames.filter(name => name !== file.name)));
         }
         if (newMessage !== '') {
             setUploadingComments(prevComments => [...prevComments, newMessage]);
@@ -107,26 +111,28 @@ export default function Upload({ id, setFiles, setComments, setUploadingFileName
                     uploadedDateTime: new Date().toISOString().split('.')[0],
                     associatedId: user.id,
                 }),
-            }).then(res => {
-                if (res.status === 200) {
-                    setAlertMessage('Message uploaded successfully!');
-                    setAlertSeverity('success');
-                    setComments(prevComments => [
-                        ...prevComments,
-                        {
-                            comment: newMessage,
-                            role: user.role,
-                            uploadedDateTime: [
-                                ...new Date().toISOString().split('T')[0].split('-'),
-                                ...new Date().toISOString().split('T')[1].split('.')[0].split(':'),
-                            ],
-                        },
-                    ]);
-                } else {
-                    setAlertSeverity('error');
-                    setAlertMessage('There was an error uploading the message!');
-                }
-            }).finally(() => setUploadingComments(prevComments => prevComments.filter(comment => comment !== newMessage)));
+            })
+                .then(res => {
+                    if (res.status === 200) {
+                        setAlertMessage('Message uploaded successfully!');
+                        setAlertSeverity('success');
+                        setComments(prevComments => [
+                            ...prevComments,
+                            {
+                                comment: newMessage,
+                                role: user.role,
+                                uploadedDateTime: [
+                                    ...new Date().toISOString().split('T')[0].split('-'),
+                                    ...new Date().toISOString().split('T')[1].split('.')[0].split(':'),
+                                ],
+                            },
+                        ]);
+                    } else {
+                        setAlertSeverity('error');
+                        setAlertMessage('There was an error uploading the message!');
+                    }
+                })
+                .finally(() => setUploadingComments(prevComments => prevComments.filter(comment => comment !== newMessage)));
         }
         setOpen(false);
         setAlert(true);
@@ -142,7 +148,7 @@ export default function Upload({ id, setFiles, setComments, setUploadingFileName
 
     return (
         <div>
-            <Button variant='contained' onClick={() => setOpen(true)}>
+            <Button variant='contained' onClick={() => setOpen(true)} fullWidth={windowSize.width <= 500}>
                 Upload
             </Button>
 
@@ -158,35 +164,73 @@ export default function Upload({ id, setFiles, setComments, setUploadingFileName
             <Dialog open={open} onClose={handleClose} fullWidth>
                 <DialogTitle>Upload</DialogTitle>
 
-                <DialogContent dividers sx={{ display: 'flex', alignItems: 'center' }}>
-                    <div style={{ paddingInline: '2rem' }}>
-                        <TextField
-                            multiline
-                            rows={3}
-                            fullWidth
-                            value={newMessage}
-                            label='Message'
-                            onChange={event => {
-                                setNewMessage(event.target.value);
-                            }}
-                        />
-                    </div>
-                    <Divider orientation='vertical' flexItem />
-                    <div style={{ paddingInline: '2rem' }}>
-                        <Button component='label' variant='contained' startIcon={<CloudUploadIcon />}>
-                            Upload file
-                            <VisuallyHiddenInput type='file' name='file' onChange={handleFileChange} />
-                        </Button>
-                        <Typography>{file?.name}</Typography>
-                    </div>
-                </DialogContent>
+                {windowSize.width > 500 && (
+                    <>
+                        <DialogContent dividers sx={{ display: 'flex', alignItems: 'center' }}>
+                            <div style={{ paddingInline: '2rem' }}>
+                                <TextField
+                                    multiline
+                                    rows={3}
+                                    fullWidth
+                                    value={newMessage}
+                                    label='Message'
+                                    onChange={event => {
+                                        setNewMessage(event.target.value);
+                                    }}
+                                />
+                            </div>
+                            <Divider orientation='vertical' flexItem />
+                            <div style={{ paddingInline: '2rem' }}>
+                                <Button component='label' variant='contained' startIcon={<CloudUploadIcon />}>
+                                    Upload file
+                                    <VisuallyHiddenInput type='file' name='file' onChange={handleFileChange} />
+                                </Button>
+                                <Typography>{file?.name}</Typography>
+                            </div>
+                        </DialogContent>
 
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button variant='contained' onClick={handleSave}>
-                        Save
-                    </Button>
-                </DialogActions>
+                        <DialogActions>
+                            <Button onClick={handleClose}>Cancel</Button>
+                            <Button variant='contained' onClick={handleSave}>
+                                Save
+                            </Button>
+                        </DialogActions>
+                    </>
+                )}
+
+                {windowSize.width <= 500 && (
+                    <>
+                        <DialogContent dividers>
+                            <div style={{ paddingBlock: '2rem' }}>
+                                <TextField
+                                    multiline
+                                    rows={2}
+                                    fullWidth
+                                    value={newMessage}
+                                    label='Message'
+                                    onChange={event => {
+                                        setNewMessage(event.target.value);
+                                    }}
+                                />
+                            </div>
+                            <Divider />
+                            <div style={{ paddingBlock: '2rem' }}>
+                                <Button component='label' variant='contained' startIcon={<CloudUploadIcon />} fullWidth>
+                                    Upload file
+                                    <VisuallyHiddenInput type='file' name='file' onChange={handleFileChange} />
+                                </Button>
+                                <Typography>{file?.name}</Typography>
+                            </div>
+                        </DialogContent>
+
+                        <DialogActions>
+                            <Button onClick={handleClose}>Cancel</Button>
+                            <Button variant='contained' onClick={handleSave}>
+                                Save
+                            </Button>
+                        </DialogActions>
+                    </>
+                )}
             </Dialog>
         </div>
     );
