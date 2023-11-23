@@ -18,6 +18,10 @@ import {
     Card,
     Chip,
     CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     Divider,
     FormControl,
     InputLabel,
@@ -39,6 +43,7 @@ export default function Professors() {
     const [subjectSelected, setSubjectSelected] = useState([]);
     const [feedback, setFeedback] = useState({ rating: 0, time: 0, material: 0, kind: 0 });
     const [pendingFeedback, setPendingFeedback] = useState([]);
+    const [feedbackLoading, setFeedbackLoading] = useState(false);
     const user = useUser();
     const router = useRouter();
 
@@ -67,16 +72,25 @@ export default function Professors() {
                         json.pendingClassesFeedbacks.map(reservation => {
                             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
                                 res2.json().then(json2 => {
-                                    setPendingFeedback(prev => [
-                                        ...prev,
-                                        {
-                                            reservation_id: reservation,
-                                            receiver: {
-                                                id: json2.professor.id,
-                                                name: `${json2.professor.firstName} ${json2.professor.lastName}`,
-                                            },
-                                        },
-                                    ]);
+                                    setPendingFeedback(prev => {
+                                        let exists = false;
+                                        prev.forEach(pfed => {
+                                            if (pfed.reservation_id === reservation) exists = true;
+                                        });
+
+                                        if (!exists)
+                                            return [
+                                                ...prev,
+                                                {
+                                                    reservation_id: reservation,
+                                                    receiver: {
+                                                        id: json2.professor.id,
+                                                        name: `${json2.professor.firstName} ${json2.professor.lastName}`,
+                                                    },
+                                                },
+                                            ];
+                                        else return prev;
+                                    });
                                 });
                             });
                         });
@@ -115,6 +129,7 @@ export default function Professors() {
     };
 
     const handleFeedback = () => {
+        setFeedbackLoading(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
             method: 'POST',
             headers: {
@@ -131,13 +146,18 @@ export default function Professors() {
                 punctuality: feedback.time,
                 polite: feedback.kind,
             }),
-        }).then(res => {
-            if (res.status === 200)
-                setPendingFeedback(prev => {
-                    prev.shift();
-                    return prev;
-                });
-        });
+        })
+            .then(res => {
+                if (res.status === 200)
+                    setPendingFeedback(prev => {
+                        prev.shift();
+                        return prev;
+                    });
+            })
+            .finally(() => {
+                setFeedback({ rating: 0, time: 0, material: 0, kind: 0 });
+                setFeedbackLoading(false);
+            });
     };
 
     const handleFeedbackClick = opt => {
@@ -263,62 +283,75 @@ export default function Professors() {
                     </Box>
                 )}
                 {pendingFeedback.length > 0 && (
-                    <Card sx={{ padding: '1rem', height: 'fit-content', margin: 'auto' }}>
-                        <Typography>{`Give Feedback to ${pendingFeedback[0].receiver.name}`}</Typography>
-                        <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Rating
-                                precision={0.5}
-                                value={feedback.rating}
-                                onChange={(event, newValue) => {
-                                    setFeedback(prev => ({ ...prev, rating: newValue }));
-                                }}
-                                sx={{ fontSize: 42 }}
-                                max={3}
-                                size='large'
-                            />
-                        </div>
-                        <div
-                            style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                gap: 10,
-                                marginBlock: '1.5rem',
-                            }}
-                        >
-                            <Tooltip title='Is always on time'>
-                                <AccessTimeIcon
-                                    fontSize='large'
-                                    sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
-                                    onClick={() => handleFeedbackClick('time')}
-                                    color={feedback.time === 1 ? 'black' : 'disabled'}
-                                />
-                            </Tooltip>
+                    <Dialog open={true}>
+                        {!feedbackLoading && (
+                            <>
+                                <DialogTitle>{`Give Feedback to ${pendingFeedback[0].receiver.name}`}</DialogTitle>
+                                <DialogContent>
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                        <Rating
+                                            precision={0.5}
+                                            value={feedback.rating}
+                                            onChange={(event, newValue) => {
+                                                setFeedback(prev => ({ ...prev, rating: newValue }));
+                                            }}
+                                            sx={{ fontSize: 42 }}
+                                            max={3}
+                                            size='large'
+                                        />
+                                    </div>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            gap: 10,
+                                            marginBlock: '1.5rem',
+                                        }}
+                                    >
+                                        <Tooltip title='Is always on time'>
+                                            <AccessTimeIcon
+                                                fontSize='large'
+                                                sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                                onClick={() => handleFeedbackClick('time')}
+                                                color={feedback.time === 1 ? 'black' : 'disabled'}
+                                            />
+                                        </Tooltip>
 
-                            <Tooltip title='Has extra material to practice'>
-                                <InsertDriveFileIcon
-                                    fontSize='large'
-                                    sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
-                                    onClick={() => handleFeedbackClick('material')}
-                                    color={feedback.material === 1 ? 'black' : 'disabled'}
-                                />
-                            </Tooltip>
+                                        <Tooltip title='Has extra material to practice'>
+                                            <InsertDriveFileIcon
+                                                fontSize='large'
+                                                sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                                onClick={() => handleFeedbackClick('material')}
+                                                color={feedback.material === 1 ? 'black' : 'disabled'}
+                                            />
+                                        </Tooltip>
 
-                            <Tooltip title='Is respectful and patient'>
-                                <SentimentSatisfiedAltIcon
-                                    fontSize='large'
-                                    sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
-                                    onClick={() => handleFeedbackClick('kind')}
-                                    color={feedback.kind === 1 ? 'black' : 'disabled'}
-                                />
-                            </Tooltip>
-                        </div>
-
-                        <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Button variant='contained' onClick={handleFeedback}>
-                                Submit
-                            </Button>
-                        </div>
-                    </Card>
+                                        <Tooltip title='Is respectful and patient'>
+                                            <SentimentSatisfiedAltIcon
+                                                fontSize='large'
+                                                sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                                onClick={() => handleFeedbackClick('kind')}
+                                                color={feedback.kind === 1 ? 'black' : 'disabled'}
+                                            />
+                                        </Tooltip>
+                                    </div>
+                                </DialogContent>
+                                <DialogActions sx={{ justifyContent: 'center' }}>
+                                    <Button variant='contained' onClick={handleFeedback}>
+                                        Submit
+                                    </Button>
+                                </DialogActions>
+                            </>
+                        )}
+                        {feedbackLoading && (
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1rem' }}>
+                                <CircularProgress />
+                                <Typography variant='h4' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
+                                    Sending Feedback...
+                                </Typography>
+                            </div>
+                        )}
+                    </Dialog>
                 )}
             </Grid>
         </>

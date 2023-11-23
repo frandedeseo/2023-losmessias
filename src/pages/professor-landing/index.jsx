@@ -7,12 +7,14 @@ import {
     Alert,
     Box,
     Button,
+    Checkbox,
     CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
     Divider,
+    FormControlLabel,
     Rating,
     Snackbar,
     Tab,
@@ -59,6 +61,7 @@ export default function ProfessorLandingPage() {
     const [autoHideDuration, setAutoHideDuration] = useState(null);
     const [day, setDay] = useState(1);
     const windowSize = useWindowSize();
+    const [nullFeedback, setNullFeedback] = useState(false);
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
@@ -91,16 +94,25 @@ export default function ProfessorLandingPage() {
                         json.pendingClassesFeedbacks.map(reservation => {
                             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
                                 res2.json().then(json2 => {
-                                    setPendingFeedback(prev => [
-                                        ...prev,
-                                        {
-                                            reservation_id: reservation,
-                                            receiver: {
-                                                id: json2.student.id,
-                                                name: `${json2.student.firstName} ${json2.student.lastName}`,
-                                            },
-                                        },
-                                    ]);
+                                    setPendingFeedback(prev => {
+                                        let exists = false;
+                                        prev.forEach(pfed => {
+                                            if (pfed.reservation_id === reservation) exists = true;
+                                        });
+
+                                        if (!exists)
+                                            return [
+                                                ...prev,
+                                                {
+                                                    reservation_id: reservation,
+                                                    receiver: {
+                                                        id: json2.student.id,
+                                                        name: `${json2.student.firstName} ${json2.student.lastName}`,
+                                                    },
+                                                },
+                                            ];
+                                        else return prev;
+                                    });
                                 });
                             });
                             setGiveFeedback(true);
@@ -170,32 +182,25 @@ export default function ProfessorLandingPage() {
         setAlertMessage('Block has been disabled successfully!');
     };
 
-    const handleFeedback = () => {
-        setIsLoadingFeedback(true);
-        setFeedbackStatus('info');
-        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${user.token}`,
-            },
-            body: JSON.stringify({
-                studentId: pendingFeedback[0].receiver.id,
-                professorId: user.id,
-                roleReceptor: 'STUDENT',
-                classId: pendingFeedback[0].reservation_id,
-                rating: feedback.rating,
-                material: feedback.material,
-                punctuality: feedback.time,
-                polite: feedback.kind,
-            }),
-        })
+    const handleFeedbackNull = () => {
+        fetch(
+            `${process.env.NEXT_PUBLIC_API_URI}/api/professor/removeFeedback/professor=${user.id}&student=${pendingFeedback[0].receiver.id}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${user.token}`,
+                },
+            }
+        )
             .then(res => {
                 if (res.status === 200) {
-                    if (pendingFeedback.length === 1) setGiveFeedback(false);
                     setPendingFeedback(prev => {
-                        prev.shift();
-                        return prev;
+                        let receiverId = pendingFeedback[0].receiver.id;
+                        var pfeedbacks = prev.filter(pfed => pfed.receiver.id !== receiverId);
+                        if (pfeedbacks.length === 0) setGiveFeedback(false);
+                        else setGiveFeedback(true);
+                        return pfeedbacks;
                     });
                 }
                 setFeedbackStatus('success');
@@ -204,8 +209,55 @@ export default function ProfessorLandingPage() {
                 setFeedbackStatus('error');
             })
             .finally(() => {
+                setFeedback({ rating: 0, time: 0, material: 0, kind: 0 });
+                setNullFeedback(false);
                 setAutoHideDuration(6000);
             });
+    };
+
+    const handleFeedback = () => {
+        setIsLoadingFeedback(true);
+        setFeedbackStatus('info');
+      
+        if (nullFeedback) handleFeedbackNull();
+        else {
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${user.token}`,
+                },
+                body: JSON.stringify({
+                    studentId: pendingFeedback[0].receiver.id,
+                    professorId: user.id,
+                    roleReceptor: 'STUDENT',
+                    classId: pendingFeedback[0].reservation_id,
+                    rating: feedback.rating,
+                    material: feedback.material,
+                    punctuality: feedback.time,
+                    polite: feedback.kind,
+                }),
+            })
+                .then(res => {
+                    if (res.status === 200) {
+                        if (pendingFeedback.length === 1) setGiveFeedback(false);
+                        else setGiveFeedback(true);
+                        setPendingFeedback(prev => {
+                            prev.shift();
+                            return prev;
+                        });
+                    }
+                    setFeedbackStatus('success');
+                })
+                .catch(() => {
+                    setFeedbackStatus('error');
+                })
+                .finally(() => {
+                    setFeedback({ rating: 0, time: 0, material: 0, kind: 0 });
+                    setNullFeedback(false);
+                    setAutoHideDuration(6000);
+                });
+        }
     };
 
     const handleFeedbackClick = opt => {
@@ -425,6 +477,11 @@ export default function ProfessorLandingPage() {
                                         />
                                     </Tooltip>
                                 </div>
+
+                                <FormControlLabel
+                                    label='I dont want to give feedback'
+                                    control={<Checkbox checked={nullFeedback} onChange={event => setNullFeedback(event.target.checked)} />}
+                                />
                             </DialogContent>
                             <DialogActions>
                                 <Button onClick={() => setGiveFeedback(false)}>Close</Button>

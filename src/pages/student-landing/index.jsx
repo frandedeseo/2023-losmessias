@@ -22,6 +22,8 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import useWindowSize from '@/hooks/useWindowSize';
+import useSWR from 'swr';
+import { fetcherGetWithTokenFeedbacks } from '@/helpers/FetchHelpers';
 
 export default function StudentLandingPage() {
     const [week, setWeek] = useState(0);
@@ -36,7 +38,6 @@ export default function StudentLandingPage() {
     const [feedbackStatus, setFeedbackStatus] = useState('info');
     const [autoHideDuration, setAutoHideDuration] = useState(null);
     const windowSize = useWindowSize();
-
     var router = useRouter();
 
     useEffect(() => {
@@ -63,32 +64,43 @@ export default function StudentLandingPage() {
                     );
                 });
             });
+
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${user.id}`, requestOptions).then(res => {
                 res.json().then(json => {
                     json.pendingClassesFeedbacks.map(reservation => {
                         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
                             res2.json().then(json2 => {
-                                setPendingFeedback(prev => [
-                                    ...prev,
-                                    {
-                                        reservation_id: reservation,
-                                        receiver: {
-                                            id: json2.professor.id,
-                                            name: `${json2.professor.firstName} ${json2.professor.lastName}`,
-                                        },
-                                    },
-                                ]);
+                                setPendingFeedback(prev => {
+                                    let exists = false;
+                                    prev.forEach(pfed => {
+                                        if (pfed.reservation_id === reservation) exists = true;
+                                    });
+
+                                    if (!exists)
+                                        return [
+                                            ...prev,
+                                            {
+                                                reservation_id: reservation,
+                                                receiver: {
+                                                    id: json2.professor.id,
+                                                    name: `${json2.professor.firstName} ${json2.professor.lastName}`,
+                                                },
+                                            },
+                                        ];
+                                    else return prev;
+                                });
                             });
                         });
                         setGiveFeedback(true);
                     });
                 });
             });
+
             setIsLoading(false);
         } else {
             router.push('/');
         }
-    }, [user, router]);
+    }, [user, router.isReady]);
 
     const handleFeedback = () => {
         setIsLoadingFeedback(true);
@@ -112,8 +124,12 @@ export default function StudentLandingPage() {
         })
             .then(res => {
                 if (res.status === 200) {
-                    if (pendingFeedback.lengt === 1) giveFeedback(false);
-                    setPendingFeedback(prev => prev.shift());
+                    if (pendingFeedback.length === 1) setGiveFeedback(false);
+                    else setGiveFeedback(true);
+                    setPendingFeedback(prev => {
+                        prev.shift();
+                        return prev;
+                    });
                 }
                 setFeedbackStatus('success');
             })
@@ -121,6 +137,7 @@ export default function StudentLandingPage() {
                 setFeedbackStatus('error');
             })
             .finally(() => {
+                setFeedback({ rating: 0, time: 0, material: 0, kind: 0 });
                 setAutoHideDuration(6000);
             });
     };
