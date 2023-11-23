@@ -234,8 +234,8 @@ export default function AllStudents() {
                                     </TableRow>
                                 ) : (
                                     <>
-                                        {students.map(stu => (
-                                            <TableRow key={stu.slice(page * rowsPerPage, (page + 1) * rowsPerPage).id}>
+                                        {students.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(stu => (
+                                            <TableRow key={stu.id}>
                                                 <TableCell>{`${stu.firstName} ${stu.lastName}`}</TableCell>
                                                 <TableCell>{stu.email}</TableCell>
                                                 <TableCell sx={{ display: 'flex', gap: 2 }}>
