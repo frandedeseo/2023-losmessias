@@ -25,6 +25,7 @@ import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import useWindowSize from '@/hooks/useWindowSize';
 
 // Consts
 const dayNumber = {
@@ -54,8 +55,10 @@ export default function ProfessorLandingPage() {
     const [tab, setTab] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
-    const [feedbackStatus, setFeedbackStatus] = useState("info");
+    const [feedbackStatus, setFeedbackStatus] = useState('info');
     const [autoHideDuration, setAutoHideDuration] = useState(null);
+    const [day, setDay] = useState(1);
+    const windowSize = useWindowSize();
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
@@ -69,21 +72,19 @@ export default function ProfessorLandingPage() {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(
-                res => {
-                    if (res.status === 200) {
-                        res.json().then(json => {
-                            setDisabledBlocks(
-                                json.map(e => {
-                                    if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                                    return e;
-                                })
-                            );
-                        });
-                    }
-                    setIsLoading(false);
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
+                if (res.status === 200) {
+                    res.json().then(json => {
+                        setDisabledBlocks(
+                            json.map(e => {
+                                if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                return e;
+                            })
+                        );
+                    });
                 }
-            );
+                setIsLoading(false);
+            });
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res => {
                 if (res.status === 200) {
                     return res.json().then(json => {
@@ -171,7 +172,7 @@ export default function ProfessorLandingPage() {
 
     const handleFeedback = () => {
         setIsLoadingFeedback(true);
-        setFeedbackStatus("info");
+        setFeedbackStatus('info');
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
             method: 'POST',
             headers: {
@@ -188,20 +189,23 @@ export default function ProfessorLandingPage() {
                 punctuality: feedback.time,
                 polite: feedback.kind,
             }),
-        }).then(res => {
-            if (res.status === 200) {
-                if (pendingFeedback.length === 1) setGiveFeedback(false);
-                setPendingFeedback(prev => {
-                    prev.shift();
-                    return prev;
-                });
-            }
-            setFeedbackStatus("success");
-        }).catch(() => {
-            setFeedbackStatus("error");
-        }).finally(() => {
-            setAutoHideDuration(6000);
-        });
+        })
+            .then(res => {
+                if (res.status === 200) {
+                    if (pendingFeedback.length === 1) setGiveFeedback(false);
+                    setPendingFeedback(prev => {
+                        prev.shift();
+                        return prev;
+                    });
+                }
+                setFeedbackStatus('success');
+            })
+            .catch(() => {
+                setFeedbackStatus('error');
+            })
+            .finally(() => {
+                setAutoHideDuration(6000);
+            });
     };
 
     const handleFeedbackClick = opt => {
@@ -235,19 +239,33 @@ export default function ProfessorLandingPage() {
                         severity={feedbackStatus}
                         autoHideDuration={autoHideDuration}
                         onClose={() => {
-                            setFeedbackStatus("info");
+                            setFeedbackStatus('info');
                             setAutoHideDuration(null);
                             setIsLoadingFeedback(false);
                         }}
                     >
                         <Alert severity={feedbackStatus}>
-                            {feedbackStatus === "info" ? "Sending feedback..." : feedbackStatus === "success" ? "Feedback sent!" : "Error sending feedback"}
+                            {feedbackStatus === 'info'
+                                ? 'Sending feedback...'
+                                : feedbackStatus === 'success'
+                                ? 'Feedback sent!'
+                                : 'Error sending feedback'}
                         </Alert>
                     </Snackbar>
 
-                    <Typography variant='h4' sx={{ margin: '2% 0' }}>
-                        Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
-                    </Typography>
+                    {windowSize.width > 500 && (
+                        <Typography variant='h4' sx={{ margin: '2% 0' }}>
+                            Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
+                        </Typography>
+                    )}
+
+                    {windowSize.width <= 500 && (
+                        <>
+                            <Typography variant='h5' sx={{ margin: '2% 0' }} textAlign='center'>
+                                Hi{' ' + user.firstName + ' ' + user.lastName}
+                            </Typography>
+                        </>
+                    )}
 
                     <Tabs value={tab} onChange={handleTabChange}>
                         <Tab label='Agenda' />
@@ -293,13 +311,26 @@ export default function ProfessorLandingPage() {
                                         </tr>
                                     </tbody>
                                 </table>
-                                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+                                {windowSize.width > 500 && (
+                                    <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+                                )}
                             </div>
+
+                            {windowSize.width <= 500 && (
+                                <CalendarPagination
+                                    week={week}
+                                    setWeek={setWeek}
+                                    day={day}
+                                    setDay={setDay}
+                                    setSelectedBlocks={setSelectedBlocks}
+                                />
+                            )}
                             <Calendar
                                 selectedBlocks={selectedBlocks}
                                 setSelectedBlocks={setSelectedBlocks}
                                 disabledBlocks={disabledBlocks}
                                 week={week}
+                                day={day}
                                 showData
                             />
 

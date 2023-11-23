@@ -14,6 +14,7 @@ import { useEffect, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import useSWR from 'swr';
 import { fetcherGetWithTokenDashboard } from '@/helpers/FetchHelpers';
+import useWindowSize from '@/hooks/useWindowSize';
 
 export default function Dashboard({ id }) {
     const user = useUser();
@@ -22,6 +23,7 @@ export default function Dashboard({ id }) {
     const [incomePercentage, setIncomePercentage] = useState('');
     const [config, setConfig] = useState(null);
     const [configDonut, setConfigDonut] = useState(null);
+    const windowSize = useWindowSize();
 
     const { data, isLoading } = useSWR(
         [`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/getStatistics?professorId=${id}`, user.token],
@@ -119,11 +121,17 @@ export default function Dashboard({ id }) {
     }, [data]);
 
     return (
-        <div style={{ display: 'flex', gap: 10 }}>
-            <Card sx={{ width: '65%', textAlign: 'center', padding: '1rem' }}>
+        <div style={windowSize.width > 500 ? { display: 'flex', gap: 10 } : { display: 'flex', gap: 10, flexDirection: 'column' }}>
+            <Card
+                sx={
+                    windowSize.width > 500
+                        ? { width: '65%', textAlign: 'center', padding: '1rem' }
+                        : { textAlign: 'center', padding: '1rem' }
+                }
+            >
                 <Typography variant='h5'>Current Month</Typography>
-                <div style={{ display: 'flex' }}>
-                    <div style={{ width: '70%' }}>
+                <div style={windowSize.width > 500 ? { display: 'flex' } : {}}>
+                    <div style={windowSize.width > 500 ? { width: '70%' } : { width: '100%' }}>
                         {isLoading ? (
                             <Box
                                 sx={{
@@ -152,7 +160,20 @@ export default function Dashboard({ id }) {
                         )}
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 20 }}>
+                    <div
+                        style={
+                            windowSize.width > 500
+                                ? { display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 20 }
+                                : {
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                      justifyContent: 'center',
+                                      gap: 20,
+                                      alignItems: 'center',
+                                      marginTop: '1rem',
+                                  }
+                        }
+                    >
                         <div>
                             <Typography variant='h5' sx={{ marginBottom: '0.5rem' }}>
                                 Total
@@ -202,7 +223,13 @@ export default function Dashboard({ id }) {
                     </div>
                 </div>
             </Card>
-            <Card style={{ width: '40%', textAlign: 'center', display: 'flex', flexDirection: 'column', padding: '1rem' }}>
+            <Card
+                style={
+                    windowSize.width > 500
+                        ? { width: '40%', textAlign: 'center', display: 'flex', flexDirection: 'column', padding: '1rem' }
+                        : { textAlign: 'center', padding: '1rem' }
+                }
+            >
                 <Typography variant='h5'>Monthly Mean</Typography>
                 <div style={{ justifyContent: 'center', display: 'flex' }}>
                     {isLoading ? (
@@ -219,7 +246,7 @@ export default function Dashboard({ id }) {
                             </Typography>
                         </Box>
                     ) : (
-                        <>{configDonut && <Pie {...configDonut} style={{ width: '68%' }} />}</>
+                        <>{configDonut && <Pie {...configDonut} style={windowSize.width > 500 ? { width: '68%' } : { width: '100%' }} />}</>
                     )}
                 </div>
                 <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '1rem', textAlign: 'center' }}>
