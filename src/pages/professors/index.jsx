@@ -12,6 +12,7 @@ import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 
 // Mui
 import {
+    Grid,
     Box,
     Button,
     Card,
@@ -169,10 +170,11 @@ export default function Professors() {
 
     return (
         <>
-            <Box
+            <Grid container
                 sx={{
                     display: 'flex',
                     backgroundColor: '#F5F5F5',
+                    maxWidth: "100%"
                 }}
             >
                 <Box
@@ -181,9 +183,6 @@ export default function Professors() {
                         minWidth: 300,
                         minHeight: 300,
                         display: 'flex',
-                        borderColor: 'black',
-                        borderWidth: '1pt',
-                        borderRightStyle: 'solid',
                         px: 1,
                     }}
                 >
@@ -354,7 +353,7 @@ export default function Professors() {
                         )}
                     </Dialog>
                 )}
-            </Box>
+            </Grid>
         </>
     );
 }

@@ -18,7 +18,10 @@ export default function Notifications() {
         position: 'absolute',
         top: 60,
         right: 5,
-        zIndex: 1000
+        zIndex: 1000,
+        maxHeight: 600, 
+        overflow: 'auto', 
+        scrollBehavior: 'smooth'
     };
 
     const handleClose = () => {

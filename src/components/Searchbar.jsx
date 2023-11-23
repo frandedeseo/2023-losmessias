@@ -10,11 +10,13 @@ import { getColor } from '@/utils/getColor';
 
 // Styles
 import { styles } from '../styles/validator-styles';
+import useWindowSize from '@/hooks/useWindowSize';
 
 export default function Searchbar({ search }) {
     const [searchValue, setSearchValue] = useState('');
     const [filterValues, setFilterValues] = useState([]);
     const [subjects, setSubjects] = useState([]);
+    const windowSize = useWindowSize();
 
     useEffect(() => {
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
@@ -48,6 +50,8 @@ export default function Searchbar({ search }) {
                     <SearchIcon />
                 </Button>
             </form>
+
+            {windowSize.width <= 500 && <div style={{ paddingBlock: '0.5rem' }} />}
 
             <FormControl sx={styles.select}>
                 <InputLabel size='small'>Subjects</InputLabel>

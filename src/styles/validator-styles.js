@@ -39,7 +39,6 @@ export const styles = {
 
     select: {
         width: '15rem',
-        marginLeft: '-2rem',
         backgroundColor: '#fff',
     },
 

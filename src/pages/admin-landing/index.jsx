@@ -25,6 +25,7 @@ import {
 import { useEffect, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { useRouter } from 'next/router';
+import useWindowSize from '@/hooks/useWindowSize';
 
 export default function AdminLandingPage() {
     const [page, setPage] = useState(0);
@@ -38,6 +39,7 @@ export default function AdminLandingPage() {
     const user = useUser();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const windowSize = useWindowSize();
     const [sorters, setSorters] = useState({ income: false, hours: false });
     const [filterValues, setFilterValues] = useState([]);
     const [searchValue, setSearchValue] = useState('');
@@ -178,12 +180,24 @@ export default function AdminLandingPage() {
             <Typography variant='h4'>Today&apos;s Summary</Typography>
             <Divider />
             <div style={{ paddingBlock: '1rem' }} />
-            <div style={{ display: 'flex', gap: '2rem' }}>
-                <Searchbar search={handleSearch} />
-                <Button variant='contained' sx={{ boxShadow: 'none' }} onClick={() => setOpen(true)}>
-                    Subjects
-                </Button>
-            </div>
+            {windowSize.width > 500 && (
+                <div style={{ display: 'flex', gap: '2rem' }}>
+                    <Searchbar search={handleSearch} />
+                    <Button variant='contained' sx={{ boxShadow: 'none' }} onClick={() => setOpen(true)}>
+                        Subjects
+                    </Button>
+                </div>
+            )}
+            {windowSize.width <= 500 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    <div>
+                        <Searchbar search={handleSearch} />
+                    </div>
+                    <Button variant='contained' sx={{ boxShadow: 'none' }} onClick={() => setOpen(true)}>
+                        Subjects
+                    </Button>
+                </div>
+            )}
 
             <div style={{ paddingBlock: '0.5rem' }} />
 
@@ -285,24 +299,46 @@ export default function AdminLandingPage() {
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>Subjects</DialogTitle>
 
-                <DialogContent dividers sx={{ display: 'flex', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', paddingInline: '2rem' }}>
-                        {subjects.map((sub, idx) => (
-                            <Chip key={idx} label={sub.name} sx={{ backgroundColor: getColor(sub.name) }} />
-                        ))}
-                    </div>
-                    <Divider orientation='vertical' flexItem />
-                    <div style={{ paddingInline: '2rem' }}>
-                        <TextField
-                            fullWidth
-                            value={subject}
-                            label='Subject'
-                            onChange={event => {
-                                setSubject(event.target.value);
-                            }}
-                        />
-                    </div>
-                </DialogContent>
+                {windowSize.width > 500 && (
+                    <DialogContent dividers sx={{ display: 'flex', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', paddingInline: '2rem' }}>
+                            {subjects.map((sub, idx) => (
+                                <Chip key={idx} label={sub.name} sx={{ backgroundColor: getColor(sub.name) }} />
+                            ))}
+                        </div>
+                        <Divider orientation='vertical' flexItem />
+                        <div style={{ paddingInline: '2rem' }}>
+                            <TextField
+                                fullWidth
+                                value={subject}
+                                label='Subject'
+                                onChange={event => {
+                                    setSubject(event.target.value);
+                                }}
+                            />
+                        </div>
+                    </DialogContent>
+                )}
+                {windowSize.width <= 500 && (
+                    <DialogContent dividers sx={{}}>
+                        <div style={{ paddingBlock: '2rem' }}>
+                            <TextField
+                                fullWidth
+                                value={subject}
+                                label='Subject'
+                                onChange={event => {
+                                    setSubject(event.target.value);
+                                }}
+                            />
+                        </div>
+                        <Divider />
+                        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', paddingBlock: '2rem' }}>
+                            {subjects.map((sub, idx) => (
+                                <Chip key={idx} label={sub.name} sx={{ backgroundColor: getColor(sub.name) }} />
+                            ))}
+                        </div>
+                    </DialogContent>
+                )}
 
                 <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>

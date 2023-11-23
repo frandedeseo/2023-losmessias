@@ -38,6 +38,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { useRouter } from 'next/router';
+import useWindowSize from '@/hooks/useWindowSize.js';
 
 export default function AllProfessors() {
     const [allProfessors, setAllProfessors] = useState([]);
@@ -48,6 +49,7 @@ export default function AllProfessors() {
     const [professorId, setProfessorId] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
+    const windowSize = useWindowSize();
     const [searchValue, setSearchValue] = useState('');
     const [filterValues, setFilterValues] = useState([]);
     const [sorters, setSorters] = useState({ avgRating: false, sumPunctuality: false, sumMaterial: false, sumPolite: false });
@@ -165,6 +167,8 @@ export default function AllProfessors() {
             <Typography variant='h4'>Professors</Typography>
             <Divider />
             <div style={{ paddingBlock: '1rem' }} />
+
+            {windowSize.width > 500}
             <Searchbar search={handleSearch} />
             <div style={styles.divPadding} />
 
@@ -299,7 +303,7 @@ export default function AllProfessors() {
             </TableContainer>
 
             <Dialog open={open} onClose={handleClose} fullWidth>
-                <DialogTitle>Monthly Mean</DialogTitle>
+                <DialogTitle align={windowSize.width > 500 ? 'left' : 'center'}>Monthly Mean</DialogTitle>
 
                 <DialogContent>
                     <MonthlyChart id={professorId} legend />

@@ -27,6 +27,7 @@ import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import useWindowSize from '@/hooks/useWindowSize';
 
 // Consts
 const dayNumber = {
@@ -58,6 +59,8 @@ export default function ProfessorLandingPage() {
     const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
     const [feedbackStatus, setFeedbackStatus] = useState('info');
     const [autoHideDuration, setAutoHideDuration] = useState(null);
+    const [day, setDay] = useState(1);
+    const windowSize = useWindowSize();
     const [nullFeedback, setNullFeedback] = useState(false);
 
     var curr = new Date();
@@ -215,6 +218,7 @@ export default function ProfessorLandingPage() {
     const handleFeedback = () => {
         setIsLoadingFeedback(true);
         setFeedbackStatus('info');
+      
         if (nullFeedback) handleFeedbackNull();
         else {
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
@@ -301,9 +305,19 @@ export default function ProfessorLandingPage() {
                         </Alert>
                     </Snackbar>
 
-                    <Typography variant='h4' sx={{ margin: '2% 0' }}>
-                        Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
-                    </Typography>
+                    {windowSize.width > 500 && (
+                        <Typography variant='h4' sx={{ margin: '2% 0' }}>
+                            Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
+                        </Typography>
+                    )}
+
+                    {windowSize.width <= 500 && (
+                        <>
+                            <Typography variant='h5' sx={{ margin: '2% 0' }} textAlign='center'>
+                                Hi{' ' + user.firstName + ' ' + user.lastName}
+                            </Typography>
+                        </>
+                    )}
 
                     <Tabs value={tab} onChange={handleTabChange}>
                         <Tab label='Agenda' />
@@ -349,13 +363,26 @@ export default function ProfessorLandingPage() {
                                         </tr>
                                     </tbody>
                                 </table>
-                                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+                                {windowSize.width > 500 && (
+                                    <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+                                )}
                             </div>
+
+                            {windowSize.width <= 500 && (
+                                <CalendarPagination
+                                    week={week}
+                                    setWeek={setWeek}
+                                    day={day}
+                                    setDay={setDay}
+                                    setSelectedBlocks={setSelectedBlocks}
+                                />
+                            )}
                             <Calendar
                                 selectedBlocks={selectedBlocks}
                                 setSelectedBlocks={setSelectedBlocks}
                                 disabledBlocks={disabledBlocks}
                                 week={week}
+                                day={day}
                                 showData
                             />
 
