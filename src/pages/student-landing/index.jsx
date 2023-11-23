@@ -138,7 +138,7 @@ export default function StudentLandingPage() {
             })
             .finally(() => {
                 setFeedback({ rating: 0, time: 0, material: 0, kind: 0 });
-                setAutoHideDuration(6000);
+                setAutoHideDuration(1500);
             });
     };
 
@@ -182,8 +182,8 @@ export default function StudentLandingPage() {
                             {feedbackStatus === 'info'
                                 ? 'Sending feedback...'
                                 : feedbackStatus === 'success'
-                                ? 'Feedback sent!'
-                                : 'Error sending feedback'}
+                                    ? 'Feedback sent!'
+                                    : 'Error sending feedback'}
                         </Alert>
                     </Snackbar>
 
@@ -245,14 +245,14 @@ export default function StudentLandingPage() {
                                 </tr>
                             </tbody>
                         </table>
-                        {windowSize.width > 500 && <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={() => {}} />}
+                        {windowSize.width > 500 && <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={() => { }} />}
                     </div>
                     {windowSize.width <= 500 && (
-                        <CalendarPagination week={week} setWeek={setWeek} day={day} setDay={setDay} setSelectedBlocks={() => {}} />
+                        <CalendarPagination week={week} setWeek={setWeek} day={day} setDay={setDay} setSelectedBlocks={() => { }} />
                     )}
                     <Calendar
                         selectedBlocks={[]}
-                        setSelectedBlocks={() => {}}
+                        setSelectedBlocks={() => { }}
                         disabledBlocks={disabledBlocks}
                         week={week}
                         day={day}
