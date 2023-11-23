@@ -211,14 +211,14 @@ export default function ProfessorLandingPage() {
             .finally(() => {
                 setFeedback({ rating: 0, time: 0, material: 0, kind: 0 });
                 setNullFeedback(false);
-                setAutoHideDuration(6000);
+                setAutoHideDuration(1500);
             });
     };
 
     const handleFeedback = () => {
         setIsLoadingFeedback(true);
         setFeedbackStatus('info');
-      
+
         if (nullFeedback) handleFeedbackNull();
         else {
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
@@ -300,8 +300,8 @@ export default function ProfessorLandingPage() {
                             {feedbackStatus === 'info'
                                 ? 'Sending feedback...'
                                 : feedbackStatus === 'success'
-                                ? 'Feedback sent!'
-                                : 'Error sending feedback'}
+                                    ? 'Feedback sent!'
+                                    : 'Error sending feedback'}
                         </Alert>
                     </Snackbar>
 
