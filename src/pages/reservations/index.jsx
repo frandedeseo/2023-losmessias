@@ -270,8 +270,8 @@ export default function Reservation() {
                         <Divider orientation='vertical' flexItem />
                         <div style={{ paddingInline: '2rem' }}>
                             <Typography>{`Subject: ${professor.subjects[subject]?.name}`}</Typography>
-                            <Typography>{`Price per hour: 500`}</Typography>
-                            <Typography>{`Total: $${(500 * selectedBlocks.length) / 2}`}</Typography>
+                            <Typography>{`Price per hour: 250`}</Typography>
+                            <Typography>{`Total: $${(250 * selectedBlocks.length) / 2}`}</Typography>
                         </div>
                     </div>
                 </DialogContent>
