@@ -105,6 +105,13 @@ export default function StudentLandingPage() {
     const handleFeedback = () => {
         setIsLoadingFeedback(true);
         setFeedbackStatus('info');
+        setFeedback({ rating: 0, time: 0, material: 0, kind: 0 });
+        if (pendingFeedback.length === 1) setGiveFeedback(false);
+        else setGiveFeedback(true);
+        setPendingFeedback(prev => {
+            prev.shift();
+            return prev;
+        });
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
             method: 'POST',
             headers: {
@@ -123,21 +130,12 @@ export default function StudentLandingPage() {
             }),
         })
             .then(res => {
-                if (res.status === 200) {
-                    if (pendingFeedback.length === 1) setGiveFeedback(false);
-                    else setGiveFeedback(true);
-                    setPendingFeedback(prev => {
-                        prev.shift();
-                        return prev;
-                    });
-                }
                 setFeedbackStatus('success');
             })
             .catch(() => {
                 setFeedbackStatus('error');
             })
             .finally(() => {
-                setFeedback({ rating: 0, time: 0, material: 0, kind: 0 });
                 setAutoHideDuration(1500);
             });
     };
@@ -182,8 +180,8 @@ export default function StudentLandingPage() {
                             {feedbackStatus === 'info'
                                 ? 'Sending feedback...'
                                 : feedbackStatus === 'success'
-                                    ? 'Feedback sent!'
-                                    : 'Error sending feedback'}
+                                ? 'Feedback sent!'
+                                : 'Error sending feedback'}
                         </Alert>
                     </Snackbar>
 
@@ -245,14 +243,14 @@ export default function StudentLandingPage() {
                                 </tr>
                             </tbody>
                         </table>
-                        {windowSize.width > 500 && <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={() => { }} />}
+                        {windowSize.width > 500 && <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={() => {}} />}
                     </div>
                     {windowSize.width <= 500 && (
-                        <CalendarPagination week={week} setWeek={setWeek} day={day} setDay={setDay} setSelectedBlocks={() => { }} />
+                        <CalendarPagination week={week} setWeek={setWeek} day={day} setDay={setDay} setSelectedBlocks={() => {}} />
                     )}
                     <Calendar
                         selectedBlocks={[]}
-                        setSelectedBlocks={() => { }}
+                        setSelectedBlocks={() => {}}
                         disabledBlocks={disabledBlocks}
                         week={week}
                         day={day}
