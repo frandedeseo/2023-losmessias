@@ -40,7 +40,7 @@ export default function AdminLandingPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const windowSize = useWindowSize();
-    const [sorters, setSorters] = useState({ income: false, hours: false });
+    const [sorters, setSorters] = useState({ totalIncome: false, totalHours: false });
     const [filterValues, setFilterValues] = useState([]);
     const [searchValue, setSearchValue] = useState('');
 
@@ -209,18 +209,18 @@ export default function AdminLandingPage() {
                             <TableCell>Subject</TableCell>
                             <TableCell>
                                 <TableSortLabel
-                                    active={sorters.hours}
-                                    direction={!sorters.hours ? 'asc' : sorters.hours}
-                                    onClick={() => handleSorterClick('hours')}
+                                    active={sorters.totalHours}
+                                    direction={!sorters.totalHours ? 'asc' : sorters.totalHours}
+                                    onClick={() => handleSorterClick('totalHours')}
                                 >
                                     Hours
                                 </TableSortLabel>
                             </TableCell>
                             <TableCell sortDirection='asc'>
                                 <TableSortLabel
-                                    active={sorters.income}
-                                    direction={!sorters.income ? 'asc' : sorters.income}
-                                    onClick={() => handleSorterClick('income')}
+                                    active={sorters.totalIncome}
+                                    direction={!sorters.totalIncome ? 'asc' : sorters.totalIncome}
+                                    onClick={() => handleSorterClick('totalIncome')}
                                 >
                                     Income
                                 </TableSortLabel>
