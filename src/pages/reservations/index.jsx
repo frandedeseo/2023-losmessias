@@ -111,8 +111,16 @@ export default function Reservation() {
 
     const handleReserve = () => {
         orderedSelectedBlocks.forEach(block => {
+            let date = new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toLocaleString().split(',')[0];
+            let dateElements = date.split('/');
+            let bubble = dateElements[0];
+            dateElements[0] = dateElements[2];
+            dateElements[2] = dateElements[1];
+            dateElements[1] = bubble;
+            date = dateElements.join('-');
+
             const reservation = {
-                day: new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0],
+                day: date,
                 startingHour: block.startingHour,
                 endingHour: block.endingHour,
                 duration: block.totalHours,

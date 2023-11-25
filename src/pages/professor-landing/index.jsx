@@ -142,8 +142,16 @@ export default function ProfessorLandingPage() {
 
     const handleDisable = () => {
         orderedSelectedBlocks.forEach(block => {
+            let date = new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toLocaleString().split(',')[0];
+            let dateElements = date.split('/');
+            let bubble = dateElements[0];
+            dateElements[0] = dateElements[2];
+            dateElements[2] = dateElements[1];
+            dateElements[1] = bubble;
+            date = dateElements.join('-');
+
             const reservation = {
-                day: new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0],
+                day: date,
                 startingHour: block.startingHour,
                 endingHour: block.endingHour,
                 duration: block.totalHours,
@@ -167,7 +175,7 @@ export default function ProfessorLandingPage() {
                     setDisabledBlocks(prevDisabled => [
                         ...prevDisabled,
                         {
-                            day: new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0].split('-'),
+                            day: dateElements,
                             startingHour: block.startingHour.split(':'),
                             endingHour: block.endingHour.split(':'),
                             status: 'NOT_AVAILABLE',

@@ -73,6 +73,9 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
     const router = useRouter();
     const windowSize = useWindowSize();
 
+    let test = new Date().toLocaleString();
+    console.log(test);
+
     const handleBlockSelection = (block, day) => {
         if (!block_disabled(block, day)) {
             if (selectedBlocks.find(element => element.time === block && element.day === day) !== undefined) {
@@ -103,7 +106,13 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
     };
 
     const block_reserved = (block, day) => {
-        const blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toISOString().split('T')[0];
+        let blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toLocaleString().split(',')[0];
+        blockDate = blockDate.split('/');
+        let bubble = blockDate[0];
+        blockDate[0] = blockDate[2];
+        blockDate[2] = blockDate[1];
+        blockDate[1] = bubble;
+        blockDate = blockDate.join('-');
         const blockDisabled = disabledBlocks.find(
             blk => blockDate === blk.day.join('-') && blk.status === 'CONFIRMED' && compare_time(block, blk)
         );
@@ -113,7 +122,13 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
     };
 
     const block_not_available = (block, day) => {
-        const blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toISOString().split('T')[0];
+        let blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toLocaleString().split(',')[0];
+        blockDate = blockDate.split('/');
+        let bubble = blockDate[0];
+        blockDate[0] = blockDate[2];
+        blockDate[2] = blockDate[1];
+        blockDate[1] = bubble;
+        blockDate = blockDate.join('-');
         const blockDisabled = disabledBlocks.find(
             blk => blockDate === blk.day.join('-') && blk.status === 'NOT_AVAILABLE' && compare_time(block, blk)
         );
@@ -124,7 +139,13 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
 
     const show_data = (flag, block, day) => {
         if (flag) {
-            const blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toISOString().split('T')[0];
+            let blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toLocaleString().split(',')[0];
+            blockDate = blockDate.split('/');
+            let bubble = blockDate[0];
+            blockDate[0] = blockDate[2];
+            blockDate[2] = blockDate[1];
+            blockDate[1] = bubble;
+            blockDate = blockDate.join('-');
             const blockDisabled = disabledBlocks.findIndex(
                 blk => blockDate === blk.day.join('-') && blk.status === 'CONFIRMED' && first_block(block, blk)
             );
@@ -145,7 +166,13 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
 
     const redirect_to_reservation = (flag, block, day) => {
         if (flag) {
-            const blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toISOString().split('T')[0];
+            let blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toLocaleString().split(',')[0];
+            blockDate = blockDate.split('/');
+            let bubble = blockDate[0];
+            blockDate[0] = blockDate[2];
+            blockDate[2] = blockDate[1];
+            blockDate[1] = bubble;
+            blockDate = blockDate.join('-');
             const blockDisabled = disabledBlocks.findIndex(
                 blk => blockDate === blk.day.join('-') && blk.status === 'CONFIRMED' && compare_time(block, blk)
             );
