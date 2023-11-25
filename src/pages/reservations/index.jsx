@@ -34,6 +34,7 @@ import Upload from '@/components/Upload';
 import LoadingModal from '@/components/modals/LoadingModal';
 import useSWR from 'swr';
 import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
+import useWindowSize from '@/hooks/useWindowSize';
 
 // Consts
 const dayNumber = {
@@ -57,9 +58,10 @@ export default function Reservation() {
     const [alert, setAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('');
-    const [open, setOpen] = useState();
     const [isProcessingReservation, setIsProcessingReservation] = useState(false);
     const [disabledBlocks, setDisabledBlocks] = useState([]);
+    const [day, setDay] = useState(1);
+    const windowSize = useWindowSize();
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
@@ -109,8 +111,16 @@ export default function Reservation() {
 
     const handleReserve = () => {
         orderedSelectedBlocks.forEach(block => {
+            let date = new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toLocaleString().split(',')[0];
+            let dateElements = date.split('/');
+            let bubble = dateElements[0];
+            dateElements[0] = dateElements[2];
+            dateElements[2] = dateElements[1];
+            dateElements[1] = bubble;
+            date = dateElements.join('-');
+
             const reservation = {
-                day: new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0],
+                day: date,
                 startingHour: block.startingHour,
                 endingHour: block.endingHour,
                 duration: block.totalHours,
@@ -160,33 +170,40 @@ export default function Reservation() {
 
     return (
         <>
-            <div style={{ display: 'flex', width: '90%', margin: '2rem auto', alignItems: 'end', justifyContent: 'space-between' }}>
-                <HorizontalProfessorCard professor={professor} />
-                <FormControl sx={{ minWidth: 150, backgroundColor: '#fff', ml: 5 }}>
-                    <InputLabel>Subject</InputLabel>
-                    <Select value={subject} label='Subject' onChange={e => handleSubjectChange(e)}>
-                        {professor.subjects?.map((subject, idx) => (
-                            <MenuItem value={idx} key={subject.id}>
-                                {subject.name}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-
-                <Modal
-                    open={open}
-                    onClose={() => setOpen(false)}
-                    sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                >
-                    <Upload />
-                </Modal>
-            </div>
+            {windowSize.width > 500 && (
+                <div style={{ display: 'flex', width: '90%', margin: '2rem auto', alignItems: 'end', justifyContent: 'space-between' }}>
+                    <HorizontalProfessorCard professor={professor} />
+                    <FormControl sx={{ minWidth: 150, backgroundColor: '#fff', ml: 5 }}>
+                        <InputLabel>Subject</InputLabel>
+                        <Select value={subject} label='Subject' onChange={e => handleSubjectChange(e)}>
+                            {professor.subjects?.map((subject, idx) => (
+                                <MenuItem value={idx} key={subject.id}>
+                                    {subject.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </div>
+            )}
+            {windowSize.width <= 500 && (
+                <>
+                    <HorizontalProfessorCard professor={professor} />
+                    <FormControl sx={{ backgroundColor: '#fff', marginBlock: '1.5rem' }} fullWidth>
+                        <InputLabel>Subject</InputLabel>
+                        <Select value={subject} label='Subject' onChange={e => handleSubjectChange(e)}>
+                            {professor.subjects?.map((subject, idx) => (
+                                <MenuItem value={idx} key={subject.id}>
+                                    {subject.name}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </>
+            )}
             <div style={{ width: '90%', margin: 'auto' }}>
-                <Typography variant='h4'>Agenda</Typography>
+                <Typography variant='h5' textAlign='center'>
+                    Agenda
+                </Typography>
                 <Divider />
                 <div style={{ paddingBlock: '0.75rem' }} />
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -227,14 +244,18 @@ export default function Reservation() {
                         </tbody>
                     </table>
 
-                    <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+                    {windowSize.width > 500 && <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />}
                 </div>
+                {windowSize.width <= 500 && (
+                    <CalendarPagination week={week} setWeek={setWeek} day={day} setDay={setDay} setSelectedBlocks={setSelectedBlocks} />
+                )}
 
                 <Calendar
                     selectedBlocks={selectedBlocks}
                     setSelectedBlocks={setSelectedBlocks}
                     disabledBlocks={disabledBlocks}
                     week={week}
+                    day={day}
                 />
             </div>
 
@@ -257,8 +278,8 @@ export default function Reservation() {
                         <Divider orientation='vertical' flexItem />
                         <div style={{ paddingInline: '2rem' }}>
                             <Typography>{`Subject: ${professor.subjects[subject]?.name}`}</Typography>
-                            <Typography>{`Price per hour: 500`}</Typography>
-                            <Typography>{`Total: $${(500 * selectedBlocks.length) / 2}`}</Typography>
+                            <Typography>{`Price per hour: 250`}</Typography>
+                            <Typography>{`Total: $${(250 * selectedBlocks.length) / 2}`}</Typography>
                         </div>
                     </div>
                 </DialogContent>

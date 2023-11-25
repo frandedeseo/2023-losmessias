@@ -1,4 +1,4 @@
-import { Box, Fab, Typography } from "@mui/material";
+import { Box, Fab, Typography, Grid } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CheckIcon from '@mui/icons-material/Check';
 import { Cancel } from "@mui/icons-material";
@@ -24,8 +24,8 @@ export default function PersonalData() {
     const router = useRouter();
 
     useEffect(() => {
-        if (user.token!=undefined){ 
-            if (!user.authenticated){
+        if (user.token != undefined) {
+            if (!user.authenticated) {
                 router.push('/');
             }
         }
@@ -69,12 +69,12 @@ export default function PersonalData() {
 
     return (
         <>
-            <Box sx={styles.globalContainer}>
+            <Grid sx={styles.globalContainer}>
                 <Typography variant='h4' sx={styles.typography}>
                     My personal information
                 </Typography>
                 {editMode ? (
-                    <Box>
+                    <Grid container justifyContent="flex-end" sx={{ width: 230 }}>
                         <Fab
                             color="error"
                             aria-label="edit"
@@ -87,22 +87,24 @@ export default function PersonalData() {
                             color="success"
                             aria-label="edit"
                             onClick={() => handleSave()}
+
                         >
                             <CheckIcon />
                         </Fab>
-                    </Box>
+                    </Grid>
                 ) : (
-                    <>
+                    <Grid container justifyContent="flex-end" sx={{ width: 70 }}>
                         <Fab
                             color={"primary"}
                             aria-label="edit"
                             onClick={() => handleSave()}
+
                         >
                             {editMode ? <CheckIcon /> : (<EditIcon />)}
                         </Fab>
-                    </>
+                    </Grid>
                 )}
-            </Box>
+            </Grid>
             {!editMode ? (
                 <PersonalDataDisplay data={data} isLoading={isLoading} />
             ) : (

@@ -5,6 +5,7 @@ import { Typography } from '@mui/material';
 import { compare_time, first_block, parseDate } from '@/utils/compareDate';
 import { useUser } from '@/context/UserContext';
 import { useRouter } from 'next/router';
+import useWindowSize from '@/hooks/useWindowSize';
 
 const blocks = [
     '09:00 - 09:30',
@@ -65,11 +66,15 @@ const styles = {
     },
 };
 
-export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBlocks, week, interactive = true, showData = false }) {
+export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBlocks, week, day, interactive = true, showData = false }) {
     var curr_date = new Date();
     var first = curr_date.getDate() - curr_date.getDay();
     const user = useUser();
     const router = useRouter();
+    const windowSize = useWindowSize();
+
+    let test = new Date().toLocaleString();
+    console.log(test);
 
     const handleBlockSelection = (block, day) => {
         if (!block_disabled(block, day)) {
@@ -101,7 +106,13 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
     };
 
     const block_reserved = (block, day) => {
-        const blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toISOString().split('T')[0];
+        let blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toLocaleString().split(',')[0];
+        blockDate = blockDate.split('/');
+        let bubble = blockDate[0];
+        blockDate[0] = blockDate[2];
+        blockDate[2] = blockDate[1];
+        blockDate[1] = bubble;
+        blockDate = blockDate.join('-');
         const blockDisabled = disabledBlocks.find(
             blk => blockDate === blk.day.join('-') && blk.status === 'CONFIRMED' && compare_time(block, blk)
         );
@@ -111,7 +122,13 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
     };
 
     const block_not_available = (block, day) => {
-        const blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toISOString().split('T')[0];
+        let blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toLocaleString().split(',')[0];
+        blockDate = blockDate.split('/');
+        let bubble = blockDate[0];
+        blockDate[0] = blockDate[2];
+        blockDate[2] = blockDate[1];
+        blockDate[1] = bubble;
+        blockDate = blockDate.join('-');
         const blockDisabled = disabledBlocks.find(
             blk => blockDate === blk.day.join('-') && blk.status === 'NOT_AVAILABLE' && compare_time(block, blk)
         );
@@ -122,7 +139,13 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
 
     const show_data = (flag, block, day) => {
         if (flag) {
-            const blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toISOString().split('T')[0];
+            let blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toLocaleString().split(',')[0];
+            blockDate = blockDate.split('/');
+            let bubble = blockDate[0];
+            blockDate[0] = blockDate[2];
+            blockDate[2] = blockDate[1];
+            blockDate[1] = bubble;
+            blockDate = blockDate.join('-');
             const blockDisabled = disabledBlocks.findIndex(
                 blk => blockDate === blk.day.join('-') && blk.status === 'CONFIRMED' && first_block(block, blk)
             );
@@ -143,7 +166,13 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
 
     const redirect_to_reservation = (flag, block, day) => {
         if (flag) {
-            const blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toISOString().split('T')[0];
+            let blockDate = new Date(new Date().setDate(first + daysNumber[day] + 7 * week)).toLocaleString().split(',')[0];
+            blockDate = blockDate.split('/');
+            let bubble = blockDate[0];
+            blockDate[0] = blockDate[2];
+            blockDate[2] = blockDate[1];
+            blockDate[1] = bubble;
+            blockDate = blockDate.join('-');
             const blockDisabled = disabledBlocks.findIndex(
                 blk => blockDate === blk.day.join('-') && blk.status === 'CONFIRMED' && compare_time(block, blk)
             );
@@ -185,44 +214,91 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
 
     return (
         <>
-            <table style={{ borderCollapse: 'collapse', width: '100%' }}>
-                <thead style={{ height: '3rem', backgroundColor: '#fafafa' }}>
-                    <tr>
-                        <th style={{ borderBottom: '1px solid #f0f0f0', width: '10%' }}></th>
-                        {days.map(day => (
-                            <th style={{ borderBottom: '1px solid #f0f0f0' }} key={day}>
-                                <Typography variant='h6'>{day}</Typography>
-                                <Typography>{parseDate(new Date(new Date().setDate(first + daysNumber[day] + 7 * week)))}</Typography>
-                            </th>
+            {windowSize.width > 500 && (
+                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                    <thead style={{ height: '3rem', backgroundColor: '#fafafa' }}>
+                        <tr>
+                            <th style={{ borderBottom: '1px solid #f0f0f0', width: '10%' }}></th>
+                            {days.map(day => (
+                                <th style={{ borderBottom: '1px solid #f0f0f0' }} key={day}>
+                                    <Typography variant='h6'>{day}</Typography>
+                                    <Typography>{parseDate(new Date(new Date().setDate(first + daysNumber[day] + 7 * week)))}</Typography>
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+
+                    <tbody style={{ backgroundColor: '#fff' }}>
+                        {blocks.map(block => (
+                            <tr key={block} style={{ height: '2.3rem' }}>
+                                <td style={{ borderBlock: '1px solid #f0f0f0', textAlign: 'center' }}>
+                                    <Typography variant='body1'>{block}</Typography>
+                                </td>
+
+                                {days.map(day => {
+                                    const data = show_data(showData, block, day);
+
+                                    return (
+                                        <td style={style_of_block(block, day)} onClick={() => handleBlockSelection(block, day)} key={day}>
+                                            <Typography fontSize={14} align='center'>
+                                                {data?.subject}
+                                            </Typography>
+                                            <Typography fontSize={14} align='center'>
+                                                {data?.name}
+                                            </Typography>
+                                        </td>
+                                    );
+                                })}
+                            </tr>
                         ))}
-                    </tr>
-                </thead>
+                    </tbody>
+                </table>
+            )}
 
-                <tbody style={{ backgroundColor: '#fff' }}>
-                    {blocks.map(block => (
-                        <tr key={block} style={{ height: '2.3rem' }}>
-                            <td style={{ borderBlock: '1px solid #f0f0f0', textAlign: 'center' }}>
-                                <Typography variant='body1'>{block}</Typography>
-                            </td>
+            {windowSize.width <= 500 && (
+                <>
+                    <Typography variant='h6' textAlign='center'>
+                        {days[day - 1]}
+                    </Typography>
+                    <Typography textAlign='center'>
+                        {parseDate(new Date(new Date().setDate(first + daysNumber[days[day - 1]] + 7 * week)))}
+                    </Typography>
+                    <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                        <thead style={{ height: '0.2rem', backgroundColor: '#fafafa' }}>
+                            <tr>
+                                <th style={{ borderBottom: '1px solid #f0f0f0', width: '35%' }}></th>
+                                <th style={{ borderBottom: '1px solid #f0f0f0' }} key={days[day - 1]}></th>
+                            </tr>
+                        </thead>
 
-                            {days.map(day => {
-                                const data = show_data(showData, block, day);
-
+                        <tbody style={{ backgroundColor: '#fff' }}>
+                            {blocks.map(block => {
+                                const data = show_data(showData, block, days[day - 1]);
                                 return (
-                                    <td style={style_of_block(block, day)} onClick={() => handleBlockSelection(block, day)} key={day}>
-                                        <Typography fontSize={14} align='center'>
-                                            {data?.subject}
-                                        </Typography>
-                                        <Typography fontSize={14} align='center'>
-                                            {data?.name}
-                                        </Typography>
-                                    </td>
+                                    <tr key={block} style={{ height: '2.3rem' }}>
+                                        <td style={{ borderBlock: '1px solid #f0f0f0', textAlign: 'center' }}>
+                                            <Typography variant='body1'>{block}</Typography>
+                                        </td>
+
+                                        <td
+                                            style={style_of_block(block, days[day - 1])}
+                                            onClick={() => handleBlockSelection(block, days[day - 1])}
+                                            key={days[day - 1]}
+                                        >
+                                            <Typography fontSize={14} align='center'>
+                                                {data?.subject}
+                                            </Typography>
+                                            <Typography fontSize={14} align='center'>
+                                                {data?.name}
+                                            </Typography>
+                                        </td>
+                                    </tr>
                                 );
                             })}
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+                        </tbody>
+                    </table>
+                </>
+            )}
         </>
     );
 }

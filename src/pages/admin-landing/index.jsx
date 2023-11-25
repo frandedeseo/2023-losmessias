@@ -18,12 +18,14 @@ import {
     TableHead,
     TablePagination,
     TableRow,
+    TableSortLabel,
     TextField,
     Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { useRouter } from 'next/router';
+import useWindowSize from '@/hooks/useWindowSize';
 
 export default function AdminLandingPage() {
     const [page, setPage] = useState(0);
@@ -37,6 +39,10 @@ export default function AdminLandingPage() {
     const user = useUser();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
+    const windowSize = useWindowSize();
+    const [sorters, setSorters] = useState({ totalIncome: false, totalHours: false });
+    const [filterValues, setFilterValues] = useState([]);
+    const [searchValue, setSearchValue] = useState('');
 
     useEffect(() => {
         setIsLoading(true);
@@ -66,9 +72,7 @@ export default function AdminLandingPage() {
         }
     }, [user, rowsPerPage, router]);
 
-    const handleSearch = (searchValue, filterValues) => {
-        setPage(0);
-
+    const applySearchFilter = (searchValue, filterValues) => {
         if (searchValue !== '' && filterValues.length === 0) {
             const filterProfessors = allProfessors.filter(
                 prevTeacherSubject =>
@@ -94,6 +98,13 @@ export default function AdminLandingPage() {
             setProfessors(allProfessors);
             setShownProfessors(allProfessors.slice(0, rowsPerPage));
         }
+    };
+
+    const handleSearch = (searchValue, filterValues) => {
+        setPage(0);
+        applySearchFilter(searchValue, filterValues);
+        setSearchValue(searchValue);
+        setFilterValues(filterValues);
     };
 
     const handleChangePage = (event, newPage) => {
@@ -131,17 +142,62 @@ export default function AdminLandingPage() {
         handleClose();
     };
 
+    function sortDataBy(field, direction) {
+        const ascSorter = (a, b) => {
+            return a[field] - b[field];
+        };
+
+        const descSorter = (a, b) => {
+            return (a[field] - b[field]) * -1;
+        };
+
+        let sortedStudents = allProfessors;
+        if (direction === 'asc') sortedStudents = allProfessors.sort(ascSorter);
+        else if (direction === 'desc') sortedStudents = allProfessors.sort(descSorter);
+
+        if (searchValue !== '' || filterValues.length > 0) {
+            applySearchFilter(searchValue, filterValues);
+        }
+
+        setShownProfessors(sortedStudents);
+    }
+
+    const handleSorterClick = property => {
+        let newSorter = {};
+        Object.keys(sorters).forEach(key => {
+            if (key === property) {
+                if (!sorters[key]) newSorter[key] = 'asc';
+                else if (sorters[key] === 'asc') newSorter[key] = 'desc';
+                else if (sorters[key] === 'desc') newSorter[key] = false;
+            } else newSorter[key] = false;
+        });
+        sortDataBy(property, newSorter[property]);
+        setSorters(newSorter);
+    };
+
     return (
         <div style={{ margin: '2% auto', width: '95%' }}>
             <Typography variant='h4'>Today&apos;s Summary</Typography>
             <Divider />
             <div style={{ paddingBlock: '1rem' }} />
-            <div style={{ display: 'flex', gap: '2rem' }}>
-                <Searchbar search={handleSearch} />
-                <Button variant='contained' sx={{ boxShadow: 'none' }} onClick={() => setOpen(true)}>
-                    Subjects
-                </Button>
-            </div>
+            {windowSize.width > 500 && (
+                <div style={{ display: 'flex', gap: '2rem' }}>
+                    <Searchbar search={handleSearch} />
+                    <Button variant='contained' sx={{ boxShadow: 'none' }} onClick={() => setOpen(true)}>
+                        Subjects
+                    </Button>
+                </div>
+            )}
+            {windowSize.width <= 500 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    <div>
+                        <Searchbar search={handleSearch} />
+                    </div>
+                    <Button variant='contained' sx={{ boxShadow: 'none' }} onClick={() => setOpen(true)}>
+                        Subjects
+                    </Button>
+                </div>
+            )}
 
             <div style={{ paddingBlock: '0.5rem' }} />
 
@@ -151,8 +207,24 @@ export default function AdminLandingPage() {
                         <TableRow>
                             <TableCell>Name</TableCell>
                             <TableCell>Subject</TableCell>
-                            <TableCell>Hours</TableCell>
-                            <TableCell>Income</TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sorters.totalHours}
+                                    direction={!sorters.totalHours ? 'asc' : sorters.totalHours}
+                                    onClick={() => handleSorterClick('totalHours')}
+                                >
+                                    Hours
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell sortDirection='asc'>
+                                <TableSortLabel
+                                    active={sorters.totalIncome}
+                                    direction={!sorters.totalIncome ? 'asc' : sorters.totalIncome}
+                                    onClick={() => handleSorterClick('totalIncome')}
+                                >
+                                    Income
+                                </TableSortLabel>
+                            </TableCell>
                         </TableRow>
                     </TableHead>
 
@@ -177,7 +249,7 @@ export default function AdminLandingPage() {
                             <>
                                 {professors.length > 0 ? (
                                     <>
-                                        {shownProfessors.map((prof, idx) => (
+                                        {shownProfessors.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map((prof, idx) => (
                                             <TableRow key={idx}>
                                                 <TableCell>{`${prof.professor.firstName} ${prof.professor.lastName}`}</TableCell>
                                                 <TableCell>
@@ -227,24 +299,46 @@ export default function AdminLandingPage() {
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>Subjects</DialogTitle>
 
-                <DialogContent dividers sx={{ display: 'flex', alignItems: 'center' }}>
-                    <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', paddingInline: '2rem' }}>
-                        {subjects.map((sub, idx) => (
-                            <Chip key={idx} label={sub.name} sx={{ backgroundColor: getColor(sub.name) }} />
-                        ))}
-                    </div>
-                    <Divider orientation='vertical' flexItem />
-                    <div style={{ paddingInline: '2rem' }}>
-                        <TextField
-                            fullWidth
-                            value={subject}
-                            label='Subject'
-                            onChange={event => {
-                                setSubject(event.target.value);
-                            }}
-                        />
-                    </div>
-                </DialogContent>
+                {windowSize.width > 500 && (
+                    <DialogContent dividers sx={{ display: 'flex', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', paddingInline: '2rem' }}>
+                            {subjects.map((sub, idx) => (
+                                <Chip key={idx} label={sub.name} sx={{ backgroundColor: getColor(sub.name) }} />
+                            ))}
+                        </div>
+                        <Divider orientation='vertical' flexItem />
+                        <div style={{ paddingInline: '2rem' }}>
+                            <TextField
+                                fullWidth
+                                value={subject}
+                                label='Subject'
+                                onChange={event => {
+                                    setSubject(event.target.value);
+                                }}
+                            />
+                        </div>
+                    </DialogContent>
+                )}
+                {windowSize.width <= 500 && (
+                    <DialogContent dividers sx={{}}>
+                        <div style={{ paddingBlock: '2rem' }}>
+                            <TextField
+                                fullWidth
+                                value={subject}
+                                label='Subject'
+                                onChange={event => {
+                                    setSubject(event.target.value);
+                                }}
+                            />
+                        </div>
+                        <Divider />
+                        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', paddingBlock: '2rem' }}>
+                            {subjects.map((sub, idx) => (
+                                <Chip key={idx} label={sub.name} sx={{ backgroundColor: getColor(sub.name) }} />
+                            ))}
+                        </div>
+                    </DialogContent>
+                )}
 
                 <DialogActions>
                     <Button onClick={handleClose}>Cancel</Button>

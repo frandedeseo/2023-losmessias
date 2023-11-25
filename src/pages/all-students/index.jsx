@@ -9,7 +9,7 @@ import { getColor } from '@/utils/getColor.js';
 // styles
 import { styles } from '../../styles/validator-styles.js';
 
-import { useRouter } from "next/router";
+import { useRouter } from 'next/router';
 
 // Mui
 import {
@@ -27,6 +27,7 @@ import {
     TableHead,
     TablePagination,
     TableRow,
+    TableSortLabel,
     TextField,
     Tooltip,
     Typography,
@@ -45,6 +46,7 @@ export default function AllStudents() {
     const [searchValue, setSearchValue] = useState('');
     const router = useRouter();
     const user = useUser();
+    const [sorters, setSorters] = useState({ avgRating: false, sumPunctuality: false, sumMaterial: false, sumPolite: false });
 
     useEffect(() => {
         if (router.isReady && user.id) {
@@ -72,6 +74,7 @@ export default function AllStudents() {
 
     const handleSearch = e => {
         e.preventDefault();
+        setPage(0);
 
         if (searchValue !== '') {
             setStudents(
@@ -85,13 +88,50 @@ export default function AllStudents() {
     };
 
     const handleChangePage = (event, newPage) => {
-        setShownTeachersSubjects(teachersSubjects.slice(newPage * rowsPerPage, (newPage + 1) * rowsPerPage));
         setPage(newPage);
     };
 
     const handleChangeRowsPerPage = event => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
+    };
+
+    function sortDataBy(field, direction) {
+        const ascSorter = (a, b) => {
+            return a[field] - b[field];
+        };
+
+        const descSorter = (a, b) => {
+            return (a[field] - b[field]) * -1;
+        };
+
+        let sortedStudents = allStudents;
+        if (direction === 'asc') sortedStudents = allStudents.sort(ascSorter);
+        else if (direction === 'desc') sortedStudents = allStudents.sort(descSorter);
+
+        if (searchValue !== '') {
+            sortedStudents = sortedStudents.filter(
+                prevStudents =>
+                    prevStudents.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+                    prevStudents.lastName.toLowerCase().includes(searchValue.toLowerCase())
+            );
+        }
+
+        setStudents(sortedStudents);
+        setPage(0);
+    }
+
+    const handleSorterClick = property => {
+        let newSorter = {};
+        Object.keys(sorters).forEach(key => {
+            if (key === property) {
+                if (!sorters[key]) newSorter[key] = 'asc';
+                else if (sorters[key] === 'asc') newSorter[key] = 'desc';
+                else if (sorters[key] === 'desc') newSorter[key] = false;
+            } else newSorter[key] = false;
+        });
+        sortDataBy(property, newSorter[property]);
+        setSorters(newSorter);
     };
 
     return (
@@ -120,20 +160,46 @@ export default function AllStudents() {
                         <TableRow>
                             <TableCell>Name</TableCell>
                             <TableCell>Email</TableCell>
-                            <TableCell>Rating</TableCell>
+                            <TableCell>
+                                <TableSortLabel
+                                    active={sorters.avgRating}
+                                    direction={!sorters.avgRating ? 'asc' : sorters.avgRating}
+                                    onClick={() => handleSorterClick('avgRating')}
+                                >
+                                    Rating
+                                </TableSortLabel>
+                            </TableCell>
                             <TableCell align='center'>
                                 <Tooltip title='Is always on time'>
-                                    <AccessTimeIcon />
+                                    <TableSortLabel
+                                        active={sorters.sumPunctuality}
+                                        direction={!sorters.sumPunctuality ? 'asc' : sorters.sumPunctuality}
+                                        onClick={() => handleSorterClick('sumPunctuality')}
+                                    >
+                                        <AccessTimeIcon />
+                                    </TableSortLabel>
                                 </Tooltip>
                             </TableCell>
                             <TableCell align='center'>
                                 <Tooltip title='Do the homework'>
-                                    <InsertDriveFileIcon />
+                                    <TableSortLabel
+                                        active={sorters.sumMaterial}
+                                        direction={!sorters.sumMaterial ? 'asc' : sorters.sumMaterial}
+                                        onClick={() => handleSorterClick('sumMaterial')}
+                                    >
+                                        <InsertDriveFileIcon />
+                                    </TableSortLabel>
                                 </Tooltip>
                             </TableCell>
                             <TableCell align='center'>
                                 <Tooltip title='Pays attention and listens'>
-                                    <SentimentSatisfiedAltIcon />
+                                    <TableSortLabel
+                                        active={sorters.sumPolite}
+                                        direction={!sorters.sumPolite ? 'asc' : sorters.sumPolite}
+                                        onClick={() => handleSorterClick('sumPolite')}
+                                    >
+                                        <SentimentSatisfiedAltIcon />
+                                    </TableSortLabel>
                                 </Tooltip>
                             </TableCell>
                         </TableRow>
@@ -168,12 +234,15 @@ export default function AllStudents() {
                                     </TableRow>
                                 ) : (
                                     <>
-                                        {students.map(stu => (
+                                        {students.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(stu => (
                                             <TableRow key={stu.id}>
                                                 <TableCell>{`${stu.firstName} ${stu.lastName}`}</TableCell>
                                                 <TableCell>{stu.email}</TableCell>
                                                 <TableCell>
-                                                    <Rating precision={0.5} value={stu.avgRating} max={3} readOnly />
+                                                    <div style={{ display: 'flex', gap: 5 }}>
+                                                        <Rating precision={0.5} value={stu.avgRating} max={3} readOnly />
+                                                        <Typography>{`(${stu.avgRating.toFixed(2)})`}</Typography>
+                                                    </div>
                                                 </TableCell>
                                                 <TableCell align='center'>{stu.sumPunctuality}</TableCell>
                                                 <TableCell align='center'>{stu.sumMaterial}</TableCell>

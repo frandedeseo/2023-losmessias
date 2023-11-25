@@ -7,10 +7,12 @@ import { useUser } from '@/context/UserContext';
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 import { fetcherGetWithTokenDashboard } from '@/helpers/FetchHelpers';
+import useWindowSize from '@/hooks/useWindowSize';
 
 export default function MonthlyChart({ id, legend = false }) {
     const user = useUser();
     const [configDonut, setConfigDonut] = useState(null);
+    const windowSize = useWindowSize();
 
     const { data, isLoading } = useSWR(
         [`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/getStatistics?professorId=${id}`, user.token],
@@ -34,8 +36,9 @@ export default function MonthlyChart({ id, legend = false }) {
                 innerRadius: 0.55,
                 legend: {
                     legend: true,
-                    position: 'right',
+                    position: 'bottom',
                 },
+                width: 300,
                 color: colors,
                 label: {
                     type: 'inner',
@@ -82,14 +85,14 @@ export default function MonthlyChart({ id, legend = false }) {
                     }}
                 >
                     <CircularProgress />
-                    <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '1rem', textAlign: 'center', marginLeft: "0.5rem" }}>
+                    <Typography variant='h5' sx={{ marginBottom: '0.5rem', marginTop: '1rem', textAlign: 'center', marginLeft: '0.5rem' }}>
                         Loading...
                     </Typography>
                 </Box>
             ) : (
                 <>
                     {configDonut && (
-                        <div style={{ justifyContent: 'center', display: 'flex' }}>
+                        <div style={{ justifyContent: 'center', display: 'flex', justifySelf: 'center' }}>
                             <Pie {...configDonut} />
                         </div>
                     )}

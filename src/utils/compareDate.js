@@ -31,7 +31,7 @@ export function first_block(a, b) {
 }
 
 export function parseDate(date) {
-    let splittedDate = date.toISOString().split('T')[0].split('-');
-    splittedDate.shift();
+    let splittedDate = date.toLocaleString().split(',')[0].split('/');
+    splittedDate.pop();
     return splittedDate.join('/');
 }

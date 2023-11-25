@@ -7,12 +7,14 @@ import {
     Alert,
     Box,
     Button,
+    Checkbox,
     CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
     Divider,
+    FormControlLabel,
     Rating,
     Snackbar,
     Tab,
@@ -25,6 +27,7 @@ import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import useWindowSize from '@/hooks/useWindowSize';
 
 // Consts
 const dayNumber = {
@@ -54,8 +57,11 @@ export default function ProfessorLandingPage() {
     const [tab, setTab] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingFeedback, setIsLoadingFeedback] = useState(false);
-    const [feedbackStatus, setFeedbackStatus] = useState("info");
+    const [feedbackStatus, setFeedbackStatus] = useState('info');
     const [autoHideDuration, setAutoHideDuration] = useState(null);
+    const [day, setDay] = useState(1);
+    const windowSize = useWindowSize();
+    const [nullFeedback, setNullFeedback] = useState(false);
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
@@ -69,37 +75,44 @@ export default function ProfessorLandingPage() {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(
-                res => {
-                    if (res.status === 200) {
-                        res.json().then(json => {
-                            setDisabledBlocks(
-                                json.map(e => {
-                                    if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
-                                    return e;
-                                })
-                            );
-                        });
-                    }
-                    setIsLoading(false);
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
+                if (res.status === 200) {
+                    res.json().then(json => {
+                        setDisabledBlocks(
+                            json.map(e => {
+                                if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                return e;
+                            })
+                        );
+                    });
                 }
-            );
+                setIsLoading(false);
+            });
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res => {
                 if (res.status === 200) {
                     return res.json().then(json => {
                         json.pendingClassesFeedbacks.map(reservation => {
                             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
                                 res2.json().then(json2 => {
-                                    setPendingFeedback(prev => [
-                                        ...prev,
-                                        {
-                                            reservation_id: reservation,
-                                            receiver: {
-                                                id: json2.student.id,
-                                                name: `${json2.student.firstName} ${json2.student.lastName}`,
-                                            },
-                                        },
-                                    ]);
+                                    setPendingFeedback(prev => {
+                                        let exists = false;
+                                        prev.forEach(pfed => {
+                                            if (pfed.reservation_id === reservation) exists = true;
+                                        });
+
+                                        if (!exists)
+                                            return [
+                                                ...prev,
+                                                {
+                                                    reservation_id: reservation,
+                                                    receiver: {
+                                                        id: json2.student.id,
+                                                        name: `${json2.student.firstName} ${json2.student.lastName}`,
+                                                    },
+                                                },
+                                            ];
+                                        else return prev;
+                                    });
                                 });
                             });
                             setGiveFeedback(true);
@@ -129,8 +142,16 @@ export default function ProfessorLandingPage() {
 
     const handleDisable = () => {
         orderedSelectedBlocks.forEach(block => {
+            let date = new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toLocaleString().split(',')[0];
+            let dateElements = date.split('/');
+            let bubble = dateElements[0];
+            dateElements[0] = dateElements[2];
+            dateElements[2] = dateElements[1];
+            dateElements[1] = bubble;
+            date = dateElements.join('-');
+
             const reservation = {
-                day: new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0],
+                day: date,
                 startingHour: block.startingHour,
                 endingHour: block.endingHour,
                 duration: block.totalHours,
@@ -154,7 +175,7 @@ export default function ProfessorLandingPage() {
                     setDisabledBlocks(prevDisabled => [
                         ...prevDisabled,
                         {
-                            day: new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toISOString().split('T')[0].split('-'),
+                            day: dateElements,
                             startingHour: block.startingHour.split(':'),
                             endingHour: block.endingHour.split(':'),
                             status: 'NOT_AVAILABLE',
@@ -169,39 +190,78 @@ export default function ProfessorLandingPage() {
         setAlertMessage('Block has been disabled successfully!');
     };
 
+    const handleFeedbackNull = () => {
+        setFeedback({ rating: 0, time: 0, material: 0, kind: 0 });
+        setNullFeedback(false);
+        setPendingFeedback(prev => {
+            let receiverId = pendingFeedback[0].receiver.id;
+            var pfeedbacks = prev.filter(pfed => pfed.receiver.id !== receiverId);
+            if (pfeedbacks.length === 0) setGiveFeedback(false);
+            else setGiveFeedback(true);
+            return pfeedbacks;
+        });
+        fetch(
+            `${process.env.NEXT_PUBLIC_API_URI}/api/professor/removeFeedback/professor=${user.id}&student=${pendingFeedback[0].receiver.id}`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${user.token}`,
+                },
+            }
+        )
+            .then(res => {
+                setFeedbackStatus('success');
+            })
+            .catch(() => {
+                setFeedbackStatus('error');
+            })
+            .finally(() => {
+                setAutoHideDuration(1500);
+            });
+    };
+
     const handleFeedback = () => {
         setIsLoadingFeedback(true);
-        setFeedbackStatus("info");
-        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${user.token}`,
-            },
-            body: JSON.stringify({
-                studentId: pendingFeedback[0].receiver.id,
-                professorId: user.id,
-                roleReceptor: 'STUDENT',
-                classId: pendingFeedback[0].reservation_id,
-                rating: feedback.rating,
-                material: feedback.material,
-                punctuality: feedback.time,
-                polite: feedback.kind,
-            }),
-        }).then(res => {
-            if (res.status === 200) {
-                if (pendingFeedback.length === 1) setGiveFeedback(false);
-                setPendingFeedback(prev => {
-                    prev.shift();
-                    return prev;
+        setFeedbackStatus('info');
+
+        if (nullFeedback) handleFeedbackNull();
+        else {
+            setFeedback({ rating: 0, time: 0, material: 0, kind: 0 });
+            setNullFeedback(false);
+            if (pendingFeedback.length === 1) setGiveFeedback(false);
+            else setGiveFeedback(true);
+            setPendingFeedback(prev => {
+                prev.shift();
+                return prev;
+            });
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/feedback/giveFeedback`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${user.token}`,
+                },
+                body: JSON.stringify({
+                    studentId: pendingFeedback[0].receiver.id,
+                    professorId: user.id,
+                    roleReceptor: 'STUDENT',
+                    classId: pendingFeedback[0].reservation_id,
+                    rating: feedback.rating,
+                    material: feedback.material,
+                    punctuality: feedback.time,
+                    polite: feedback.kind,
+                }),
+            })
+                .then(res => {
+                    setFeedbackStatus('success');
+                })
+                .catch(() => {
+                    setFeedbackStatus('error');
+                })
+                .finally(() => {
+                    setAutoHideDuration(6000);
                 });
-            }
-            setFeedbackStatus("success");
-        }).catch(() => {
-            setFeedbackStatus("error");
-        }).finally(() => {
-            setAutoHideDuration(6000);
-        });
+        }
     };
 
     const handleFeedbackClick = opt => {
@@ -235,19 +295,33 @@ export default function ProfessorLandingPage() {
                         severity={feedbackStatus}
                         autoHideDuration={autoHideDuration}
                         onClose={() => {
-                            setFeedbackStatus("info");
+                            setFeedbackStatus('info');
                             setAutoHideDuration(null);
                             setIsLoadingFeedback(false);
                         }}
                     >
                         <Alert severity={feedbackStatus}>
-                            {feedbackStatus === "info" ? "Sending feedback..." : feedbackStatus === "success" ? "Feedback sent!" : "Error sending feedback"}
+                            {feedbackStatus === 'info'
+                                ? 'Sending feedback...'
+                                : feedbackStatus === 'success'
+                                ? 'Feedback sent!'
+                                : 'Error sending feedback'}
                         </Alert>
                     </Snackbar>
 
-                    <Typography variant='h4' sx={{ margin: '2% 0' }}>
-                        Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
-                    </Typography>
+                    {windowSize.width > 500 && (
+                        <Typography variant='h4' sx={{ margin: '2% 0' }}>
+                            Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
+                        </Typography>
+                    )}
+
+                    {windowSize.width <= 500 && (
+                        <>
+                            <Typography variant='h5' sx={{ margin: '2% 0' }} textAlign='center'>
+                                Hi{' ' + user.firstName + ' ' + user.lastName}
+                            </Typography>
+                        </>
+                    )}
 
                     <Tabs value={tab} onChange={handleTabChange}>
                         <Tab label='Agenda' />
@@ -293,13 +367,26 @@ export default function ProfessorLandingPage() {
                                         </tr>
                                     </tbody>
                                 </table>
-                                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+                                {windowSize.width > 500 && (
+                                    <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+                                )}
                             </div>
+
+                            {windowSize.width <= 500 && (
+                                <CalendarPagination
+                                    week={week}
+                                    setWeek={setWeek}
+                                    day={day}
+                                    setDay={setDay}
+                                    setSelectedBlocks={setSelectedBlocks}
+                                />
+                            )}
                             <Calendar
                                 selectedBlocks={selectedBlocks}
                                 setSelectedBlocks={setSelectedBlocks}
                                 disabledBlocks={disabledBlocks}
                                 week={week}
+                                day={day}
                                 showData
                             />
 
@@ -394,6 +481,11 @@ export default function ProfessorLandingPage() {
                                         />
                                     </Tooltip>
                                 </div>
+
+                                <FormControlLabel
+                                    label='I dont want to give feedback'
+                                    control={<Checkbox checked={nullFeedback} onChange={event => setNullFeedback(event.target.checked)} />}
+                                />
                             </DialogContent>
                             <DialogActions>
                                 <Button onClick={() => setGiveFeedback(false)}>Close</Button>

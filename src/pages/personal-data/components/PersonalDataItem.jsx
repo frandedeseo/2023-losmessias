@@ -4,7 +4,7 @@ const { Typography, Skeleton } = require("@mui/material");
 
 export default function PersonalDataItem({ name, value, isLoading }) {
     return (
-        <div style={{ flexDirection: "row", display: "flex" }}>
+        <div style={{ flexDirection: "row", display: "flex", flexWrap: 'wrap' }}>
             {isLoading || (!name && !value) ? (
                 <>
                     <Skeleton variant="text" width={100} height={35} sx={{ margin: '1% 0% 1% 5%' }} />
