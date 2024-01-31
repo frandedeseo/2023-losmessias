@@ -29,11 +29,11 @@ export default function Validator() {
     const [alertSeverity, setAlertSeverity] = useState('');
     const user = useUser();
     const router = useRouter();
-    const { data, isLoading, mutate } = useSWR([
-        `${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`,
-        user.token],
+    const { data, isLoading, mutate } = useSWR(
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`, user.token],
         fetcherGetWithToken,
-        { fallbackData: [] })
+        { fallbackData: [] }
+    );
 
     useEffect(() => {
         if (user.id) {
@@ -74,7 +74,7 @@ export default function Validator() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${user.token}`
+                Authorization: `Bearer ${user.token}`,
             },
             body: JSON.stringify({
                 professorId: teacherSubject.professor.id,
@@ -120,7 +120,7 @@ export default function Validator() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${user.token}`
+                Authorization: `Bearer ${user.token}`,
             },
             body: JSON.stringify({
                 professorId: teacherSubject.professor.id,
@@ -168,12 +168,7 @@ export default function Validator() {
             <div style={{ paddingBlock: '1rem' }} />
             <Searchbar search={handleSearch} />
             <div style={styles.divPadding} />
-            <TeachersTable
-                isLoading={isLoading}
-                data={teachersSubjects}
-                approve={handleApprove}
-                reject={handleReject}
-            />
+            <TeachersTable isLoading={isLoading} data={teachersSubjects} approve={handleApprove} reject={handleReject} />
 
             <Snackbar
                 open={alert}

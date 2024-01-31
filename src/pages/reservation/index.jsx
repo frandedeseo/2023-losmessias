@@ -51,7 +51,7 @@ export default function Reservation() {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/get-uploaded-data?id=${router.query.id}`, requestOptions)
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/loadedData/get-uploaded-data?id=${router.query.id}`, requestOptions)
                 .then(res => {
                     res.json().then(json => {
                         let comments = [];

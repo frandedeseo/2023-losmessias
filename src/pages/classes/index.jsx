@@ -62,7 +62,7 @@ export default function Classes() {
                     Authorization: `Bearer ${user.token}`
                 },
             };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findBy${camelCaseUserRole}?${user.role}Id=${user.id}`, requestOptions)
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByAppUserId?appUserId=${user.id}`, requestOptions)
                 .then(res => {
                     if (!res.ok) throw Error(res.status);
                     res.json().then(json => {

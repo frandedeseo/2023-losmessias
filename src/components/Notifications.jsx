@@ -32,7 +32,7 @@ export default function Notifications() {
                 return n;
             });
             notifications.map((n) => {
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/notification/open-${user.role}-notification?id=${n.id}`, {
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/notification/open-notification?id=${n.id}`, {
                     method: 'POST',
                     headers: {
                         Authorization: `Bearer ${user.token}`,
@@ -47,7 +47,7 @@ export default function Notifications() {
 
     useEffect(() => {
         if (user.authenticated) {
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/notification/${user.role}-all?id=${user.id}`, {
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/notification/all?id=${user.id}`, {
                 method: 'GET',
                 headers: {
                     Authorization: `Bearer ${user.token}`,

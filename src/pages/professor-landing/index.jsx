@@ -75,7 +75,7 @@ export default function ProfessorLandingPage() {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByAppUserId?appUserId=${user.id}`, requestOptions).then(res => {
                 if (res.status === 200) {
                     res.json().then(json => {
                         setDisabledBlocks(
@@ -154,7 +154,6 @@ export default function ProfessorLandingPage() {
                 day: date,
                 startingHour: block.startingHour,
                 endingHour: block.endingHour,
-                duration: block.totalHours,
                 professorId: parseInt(user.id),
             };
 

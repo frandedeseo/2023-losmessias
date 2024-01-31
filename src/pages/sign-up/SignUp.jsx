@@ -24,7 +24,7 @@ export default function SignUp({ setRequest, setPage }) {
 
     const [error, setError] = useState("");
     const [role, setRole] = useState('Student');
-    const [sex, setSex] = useState('Male');
+    const [sex, setSex] = useState('MALE');
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSubmit = async (event) => {
@@ -88,8 +88,8 @@ export default function SignUp({ setRequest, setPage }) {
                             onChange={(event, newAlignment) => setSex(newAlignment)}
                             aria-label="Platform"
                         >
-                            <ToggleButton value="Male">Male</ToggleButton>
-                            <ToggleButton value="Female">Female</ToggleButton>
+                            <ToggleButton value="MALE">Male</ToggleButton>
+                            <ToggleButton value="FEMALE">Female</ToggleButton>
                         </ToggleButtonGroup>
                     </Grid>
 

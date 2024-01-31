@@ -1,24 +1,22 @@
-import { Box, Fab, Typography, Grid } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
+import { Box, Fab, Typography, Grid } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 import CheckIcon from '@mui/icons-material/Check';
-import { Cancel } from "@mui/icons-material";
-import { useEffect, useState } from "react";
-import PersonalDataDisplay from "./components/PersonalDataDisplay";
-import PersonalDataEdit from "./components/PersonalDataEdit";
-import { styles } from "../../styles/personal-data-styles";
-import { useUser } from "@/context/UserContext";
-import useSWR from "swr";
-import { fetcherGetWithToken } from "@/helpers/FetchHelpers";
-import LoadingModal from "@/components/modals/LoadingModal";
-import { useRouter } from "next/router";
-
-
+import { Cancel } from '@mui/icons-material';
+import { useEffect, useState } from 'react';
+import PersonalDataDisplay from './components/PersonalDataDisplay';
+import PersonalDataEdit from './components/PersonalDataEdit';
+import { styles } from '../../styles/personal-data-styles';
+import { useUser } from '@/context/UserContext';
+import useSWR from 'swr';
+import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
+import LoadingModal from '@/components/modals/LoadingModal';
+import { useRouter } from 'next/router';
 
 export default function PersonalData() {
     const [editMode, setEditMode] = useState(false);
-    const [emailAddress, setEmailAddress] = useState("");
-    const [location, setLocation] = useState("");
-    const [phone, setPhone] = useState("");
+    const [emailAddress, setEmailAddress] = useState('');
+    const [location, setLocation] = useState('');
+    const [phone, setPhone] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const user = useUser();
     const router = useRouter();
@@ -29,43 +27,50 @@ export default function PersonalData() {
                 router.push('/');
             }
         }
-    }, [router, user])
-
+    }, [router, user]);
 
     const { data, isLoading, mutate } = useSWR(
         [`${process.env.NEXT_PUBLIC_API_URI}/api/${user.role}/${user.id}`, user.token],
-        fetcherGetWithToken);
+        fetcherGetWithToken,
+        {
+            fallbackData: [],
+        }
+    );
+
+    useEffect(() => {
+        console.log(data);
+    }, [data]);
 
     const handleSave = () => {
         if (editMode) {
-            setEditMode(false)
-            setIsProcessing(true)
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/${user.role}/update/${user.id}`, {
+            setEditMode(false);
+            setIsProcessing(true);
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/app-user/update/${user.id}`, {
                 method: 'PATCH',
                 body: JSON.stringify({
-                    email: (emailAddress ? emailAddress : null),
-                    location: (location ? location : null),
-                    phone: (phone ? phone : null)
+                    email: emailAddress ? emailAddress : null,
+                    location: location ? location : null,
+                    phone: phone ? phone : null,
                 }),
                 headers: {
                     'Content-type': 'application/json; charset=UTF-8',
-                    Authorization: `Bearer ${user.token}`
+                    Authorization: `Bearer ${user.token}`,
                 },
             })
-                .then((res) => {
+                .then(res => {
                     if (!res.ok) throw Error(res.status);
-                    res.json()
+                    res.json();
                 })
-                .then((response) => mutate(response))
-                .catch((err) => console.log(err)).finally(() => setIsProcessing(false));
+                .then(response => mutate(response))
+                .catch(err => console.log(err))
+                .finally(() => setIsProcessing(false));
         } else {
-            setEditMode(true)
-            setEmailAddress("")
-            setLocation("")
-            setPhone("")
+            setEditMode(true);
+            setEmailAddress('');
+            setLocation('');
+            setPhone('');
         }
-    }
-
+    };
 
     return (
         <>
@@ -74,33 +79,18 @@ export default function PersonalData() {
                     My personal information
                 </Typography>
                 {editMode ? (
-                    <Grid container justifyContent="flex-end" sx={{ width: 230 }}>
-                        <Fab
-                            color="error"
-                            aria-label="edit"
-                            onClick={() => setEditMode(false)}
-                            style={{ marginRight: "1rem" }}
-                        >
+                    <Grid container justifyContent='flex-end' sx={{ width: 230 }}>
+                        <Fab color='error' aria-label='edit' onClick={() => setEditMode(false)} style={{ marginRight: '1rem' }}>
                             <Cancel />
                         </Fab>
-                        <Fab
-                            color="success"
-                            aria-label="edit"
-                            onClick={() => handleSave()}
-
-                        >
+                        <Fab color='success' aria-label='edit' onClick={() => handleSave()}>
                             <CheckIcon />
                         </Fab>
                     </Grid>
                 ) : (
-                    <Grid container justifyContent="flex-end" sx={{ width: 70 }}>
-                        <Fab
-                            color={"primary"}
-                            aria-label="edit"
-                            onClick={() => handleSave()}
-
-                        >
-                            {editMode ? <CheckIcon /> : (<EditIcon />)}
+                    <Grid container justifyContent='flex-end' sx={{ width: 70 }}>
+                        <Fab color={'primary'} aria-label='edit' onClick={() => handleSave()}>
+                            {editMode ? <CheckIcon /> : <EditIcon />}
                         </Fab>
                     </Grid>
                 )}
@@ -108,12 +98,7 @@ export default function PersonalData() {
             {!editMode ? (
                 <PersonalDataDisplay data={data} isLoading={isLoading} />
             ) : (
-                <PersonalDataEdit
-                    data={data}
-                    setEmailAddress={setEmailAddress}
-                    setLocation={setLocation}
-                    setPhone={setPhone}
-                />
+                <PersonalDataEdit data={data} setEmailAddress={setEmailAddress} setLocation={setLocation} setPhone={setPhone} />
             )}
             <LoadingModal isOpen={isProcessing} message={'Processing changes...'} />
         </>

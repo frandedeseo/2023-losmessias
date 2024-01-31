@@ -251,7 +251,7 @@ export const useApi = () => {
             }),
         };
         setIsProcessing(true);
-        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/changePassword`, requestOptions)
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/app-user/changePassword`, requestOptions)
             .then(response => {
                 if (response.status === 200) {
                     router.push("/");
