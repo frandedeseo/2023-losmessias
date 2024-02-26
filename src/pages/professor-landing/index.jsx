@@ -80,7 +80,14 @@ export default function ProfessorLandingPage() {
                     res.json().then(json => {
                         setDisabledBlocks(
                             json.map(e => {
+                                e['day'] = e.date;
+                                if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
                                 if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
+                                if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
+                                if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
+                                if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
+                                console.log(e);
                                 return e;
                             })
                         );

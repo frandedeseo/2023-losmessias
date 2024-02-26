@@ -1,3 +1,4 @@
+import { NextResponse } from 'next/server';
 import { createContext, useContext, useReducer, useEffect } from 'react';
 
 export const UserContext = createContext(null);
@@ -8,7 +9,7 @@ const initialUser = {
     authenticated: false,
     token: '',
     role: '',
-    loaded: false
+    loaded: false,
 };
 
 export function useUser() {
@@ -22,6 +23,11 @@ export function useUserDispatch() {
 function userReducer(user, action) {
     switch (action.type) {
         case 'login': {
+            const response = fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: action.payload,
+            });
             localStorage.setItem('user', JSON.stringify(action.payload));
             return { ...action.payload, authenticated: true };
         }

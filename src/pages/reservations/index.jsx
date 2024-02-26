@@ -81,14 +81,15 @@ export default function Reservation() {
                 headers: { Authorization: `Bearer ${user.token}` },
             };
             fetch(
-                `${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${router.query.professorId}`,
+                `${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByAppUserId?appUserId=${router.query.professorId}`,
                 requestOptions
             ).then(res => {
                 res.json().then(json => {
                     setDisabledBlocks(
                         json.map(e => {
-                            if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
-                            if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                            e['day'] = e.date;
+                            if (e.date[1] < 10) e.day[1] = '0' + e.date[1];
+                            if (e.date[2] < 10) e.day[2] = '0' + e.date[2];
                             if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
                             if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
                             if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
@@ -111,13 +112,14 @@ export default function Reservation() {
 
     const handleReserve = () => {
         orderedSelectedBlocks.forEach(block => {
-            let date = new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toLocaleString().split(',')[0];
-            let dateElements = date.split('/');
-            let bubble = dateElements[0];
-            dateElements[0] = dateElements[2];
-            dateElements[2] = dateElements[1];
-            dateElements[1] = bubble;
-            date = dateElements.join('-');
+            let date = new Date(curr.setDate(first + dayNumber[block.day] + 7 * week));
+            const year = date.toLocaleString('default', { year: 'numeric' });
+            const month = date.toLocaleString('default', {
+                month: '2-digit',
+            });
+            const day = date.toLocaleString('default', { day: '2-digit' });
+
+            date = [year, month, day].join('-');
 
             const reservation = {
                 day: date,

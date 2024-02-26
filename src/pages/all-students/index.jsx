@@ -219,7 +219,7 @@ export default function AllStudents() {
                                             }}
                                         >
                                             <CircularProgress sx={{ mr: 2 }} />
-                                            <Typography variant='h4'>Loading professors...</Typography>
+                                            <Typography variant='h4'>Loading students...</Typography>
                                         </Box>
                                     </TableCell>
                                 </TableRow>
@@ -240,13 +240,13 @@ export default function AllStudents() {
                                                 <TableCell>{stu.email}</TableCell>
                                                 <TableCell>
                                                     <div style={{ display: 'flex', gap: 5 }}>
-                                                        <Rating precision={0.5} value={stu.avgRating} max={3} readOnly />
-                                                        <Typography>{`(${stu.avgRating.toFixed(2)})`}</Typography>
+                                                        <Rating precision={0.5} value={stu.feedbackReceived.avgRating} max={3} readOnly />
+                                                        <Typography>{`(${stu.feedbackReceived.avgRating.toFixed(2)})`}</Typography>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell align='center'>{stu.sumPunctuality}</TableCell>
-                                                <TableCell align='center'>{stu.sumMaterial}</TableCell>
-                                                <TableCell align='center'>{stu.sumPolite}</TableCell>
+                                                <TableCell align='center'>{stu.feedbackReceived.sumPunctuality}</TableCell>
+                                                <TableCell align='center'>{stu.feedbackReceived.sumMaterial}</TableCell>
+                                                <TableCell align='center'>{stu.feedbackReceived.sumPolite}</TableCell>
                                             </TableRow>
                                         ))}
                                     </>

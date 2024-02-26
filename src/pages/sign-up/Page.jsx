@@ -15,7 +15,6 @@ import { CircularProgress } from '@mui/material';
 const defaultTheme = createTheme();
 
 export default function Page({ page, setPage }) {
-    
     const [request, setRequest] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
@@ -24,16 +23,9 @@ export default function Page({ page, setPage }) {
 
     useEffect(() => {
         setIsLoading(true);
-        if (router.isReady && user.authenticated) {
-            if (user.role=='student'){
-                router.push("/student-landing");
-            }else if(user.role=="professor"){
-                router.push("/professor-landing");
-            }else{
-                router.push("/admin-landing");
-            }
+        if (router.isReady) {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     }, [router, user]);
 
     return (
@@ -52,41 +44,40 @@ export default function Page({ page, setPage }) {
                     </Box>
                 </>
             ) : (
-            <Grid container component='main' justifyContent='center' direction='row' sx={{ height: '91vh' }}>
-                <CssBaseline />
-                <Grid
-                    item
-                    xs={false}
-                    sm={4}
-                    md={7}
-                    sx={{
-                        backgroundImage:
-                            'url(https://buscatusclases.com/wp-content/uploads/2022/06/profesor-particular-verano-alumnos.jpg)',
-                        backgroundRepeat: 'no-repeat',
-                        backgroundColor: t => (t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900]),
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                    }}
-                />
-                <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
-                    <Box
+                <Grid container component='main' justifyContent='center' direction='row' sx={{ height: '91vh' }}>
+                    <CssBaseline />
+                    <Grid
+                        item
+                        xs={false}
+                        sm={4}
+                        md={7}
                         sx={{
-                            my: 6,
-                            mx: 4,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
+                            backgroundImage:
+                                'url(https://buscatusclases.com/wp-content/uploads/2022/06/profesor-particular-verano-alumnos.jpg)',
+                            backgroundRepeat: 'no-repeat',
+                            backgroundColor: t => (t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900]),
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center',
                         }}
-                    >
-                        {page=="signup" && (
-                            <SignUp setRequest={setRequest} setPage={setPage}></SignUp>
-                        )}
-                        {page=="forgot-password" && <ForgotPassword setPage={setPage}></ForgotPassword>}
-                        {page=="login"  && <LogIn setPage={setPage}></LogIn>}
-                        {page=="transferlist"  && <TransferList request={request} setPage={setPage}></TransferList>}
-                    </Box>
+                    />
+                    <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+                        <Box
+                            sx={{
+                                my: 6,
+                                mx: 4,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                            }}
+                        >
+                            {page == 'signup' && <SignUp setRequest={setRequest} setPage={setPage}></SignUp>}
+                            {page == 'forgot-password' && <ForgotPassword setPage={setPage}></ForgotPassword>}
+                            {page == 'login' && <LogIn setPage={setPage}></LogIn>}
+                            {page == 'transferlist' && <TransferList request={request} setPage={setPage}></TransferList>}
+                        </Box>
+                    </Grid>
                 </Grid>
-            </Grid>)}
+            )}
         </ThemeProvider>
     );
 }

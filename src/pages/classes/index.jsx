@@ -44,12 +44,9 @@ export default function Classes() {
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
-
-    const { data: subjects } = useSWR(
-        [`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`, user.token],
-        fetcherGetWithToken,
-        { fallbackData: [] }
-    );
+    const { data: subjects } = useSWR([`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`, user.token], fetcherGetWithToken, {
+        fallbackData: [],
+    });
 
     useEffect(() => {
         if (user.id) {
@@ -59,7 +56,7 @@ export default function Classes() {
                 method: 'GET',
                 headers: {
                     'Content-type': 'application/json',
-                    Authorization: `Bearer ${user.token}`
+                    Authorization: `Bearer ${user.token}`,
                 },
             };
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByAppUserId?appUserId=${user.id}`, requestOptions)
@@ -67,14 +64,16 @@ export default function Classes() {
                     if (!res.ok) throw Error(res.status);
                     res.json().then(json => {
                         setData(json);
-                        setClasses(json.filter((resrv) => resrv.status !== "NOT_AVAILABLE"));
+                        console.log(json);
+                        setClasses(json.filter(resrv => resrv.status !== 'NOT_AVAILABLE'));
                     });
-                }).catch(err => console.log(err))
+                })
+                .catch(err => console.log(err))
                 .finally(() => setIsLoading(false));
         } else {
             router.push('/');
         }
-    }, [router, user, camelCaseUserRole])
+    }, [router, user, camelCaseUserRole]);
 
     const handleCancel = id => {
         setIsProcessing(true);
@@ -86,17 +85,19 @@ export default function Classes() {
             },
             body: JSON.stringify({
                 id,
-                role: user.role.toUpperCase(),
+                idCancelsUser: user.id,
             }),
-        }).then(res => {
-            if (res.status !== 200) {
-                setAlertSeverity('error');
-                setAlertMessage('There was an error making the reservation!');
-                setAlert(true);
-            } else {
-                setClasses(prevClasses => prevClasses.filter(reservation => reservation.id !== id));
-            }
-        }).finally(() => setIsProcessing(false));
+        })
+            .then(res => {
+                if (res.status !== 200) {
+                    setAlertSeverity('error');
+                    setAlertMessage('There was an error making the reservation!');
+                    setAlert(true);
+                } else {
+                    setClasses(prevClasses => prevClasses.filter(reservation => reservation.id !== id));
+                }
+            })
+            .finally(() => setIsProcessing(false));
     };
 
     const handleSubjectChange = event => {
@@ -109,9 +110,9 @@ export default function Classes() {
                 data.filter(reservation =>
                     user.role === 'student'
                         ? reservation.professor.firstName.toLowerCase().includes(search.toLowerCase()) ||
-                        reservation.professor.lastName.toLowerCase().includes(search.toLowerCase())
+                          reservation.professor.lastName.toLowerCase().includes(search.toLowerCase())
                         : reservation.student.firstName.toLowerCase().includes(search.toLowerCase()) ||
-                        reservation.student.lastName.toLowerCase().includes(search.toLowerCase())
+                          reservation.student.lastName.toLowerCase().includes(search.toLowerCase())
                 )
             );
         } else if (search === '' && subjectSelected.length > 0) {
@@ -122,9 +123,9 @@ export default function Classes() {
                     reservation =>
                         (user.role === 'student'
                             ? reservation.professor.firstName.toLowerCase().includes(search.toLowerCase()) ||
-                            reservation.professor.lastName.toLowerCase().includes(search.toLowerCase())
+                              reservation.professor.lastName.toLowerCase().includes(search.toLowerCase())
                             : reservation.student.firstName.toLowerCase().includes(search.toLowerCase()) ||
-                            reservation.student.lastName.toLowerCase().includes(search.toLowerCase())) &&
+                              reservation.student.lastName.toLowerCase().includes(search.toLowerCase())) &&
                         subjectSelected.includes(reservation.subject.name)
                 )
             );
@@ -140,7 +141,8 @@ export default function Classes() {
 
     return (
         <>
-            <Grid container
+            <Grid
+                container
                 sx={{
                     display: 'flex',
                     backgroundColor: '#F5F5F5',

@@ -272,13 +272,13 @@ export default function AllProfessors() {
                                                 </TableCell>
                                                 <TableCell>
                                                     <div style={{ display: 'flex', gap: 5 }}>
-                                                        <Rating precision={0.5} value={prof.avgRating} max={3} readOnly />
-                                                        <Typography>{`(${prof.avgRating.toFixed(2)})`}</Typography>
+                                                        <Rating precision={0.5} value={prof.feedbackReceived.avgRating} max={3} readOnly />
+                                                        <Typography>{`(${prof.feedbackReceived.avgRating.toFixed(2)})`}</Typography>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell align='center'>{prof.sumPunctuality}</TableCell>
-                                                <TableCell align='center'>{prof.sumMaterial}</TableCell>
-                                                <TableCell align='center'>{prof.sumPolite}</TableCell>
+                                                <TableCell align='center'>{prof.feedbackReceived.sumPunctuality}</TableCell>
+                                                <TableCell align='center'>{prof.feedbackReceived.sumMaterial}</TableCell>
+                                                <TableCell align='center'>{prof.feedbackReceived.sumPolite}</TableCell>
                                                 <TableCell align='right'>
                                                     <Button variant='contained' onClick={() => handleClick(prof.id)}>
                                                         Dashboard

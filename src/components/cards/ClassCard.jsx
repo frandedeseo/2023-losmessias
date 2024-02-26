@@ -40,9 +40,9 @@ function parseTime(reservation) {
 
 function check_cancellation_late(reservation, curr_date) {
     if (
-        parseInt(reservation.day[2]) >= parseInt(curr_date[2]) - 2 &&
-        parseInt(reservation.day[1]) === parseInt(curr_date[1]) &&
-        parseInt(reservation.day[0]) === parseInt(curr_date[0])
+        parseInt(reservation.date[2]) >= parseInt(curr_date[2]) - 2 &&
+        parseInt(reservation.date[1]) === parseInt(curr_date[1]) &&
+        parseInt(reservation.date[0]) === parseInt(curr_date[0])
     )
         return true;
 
@@ -51,13 +51,14 @@ function check_cancellation_late(reservation, curr_date) {
 
 function check_cancellation_valid(reservation, curr_date) {
     if (
-        parseInt(reservation.day[2]) < parseInt(curr_date[2]) &&
-        parseInt(reservation.day[1]) === parseInt(curr_date[1]) &&
-        parseInt(reservation.day[0]) === parseInt(curr_date[0])
+        parseInt(reservation.date[2]) < parseInt(curr_date[2]) &&
+        parseInt(reservation.date[1]) === parseInt(curr_date[1]) &&
+        parseInt(reservation.date[0]) === parseInt(curr_date[0])
     )
         return false;
-    else if (parseInt(reservation.day[1]) < parseInt(curr_date[1]) && parseInt(reservation.day[0]) === parseInt(curr_date[0])) return true;
-    else if (parseInt(reservation.day[0]) < parseInt(curr_date[0])) return true;
+    else if (parseInt(reservation.date[1]) < parseInt(curr_date[1]) && parseInt(reservation.date[0]) === parseInt(curr_date[0]))
+        return true;
+    else if (parseInt(reservation.date[0]) < parseInt(curr_date[0])) return true;
 
     return true;
 }
@@ -112,7 +113,7 @@ export default function ClassCard({ reservation, style, cancel }) {
                                         <CalendarTodayIcon />
                                     </ListItemIcon>
                                     <Typography variant='body1' color='text.secondary'>
-                                        {reservation.day.join('/')}
+                                        {reservation.date.join('/')}
                                     </Typography>
                                 </ListItem>
                                 <ListItem>
