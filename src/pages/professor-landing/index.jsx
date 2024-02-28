@@ -69,8 +69,6 @@ export default function ProfessorLandingPage() {
     useEffect(() => {
         setIsLoading(true);
         if (user.id) {
-            if (user.role == 'student') router.push('/student-landing');
-            if (user.role === 'admin') router.push('/admin-landing');
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
@@ -127,10 +125,8 @@ export default function ProfessorLandingPage() {
                     });
                 }
             });
-        } else {
-            router.push('/');
         }
-    }, [router, user]);
+    }, [user]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);

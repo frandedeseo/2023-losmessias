@@ -1,5 +1,18 @@
 import { NextResponse } from 'next/server';
 import { createContext, useContext, useReducer, useEffect } from 'react';
+//import { cookies } from 'next/headers';
+import jwt_decode from 'jwt-decode';
+import * as Cookies from 'js-cookie';
+
+export const getSessionCookie = () => {
+    const sessionCookie = Cookies.get('token');
+    console.log(sessionCookie);
+    if (sessionCookie === undefined) {
+        return {};
+    } else {
+        return JSON.parse(sessionCookie);
+    }
+};
 
 export const UserContext = createContext(null);
 export const UserDispatchContext = createContext(null);
@@ -23,11 +36,6 @@ export function useUserDispatch() {
 function userReducer(user, action) {
     switch (action.type) {
         case 'login': {
-            const response = fetch('/api/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: action.payload,
-            });
             localStorage.setItem('user', JSON.stringify(action.payload));
             return { ...action.payload, authenticated: true };
         }

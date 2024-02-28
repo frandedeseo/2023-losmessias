@@ -58,9 +58,7 @@ export default function AllProfessors() {
 
     useEffect(() => {
         setIsLoading(true);
-        if (router.isReady && user.id) {
-            if (user.role == 'professor') router.push('/professor-landing');
-            if (user.role === 'student') router.push('/student-landing');
+        if (user.id) {
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
@@ -73,10 +71,8 @@ export default function AllProfessors() {
                     })
                 )
                 .finally(() => setIsLoading(false));
-        } else {
-            router.push('/');
         }
-    }, [user, router]);
+    }, [user]);
 
     const applySearchFilter = (searchValue, filterValues) => {
         if (searchValue !== '' && filterValues.length === 0) {

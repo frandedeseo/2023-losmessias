@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { serialize } from 'cookie';
 
 export default async function POST(request, res) {
     const { emailRequest, passwordRequest } = await request.body;
@@ -15,20 +16,20 @@ export default async function POST(request, res) {
 
     if (response.status === 200) {
         const json = await response.json();
-        console.log(json);
-
         let token = json.token;
+        console.log(token);
 
-        const responseData = {
-            token,
-        };
-        res.headers = {
-            'Set-Cookie': `myTokenName=${token}; HttpOnly; Secure=${process.env.NODE_ENV === 'production'}; SameSite=Strict; Max-Age=${
-                1000 * 60 * 60 * 24 * 30
-            }; Path=/`,
-            'Content-Type': 'application/json',
-        };
-        return res.json({ token: responseData });
+        const serialized = serialize('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 1000 * 60 * 60 * 24 * 30,
+            path: '/',
+        });
+
+        res.setHeader('Set-Cookie', serialized);
+
+        return res.json({ token: token });
     } else {
         console.log('Error:', response.status);
         return {

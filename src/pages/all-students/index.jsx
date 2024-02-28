@@ -49,28 +49,22 @@ export default function AllStudents() {
     const [sorters, setSorters] = useState({ avgRating: false, sumPunctuality: false, sumMaterial: false, sumPolite: false });
 
     useEffect(() => {
-        if (router.isReady && user.id) {
-            if (user.authenticated) {
-                if (user.role === 'student') router.push('/student-landing');
-                if (user.role === 'professor') router.push('/professor-landing');
-                const requestOptions = {
-                    method: 'GET',
-                    headers: { Authorization: `Bearer ${user.token}` },
-                };
-                setIsLoading(true);
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/all`, requestOptions)
-                    .then(res =>
-                        res.json().then(json => {
-                            setAllStudents(json);
-                            setStudents(json);
-                        })
-                    )
-                    .finally(() => setIsLoading(false));
-            } else {
-                router.push('/');
-            }
+        if (user.id && user.authenticated) {
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${user.token}` },
+            };
+            setIsLoading(true);
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/all`, requestOptions)
+                .then(res =>
+                    res.json().then(json => {
+                        setAllStudents(json);
+                        setStudents(json);
+                    })
+                )
+                .finally(() => setIsLoading(false));
         }
-    }, [router, user]);
+    }, [user]);
 
     const handleSearch = e => {
         e.preventDefault();

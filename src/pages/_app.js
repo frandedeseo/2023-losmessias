@@ -5,35 +5,18 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { UserContext } from '@/context/UserContext';
 import { UserProvider } from '@/context/UserContext';
+import { useUserDispatch } from '@/context/UserContext';
 
-export default function App({ Component, pageProps }) {
-    // const router = useRouter();
-    // const [isLoading, setIsLoading] = useState(true);
-
-    // const { asPath } = useRouter();
+export default function App({ Component, pageProps, data }) {
+    // const dispatch = useUserDispatch();
 
     // useEffect(() => {
-    //     setIsLoading(true);
-    //     const fetchData = async () => {
-    //         const user = JSON.parse(localStorage.getItem('user'));
-    //         console.log(asPath);
-    //         setIsLoading(false);
-    //     };
-
-    //     const handleRouteChange = () => {
-    //         setIsLoading(false);
-    //     };
-
-    //     router.events.on('routeChangeComplete', handleRouteChange);
-
-    //     if (router.isReady && asPath) {
-    //         fetchData();
-    //     }
-
-    //     return () => {
-    //         router.events.off('routeChangeComplete', handleRouteChange);
-    //     };
-    // }, [asPath, router]);
+    //     console.log(pageProps);
+    //     dispatch({
+    //         type: 'login',
+    //         payload: data,
+    //     });
+    // }, []);
 
     return (
         <Layout>

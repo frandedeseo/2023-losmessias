@@ -74,8 +74,6 @@ export default function Reservation() {
 
     useEffect(() => {
         if (router.isReady && user.id) {
-            if (user.role == 'professor') router.push('/professor-landing');
-            if (user.role === 'admin') router.push('/admin-landing');
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
@@ -100,8 +98,6 @@ export default function Reservation() {
                     );
                 });
             });
-        } else {
-            router.push('/');
         }
     }, [user, router]);
 

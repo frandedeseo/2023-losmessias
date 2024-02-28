@@ -14,12 +14,12 @@ import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 import { useUser } from '@/context/UserContext';
 import { useRouter } from 'next/router';
 
-export async function getServerSideProps() {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`);
-    if (!res.ok) return { props: { data: [] } };
-    const data = await res.json();
-    return { props: { data } };
-}
+// export async function getServerSideProps() {
+//     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`);
+//     if (!res.ok) return { props: { data: [] } };
+//     const data = await res.json();
+//     return { props: { data } };
+// }
 
 export default function Validator() {
     const [allTeachersSubjects, setAllTeachersSubjects] = useState([]);

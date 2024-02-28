@@ -46,9 +46,7 @@ export default function AdminLandingPage() {
 
     useEffect(() => {
         setIsLoading(true);
-        if (router.isReady && user.id) {
-            if (user.role === 'professor') router.push('/professor-landing');
-            if (user.role == 'student') router.push('/student-landing');
+        if (user.id) {
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
@@ -67,10 +65,8 @@ export default function AdminLandingPage() {
                     setSubjects(json);
                 })
             );
-        } else {
-            router.push('/');
         }
-    }, [user, rowsPerPage, router]);
+    }, [user, rowsPerPage]);
 
     const applySearchFilter = (searchValue, filterValues) => {
         if (searchValue !== '' && filterValues.length === 0) {

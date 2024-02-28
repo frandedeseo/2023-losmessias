@@ -74,7 +74,6 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
     const windowSize = useWindowSize();
 
     let test = new Date().toLocaleString();
-    console.log(test);
 
     const handleBlockSelection = (block, day) => {
         if (!block_disabled(block, day)) {

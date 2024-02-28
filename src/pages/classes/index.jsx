@@ -50,7 +50,6 @@ export default function Classes() {
 
     useEffect(() => {
         if (user.id) {
-            if (user.role === 'admin') router.push('/admin-landing');
             setIsLoading(true);
             const requestOptions = {
                 method: 'GET',
@@ -64,16 +63,13 @@ export default function Classes() {
                     if (!res.ok) throw Error(res.status);
                     res.json().then(json => {
                         setData(json);
-                        console.log(json);
                         setClasses(json.filter(resrv => resrv.status !== 'NOT_AVAILABLE'));
                     });
                 })
                 .catch(err => console.log(err))
                 .finally(() => setIsLoading(false));
-        } else {
-            router.push('/');
         }
-    }, [router, user, camelCaseUserRole]);
+    }, [user, camelCaseUserRole]);
 
     const handleCancel = id => {
         setIsProcessing(true);

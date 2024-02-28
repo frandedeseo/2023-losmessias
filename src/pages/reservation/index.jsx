@@ -44,8 +44,7 @@ export default function Reservation() {
     const windowSize = useWindowSize();
 
     useEffect(() => {
-        if (user.id) {
-            if (user.role === 'admin') router.push('/admin-landing');
+        if (user.id && router.isReady) {
             setIsLoadingContent(true);
             const requestOptions = {
                 method: 'GET',
@@ -81,8 +80,6 @@ export default function Reservation() {
                     });
                 });
             }
-        } else {
-            router.push('/');
         }
     }, [user, router]);
 

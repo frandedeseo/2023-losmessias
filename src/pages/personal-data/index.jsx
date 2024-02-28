@@ -21,14 +21,6 @@ export default function PersonalData() {
     const user = useUser();
     const router = useRouter();
 
-    useEffect(() => {
-        if (user.token != undefined) {
-            if (!user.authenticated) {
-                router.push('/');
-            }
-        }
-    }, [router, user]);
-
     const { data, isLoading, mutate } = useSWR(
         [`${process.env.NEXT_PUBLIC_API_URI}/api/${user.role}/${user.id}`, user.token],
         fetcherGetWithToken,

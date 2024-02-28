@@ -50,8 +50,6 @@ export default function Feedbacks() {
 
     useEffect(() => {
         if (user.id) {
-            if (user.role === 'professor') router.push('/professor-landing');
-            if (user.role === 'student') router.push('/student-landing');
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
@@ -65,10 +63,8 @@ export default function Feedbacks() {
                     })
                 )
                 .finally(() => setIsLoading(false));
-        } else {
-            router.push('/');
         }
-    }, [user, router]);
+    }, [user]);
 
     const handleSearch = e => {
         e.preventDefault();

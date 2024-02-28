@@ -12,10 +12,18 @@ import Alert from '../../components/Alert.jsx';
 import { useState } from 'react';
 import { CircularProgress } from '@mui/material';
 import axios from 'axios';
+import jwt_decode from 'jwt-decode';
+import { useUserDispatch } from '@/context/UserContext';
+import { useRouter } from 'next/router.js';
 
 export default function LogIn({ setPage }) {
-    const { error, setError, open, alertState, setOpen, sendRequestForLogIn } = useApi();
+    const [error, setError] = useState();
+    const [open, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [alertState, setAlertState] = useState(null);
+    const dispatch = useUserDispatch();
+    const router = useRouter();
+
     const handleSubmit = event => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
@@ -23,14 +31,36 @@ export default function LogIn({ setPage }) {
             emailRequest: data.get('email'),
             passwordRequest: data.get('password'),
         };
-        axios.post('../api/login', request).then(response => console.log(response));
-
-        // sendRequestForLogIn(request, setIsLoading);
+        axios.post('../api/login', request).then(async response => {
+            if (response.status == 200) {
+                const decoded = jwt_decode(response.data.token);
+                const id = decoded.id;
+                const firstName = decoded.name;
+                const lastName = decoded.surname;
+                const email = decoded.sub;
+                const role = decoded.role.toLowerCase();
+                dispatch({
+                    type: 'login',
+                    payload: { id: id, token: response.data.token, role: role, email: email, firstName: firstName, lastName: lastName },
+                });
+                if (role == 'professor') {
+                    router.push('/professor-landing');
+                } else if (role == 'student') {
+                    router.push('/student-landing');
+                } else {
+                    router.push('/admin-landing');
+                }
+            } else {
+                setOpen(true);
+                setAlertState({ open: true, message: 'The credentials were incorrect', severity: 'error' });
+                setError('error');
+            }
+        });
     };
 
     return (
         <>
-            {alertState.severity && <Alert open={open} setOpen={setOpen} message={alertState.message} severity={alertState.severity} />}
+            {alertState && <Alert open={open} setOpen={setOpen} message={alertState.message} severity={alertState.severity} />}
 
             <Typography component='h1' variant='h5'>
                 Log In

@@ -24,6 +24,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import useWindowSize from '@/hooks/useWindowSize';
 import useSWR from 'swr';
 import { fetcherGetWithTokenFeedbacks } from '@/helpers/FetchHelpers';
+import { useUserDispatch } from '@/context/UserContext';
 
 export default function StudentLandingPage() {
     const [week, setWeek] = useState(0);
@@ -41,7 +42,7 @@ export default function StudentLandingPage() {
     var router = useRouter();
 
     useEffect(() => {
-        setIsLoading(true);
+        //setIsLoading(true);
         if (user.id) {
             // if (user.role == 'professor') router.push('/professor-landing');
             // if (user.role === 'admin') router.push('/admin-landing');
