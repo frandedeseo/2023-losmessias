@@ -284,7 +284,7 @@ export default function Feedbacks() {
                                 {feedbacks.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={8} align='center'>
-                                            <Typography variant='h4'>No students found</Typography>
+                                            <Typography variant='h4'>No Feedbacks found</Typography>
                                         </TableCell>
                                     </TableRow>
                                 ) : (

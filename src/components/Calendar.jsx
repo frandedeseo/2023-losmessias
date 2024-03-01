@@ -78,6 +78,7 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
     const handleBlockSelection = (block, day) => {
         if (!block_disabled(block, day)) {
             if (selectedBlocks.find(element => element.time === block && element.day === day) !== undefined) {
+                console.log('hola');
                 setSelectedBlocks(prevBlocks =>
                     prevBlocks.filter(element => {
                         if (element.time === block && element.day === day) return false;
@@ -85,9 +86,11 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
                     })
                 );
             } else {
+                console.log('hola');
                 setSelectedBlocks(prevBlocks => [...prevBlocks, { day, time: block }]);
             }
         } else {
+            console.log(showData);
             let { id, otherUserId } = redirect_to_reservation(showData, block, day);
 
             if (id !== undefined) router.push('reservation?id=' + id + '&userId=' + otherUserId);
@@ -115,14 +118,10 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
         blockDate = [year, month, day].join('-');
 
         const blockDisabled = disabledBlocks.find(blk => {
-            console.log(blk.day.join('-'));
-            console.log(blockDate);
-
             return blockDate === blk.day.join('-') && blk.status === 'CONFIRMED' && compare_time(block, blk);
         });
 
         if (blockDisabled) {
-            console.log('ohmdskmas');
             return true;
         }
         return false;
@@ -148,17 +147,25 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
 
     const show_data = (flag, block, date) => {
         if (flag) {
-            let blockDate = new Date(new Date().setDate(first + daysNumber[date] + 7 * week)).toLocaleString().split(',')[0];
+            let blockDate = new Date(new Date().setDate(first + daysNumber[date] + 7 * week));
+            // let blockDate = new Date(new Date().setDate(first + daysNumber[date] + 7 * week)).toLocaleString().split(',')[0];
+            console.log(blockDate);
             const year = blockDate.toLocaleString('default', { year: 'numeric' });
+            console.log(year);
             const month = blockDate.toLocaleString('default', {
                 month: '2-digit',
             });
             const day = blockDate.toLocaleString('default', { day: '2-digit' });
 
             blockDate = [year, month, day].join('-');
-            const blockDisabled = disabledBlocks.findIndex(
-                blk => blockDate === blk.day.join('-') && blk.status === 'CONFIRMED' && first_block(block, blk)
-            );
+            const blockDisabled = disabledBlocks.findIndex(blk => {
+                if (blk.status === 'CONFIRMED') {
+                    console.log(blockDate);
+                    console.log(blk.day.join('-'));
+                }
+
+                return blockDate === blk.day.join('-') && blk.status === 'CONFIRMED' && first_block(block, blk);
+            });
             if (blockDisabled !== -1) {
                 let name =
                     user.role === 'student'
@@ -195,7 +202,17 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
                             ? disabledBlocks[blockDisabled].professor.id
                             : disabledBlocks[blockDisabled].student.id,
                 };
+            } else {
+                return {
+                    id: undefined,
+                    otherUserId: undefined,
+                };
             }
+        } else {
+            return {
+                id: undefined,
+                otherUserId: undefined,
+            };
         }
     };
 
@@ -247,6 +264,7 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
                                 </td>
 
                                 {days.map(day => {
+                                    console.log(showData);
                                     const data = show_data(showData, block, day);
 
                                     return (
