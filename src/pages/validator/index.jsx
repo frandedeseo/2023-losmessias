@@ -37,12 +37,8 @@ export default function Validator() {
 
     useEffect(() => {
         if (user.id) {
-            if (user.role === 'student') router.push('/student-landing');
-            if (user.role === 'professor') router.push('/professor-landing');
             setTeachersSubjects(data);
             setAllTeachersSubjects(data);
-        } else {
-            router.push('/');
         }
     }, [data, user, router]);
 
@@ -105,6 +101,7 @@ export default function Validator() {
                         return true;
                     })
                 );
+                setAlert(true);
                 setAlertSeverity('success');
                 setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} has been approved!`);
             } else {
@@ -112,7 +109,6 @@ export default function Validator() {
                 setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} approval failed!`);
             }
         });
-        setAlert(true);
     };
 
     const handleReject = teacherSubject => {
