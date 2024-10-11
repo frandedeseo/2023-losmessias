@@ -49,6 +49,7 @@ const dayNumber = {
 
 export default function Reservation() {
     const router = useRouter();
+    const { code } = router.query;
     const [selectedBlocks, setSelectedBlocks] = useState([]);
     const [orderedSelectedBlocks, setOrderedSelectedBlocks] = useState([]);
     const [subject, setSubject] = useState(0);
@@ -106,13 +107,51 @@ export default function Reservation() {
         setShowConfirmationReservation(false);
     };
 
-    const handleReserve = () => {
+    const handleGoogleAuth = async () => {
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/authorize`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${user.token}`,
+            },
+        })
+            .then(response => response.text()) // Get the URL as text
+            .then(authorizationUrl => {
+                console.log('Authorization URL:', authorizationUrl);
+                if (authorizationUrl.startsWith('http')) {
+                    // Open the Google OAuth page in a new window
+                    const googleAuthWindow = window.open(authorizationUrl, 'Google OAuth');
+
+                    // Poll for the authorization code in localStorage
+                    const authInterval = setInterval(() => {
+                        const googleAuthCode = localStorage.getItem('googleAccessToken');
+                        if (googleAuthCode) {
+                            clearInterval(authInterval); // Stop polling
+                            googleAuthWindow.close(); // Close the popup window
+                            setAlertSeverity('success');
+                            setAlertMessage('Google Calendar access granted! You can now create reservations.');
+                        }
+                    }, 100000);
+                } else {
+                    console.error('Error retrieving authorization URL.');
+                }
+            })
+            .catch(err => {
+                console.error('Error authorizing with Google:', err);
+                setAlertSeverity('error');
+                setAlertMessage('Error with Google Calendar authorization!');
+            });
+    };
+
+    const handleReserve = async () => {
+        const googleAccessToken = localStorage.getItem('googleAccessToken'); // Retrieve the access token, not the authorization code
+        if (!googleAccessToken) {
+            await handleGoogleAuth(); // Trigger authorization if no access token
+        }
+
         orderedSelectedBlocks.forEach(block => {
             let date = new Date(curr.setDate(first + dayNumber[block.day] + 7 * week));
             const year = date.toLocaleString('default', { year: 'numeric' });
-            const month = date.toLocaleString('default', {
-                month: '2-digit',
-            });
+            const month = date.toLocaleString('default', { month: '2-digit' });
             const day = date.toLocaleString('default', { day: '2-digit' });
 
             date = [year, month, day].join('-');
@@ -127,32 +166,37 @@ export default function Reservation() {
                 studentId: parseInt(user.id),
                 price: 250 * block.totalHours,
             };
+
             setIsProcessingReservation(true);
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/create`, {
+
+            // Send the reservation and the access token to the backend
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/create?accessToken=${googleAccessToken}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${user.token}`,
                 },
-                body: JSON.stringify({
-                    ...reservation,
-                }),
+                body: JSON.stringify(reservation),
             })
                 .then(res => {
                     if (res.status !== 200) {
                         setAlertSeverity('error');
                         setAlertMessage('There was an error making the reservation!');
                     } else {
-                        router.push('/student-landing');
+                        setAlertSeverity('success');
+                        setAlertMessage('Reservation created successfully and Google Calendar event added!');
+                        router.push('/student-landing'); // Redirect after successful reservation
                     }
+                    setAlert(true);
+                })
+                .catch(err => {
+                    console.error('Error creating reservation:', err);
+                    setAlertSeverity('error');
+                    setAlertMessage('Error creating reservation!');
                     setAlert(true);
                 })
                 .finally(() => setIsProcessingReservation(false));
         });
-        handleCancel();
-
-        setAlertSeverity('success');
-        setAlertMessage('Reservation has been made successfully!');
     };
 
     const handleSubjectChange = e => {

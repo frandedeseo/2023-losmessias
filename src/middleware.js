@@ -10,6 +10,12 @@ export async function middleware(request) {
         request.nextUrl.pathname.startsWith('/professors') ||
         request.nextUrl.pathname.startsWith('/reservations')
     ) {
+        const authorizationCode = request.nextUrl.searchParams.get('token');
+
+        if (authorizationCode) {
+            // This is an OAuth callback, allow the request to proceed
+            return NextResponse.next();
+        }
         if (token == undefined) {
             return NextResponse.redirect(new URL('http://localhost:3000'));
         } else {

@@ -40,6 +40,20 @@ export default function StudentLandingPage() {
     const [autoHideDuration, setAutoHideDuration] = useState(null);
     const windowSize = useWindowSize();
     var router = useRouter();
+    const { token } = router.query; // Get the token from the URL
+
+    useEffect(() => {
+        if (token) {
+            // Store the token in localStorage
+            localStorage.setItem('googleAccessToken', token);
+
+            // Alert the parent window (if this is a popup) to refresh or notify of token storage
+            if (window.opener) {
+                window.opener.postMessage('googleAuthSuccess', '*');
+                window.close(); // Close the OAuth popup window
+            }
+        }
+    }, [token]);
 
     useEffect(() => {
         //setIsLoading(true);
