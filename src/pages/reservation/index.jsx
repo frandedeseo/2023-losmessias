@@ -17,9 +17,9 @@ import {
     Skeleton,
     Typography,
 } from '@mui/material';
-import SendIcon from '@mui/icons-material/Send';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import useWindowSize from '@/hooks/useWindowSize';
+import MeetingLinkComponent from '@/components/MeetingLinkComponent';
 
 function parse(dateTime) {
     let date = dateTime.slice(0, 3);
@@ -42,6 +42,7 @@ export default function Reservation() {
     const [isLoadingContent, setIsLoadingContent] = useState(true);
     const user = useUser();
     const windowSize = useWindowSize();
+    const [googleMeetLink, setGoogleMeetLink] = useState('');
 
     useEffect(() => {
         if (user.id && router.isReady) {
@@ -50,6 +51,11 @@ export default function Reservation() {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${router.query.id}`, requestOptions).then(res => {
+                res.json().then(json => {
+                    setGoogleMeetLink(json.googleMeetLink);
+                });
+            });
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/loadedData/get-uploaded-data?id=${router.query.id}`, requestOptions)
                 .then(res => {
                     res.json().then(json => {
@@ -134,6 +140,8 @@ export default function Reservation() {
                     setUploadingComments={setUploadingComments}
                 />
             </div>
+
+            {googleMeetLink && <MeetingLinkComponent googleMeetLink={googleMeetLink} />}
 
             {windowSize.width > 500 && (
                 <div style={{ display: 'flex', alignItems: 'baseline', margin: '2rem auto', justifyContent: 'space-between' }}>
