@@ -16,7 +16,7 @@ import useSWR from 'swr';
 import { fetcherGetWithTokenDashboard } from '@/helpers/FetchHelpers';
 import useWindowSize from '@/hooks/useWindowSize';
 
-export default function Dashboard({ id }) {
+export default function Dashboard() {
     const user = useUser();
     const [colors, setColors] = useState([]);
     const [totalPercentage, setTotalPercentage] = useState('');
@@ -26,7 +26,7 @@ export default function Dashboard({ id }) {
     const windowSize = useWindowSize();
 
     const { data, isLoading } = useSWR(
-        [`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/getStatistics?professorId=${id}`, user.token],
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/getStatistics?professorId=${user.id}`, user.token],
         fetcherGetWithTokenDashboard,
         { fallbackData: [] }
     );

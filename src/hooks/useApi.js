@@ -82,7 +82,7 @@ export const useApi = () => {
             });
     };
 
-    const sendRequestForRegistrationProfessor = (request, subjects, setIsProcessing) => {
+    const sendRequestForRegistrationProfessor = async (request, subjectsBody, setIsProcessing) => {
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -95,12 +95,15 @@ export const useApi = () => {
                 sex: request.sex,
                 location: request.location,
                 phone: request.phone,
-                subjects: subjects,
+                subjectPrices: subjectsBody,
             }),
         };
         setIsProcessing(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/registration-professor`, requestOptions)
             .then(response => {
+                if (!response.ok) {
+                    showAlert({ message: 'Price cannot be more than double the price per half hour.', status: 400 });
+                }
                 if (response.status == 200) {
                     showAlert({ message: 'We have sent you an email. Please confirm email adress', status: 200 });
                 }

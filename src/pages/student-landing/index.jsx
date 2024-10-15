@@ -134,8 +134,8 @@ export default function StudentLandingPage() {
                 Authorization: `Bearer ${user.token}`,
             },
             body: JSON.stringify({
-                studentId: user.id,
-                professorId: pendingFeedback[0].receiver.id,
+                senderId: user.id,
+                receiverId: pendingFeedback[0].receiver.id,
                 roleReceptor: 'PROFESSOR',
                 classId: pendingFeedback[0].reservation_id,
                 rating: feedback.rating,

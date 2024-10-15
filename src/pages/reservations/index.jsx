@@ -107,45 +107,85 @@ export default function Reservation() {
         setShowConfirmationReservation(false);
     };
 
-    const handleGoogleAuth = async () => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URI}/authorize`, {
-            method: 'GET',
-            headers: {
-                Authorization: `Bearer ${user.token}`,
-            },
-        })
-            .then(response => response.text()) // Get the URL as text
-            .then(authorizationUrl => {
-                console.log('Authorization URL:', authorizationUrl);
-                if (authorizationUrl.startsWith('http')) {
-                    // Open the Google OAuth page in a new window
-                    const googleAuthWindow = window.open(authorizationUrl, 'Google OAuth');
+    const handleGoogleAuth = () => {
+        return new Promise((resolve, reject) => {
+            let windowClosedProgrammatically = false; // Flag to track if window was closed programmatically
 
-                    // Poll for the authorization code in localStorage
-                    const authInterval = setInterval(() => {
-                        const googleAuthCode = localStorage.getItem('googleAccessToken');
-                        if (googleAuthCode) {
-                            clearInterval(authInterval); // Stop polling
-                            googleAuthWindow.close(); // Close the popup window
-                            setAlertSeverity('success');
-                            setAlertMessage('Google Calendar access granted! You can now create reservations.');
-                        }
-                    }, 100000);
-                } else {
-                    console.error('Error retrieving authorization URL.');
-                }
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/authorize`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${user.token}`,
+                },
             })
-            .catch(err => {
-                console.error('Error authorizing with Google:', err);
-                setAlertSeverity('error');
-                setAlertMessage('Error with Google Calendar authorization!');
-            });
+                .then(response => response.text()) // Get the URL as text
+                .then(authorizationUrl => {
+                    console.log('Authorization URL:', authorizationUrl);
+                    if (authorizationUrl.startsWith('http')) {
+                        // Open the Google OAuth page in a new window
+                        const googleAuthWindow = window.open(authorizationUrl, 'Google OAuth');
+
+                        // Poll for the authorization code in localStorage
+                        const authInterval = setInterval(() => {
+                            const googleAuthCode = localStorage.getItem('googleAccessToken');
+                            if (googleAuthCode) {
+                                clearInterval(authInterval); // Stop polling
+                                windowClosedProgrammatically = true; // Mark window as closed programmatically
+                                googleAuthWindow.close(); // Close the popup window
+                                setAlertSeverity('success');
+                                setAlertMessage('Google Calendar access granted! You can now create reservations.');
+                                resolve(googleAuthCode); // Resolve when token is available
+                            }
+
+                            // Check if the window has been closed manually by the user
+                            if (!windowClosedProgrammatically && googleAuthWindow.closed) {
+                                clearInterval(authInterval); // Stop polling
+                                setIsProcessingReservation(false);
+                                setShowConfirmationReservation(false);
+                                setAlert(true);
+                                reject(new Error('Google OAuth window was closed before authorization.'));
+                                setAlertSeverity('error');
+                                setAlertMessage('Google Calendar authorization was not completed. Please try again.');
+                            }
+                        }, 1000); // Poll every second
+
+                        // Set a timeout for the whole authorization process (e.g., 2 minutes)
+                        setTimeout(() => {
+                            if (!localStorage.getItem('googleAccessToken')) {
+                                clearInterval(authInterval); // Stop polling
+                                if (!windowClosedProgrammatically && !googleAuthWindow.closed) {
+                                    googleAuthWindow.close(); // Close the popup window if still open
+                                }
+                                reject(new Error('Google OAuth authorization timed out.'));
+                                setAlertSeverity('error');
+                                setAlertMessage('Google Calendar authorization timed out. Please try again.');
+                            }
+                        }, 2 * 60 * 1000); // 2 minutes timeout
+                    } else {
+                        console.error('Error retrieving authorization URL.');
+                        reject(new Error('Authorization URL is invalid.'));
+                    }
+                })
+                .catch(err => {
+                    console.error('Error authorizing with Google:', err);
+                    setAlertSeverity('error');
+                    setAlertMessage('Error with Google Calendar authorization!');
+                    reject(err); // Reject promise on error
+                });
+        });
     };
 
     const handleReserve = async () => {
-        const googleAccessToken = localStorage.getItem('googleAccessToken'); // Retrieve the access token, not the authorization code
+        setIsProcessingReservation(true);
+        let googleAccessToken = localStorage.getItem('googleAccessToken'); // Retrieve the access token, not the authorization code
+
         if (!googleAccessToken) {
-            await handleGoogleAuth(); // Trigger authorization if no access token
+            try {
+                googleAccessToken = await handleGoogleAuth(); // Wait for Google Auth to complete
+            } catch (error) {
+                setIsProcessingReservation(false);
+                console.error('Google Auth failed:', error);
+                return; // Stop reservation process if Google Auth fails
+            }
         }
 
         orderedSelectedBlocks.forEach(block => {
@@ -166,8 +206,6 @@ export default function Reservation() {
                 studentId: parseInt(user.id),
                 price: 250 * block.totalHours,
             };
-
-            setIsProcessingReservation(true);
 
             // Send the reservation and the access token to the backend
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/create?accessToken=${googleAccessToken}`, {
@@ -190,6 +228,7 @@ export default function Reservation() {
                     setAlert(true);
                 })
                 .catch(err => {
+                    setIsProcessingReservation(false);
                     console.error('Error creating reservation:', err);
                     setAlertSeverity('error');
                     setAlertMessage('Error creating reservation!');
