@@ -243,7 +243,10 @@ export default function TransferList({ request, setPage, setStateSnackbar }) {
             <Dialog open={showEmptyPriceModal} onClose={() => setShowEmptyPriceModal(false)}>
                 <DialogTitle>Empty Prices Detected</DialogTitle>
                 <DialogContent>
-                    <DialogContentText>Some of the selected subjects have empty prices. Do you want to proceed?</DialogContentText>
+                    <DialogContentText>
+                        Some of the selected subjects have empty prices. If the field is empty, the cost of half an hour of lecture is going
+                        to be the suggest price. Do you want to proceed?
+                    </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={() => setShowEmptyPriceModal(false)} color='primary'>
