@@ -26,6 +26,7 @@ import { useEffect, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { useRouter } from 'next/router';
 import useWindowSize from '@/hooks/useWindowSize';
+import CreatedSubjects from '@/components/CreatedSubjects';
 
 export default function AdminLandingPage() {
     const [page, setPage] = useState(0);
@@ -34,8 +35,7 @@ export default function AdminLandingPage() {
     const [allProfessors, setAllProfessors] = useState([]);
     const [professors, setProfessors] = useState([]);
     const [open, setOpen] = useState(false);
-    const [subject, setSubject] = useState('');
-    const [subjects, setSubjects] = useState([]);
+
     const user = useUser();
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
@@ -60,11 +60,6 @@ export default function AdminLandingPage() {
                     })
                 )
                 .finally(() => setIsLoading(false));
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`).then(res =>
-                res.json().then(json => {
-                    setSubjects(json);
-                })
-            );
         }
     }, [user, rowsPerPage]);
 
@@ -111,31 +106,6 @@ export default function AdminLandingPage() {
     const handleChangeRowsPerPage = event => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-        setSubject('');
-    };
-
-    const handleCreate = () => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/create`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${user.token}`,
-            },
-            body: JSON.stringify({
-                name: subject,
-            }),
-        }).then(res => {
-            if (res.status !== 200) {
-                setSubjects(prevSubjects => [...prevSubjects, { name: subject }]);
-            } else {
-            }
-        });
-
-        handleClose();
     };
 
     function sortDataBy(field, direction) {
@@ -292,57 +262,7 @@ export default function AdminLandingPage() {
                 />
             </TableContainer>
 
-            <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>Subjects</DialogTitle>
-
-                {windowSize.width > 500 && (
-                    <DialogContent dividers sx={{ display: 'flex', alignItems: 'center' }}>
-                        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', paddingInline: '2rem' }}>
-                            {subjects.map((sub, idx) => (
-                                <Chip key={idx} label={sub.name} sx={{ backgroundColor: getColor(sub.name) }} />
-                            ))}
-                        </div>
-                        <Divider orientation='vertical' flexItem />
-                        <div style={{ paddingInline: '2rem' }}>
-                            <TextField
-                                fullWidth
-                                value={subject}
-                                label='Subject'
-                                onChange={event => {
-                                    setSubject(event.target.value);
-                                }}
-                            />
-                        </div>
-                    </DialogContent>
-                )}
-                {windowSize.width <= 500 && (
-                    <DialogContent dividers sx={{}}>
-                        <div style={{ paddingBlock: '2rem' }}>
-                            <TextField
-                                fullWidth
-                                value={subject}
-                                label='Subject'
-                                onChange={event => {
-                                    setSubject(event.target.value);
-                                }}
-                            />
-                        </div>
-                        <Divider />
-                        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', paddingBlock: '2rem' }}>
-                            {subjects.map((sub, idx) => (
-                                <Chip key={idx} label={sub.name} sx={{ backgroundColor: getColor(sub.name) }} />
-                            ))}
-                        </div>
-                    </DialogContent>
-                )}
-
-                <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button variant='contained' onClick={handleCreate}>
-                        Create
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <CreatedSubjects open={open} setOpen={setOpen} />
         </div>
     );
 }

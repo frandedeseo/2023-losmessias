@@ -54,22 +54,18 @@ export default function Classes() {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${user.token}`,
             },
-        })
-            .then(response => {
-                if (!response.ok) {
-                    // Read the response as text if it's not JSON
-                    return response.text().then(errorMessage => {
-                        setAlertMessage(errorMessage || 'An error occurred while saving the price.');
-                        setAlert(true);
-                    });
-                }
-                return response.json(); // Assuming your response contains the updated object
-            })
-            .then(data => {
-                // Handle successful response
+        }).then(response => {
+            if (!response.ok) {
+                // Read the response as text if it's not JSON
+                return response.text().then(errorMessage => {
+                    setAlertMessage(errorMessage || 'An error occurred while saving the price.');
+                    setAlert(true);
+                });
+            } else {
                 setSubjects(subjects.map(subject => (subject.id === id ? { ...subject, price: parseFloat(editPrice) } : subject)));
                 setEditingId(null);
-            });
+            }
+        });
     };
 
     const handlePriceChange = e => {

@@ -79,7 +79,7 @@ export default function Page({ page, setPage }) {
                     <Snackbar
                         open={stateSnackbar.open}
                         autoHideDuration={6000}
-                        onClose={() => setStateSnackbar({ open: false, message: '', severity: 'success' })}
+                        onClose={() => setAlert({ ...alert, open: false })}
                         anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                     >
                         <Alert
