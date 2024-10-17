@@ -42,9 +42,12 @@ export default function Classes() {
         }
     }, [data]);
 
-    const handleEdit = (id, currentPrice) => {
+    const handleEdit = (id, currentPrice, suggestedPrice) => {
         setEditingId(id);
-        setEditPrice(currentPrice.toString());
+
+        // Use suggestedPrice if currentPrice is null or undefined
+        const priceToEdit = currentPrice !== null && currentPrice !== undefined ? currentPrice : suggestedPrice;
+        setEditPrice(priceToEdit.toString());
     };
 
     const handleSave = id => {
@@ -69,7 +72,16 @@ export default function Classes() {
     };
 
     const handlePriceChange = e => {
-        setEditPrice(e.target.value);
+        const value = e.target.value;
+
+        // Ensure the value is a non-negative number
+        if (value >= 0) {
+            setEditPrice(value);
+        } else {
+            // Optionally, you could show a message or do nothing if the value is negative
+            setAlertMessage('Price cannot be negative.');
+            setAlert(true);
+        }
     };
 
     return (
@@ -85,7 +97,7 @@ export default function Classes() {
                             <TableCell align='right' sx={{ opacity: 0.7 }}>
                                 Suggested price
                             </TableCell>
-                            <TableCell align='right'>Price per half an hour</TableCell>
+                            <TableCell align='right'>Price per hour</TableCell>
                             <TableCell align='right'>Action</TableCell>
                         </TableRow>
                     </TableHead>
@@ -107,10 +119,14 @@ export default function Classes() {
                                             type='number'
                                             size='small'
                                             sx={{ width: 80 }}
-                                            inputProps={{ style: { textAlign: 'center' } }}
+                                            inputProps={{ style: { textAlign: 'center' }, min: 0 }} // Prevent negative values
                                         />
                                     ) : (
-                                        `$${subject.price.toFixed(2)}`
+                                        `$${
+                                            subject.price !== null && subject.price !== undefined
+                                                ? subject.price.toFixed(2)
+                                                : subject.subject.price.toFixed(2)
+                                        }`
                                     )}
                                 </TableCell>
                                 <TableCell align='right'>
@@ -119,7 +135,10 @@ export default function Classes() {
                                             <CheckIcon />
                                         </IconButton>
                                     ) : (
-                                        <IconButton onClick={() => handleEdit(subject.id, subject.price)} color='primary'>
+                                        <IconButton
+                                            onClick={() => handleEdit(subject.id, subject.price, subject.subject.price)}
+                                            color='primary'
+                                        >
                                             <EditIcon />
                                         </IconButton>
                                     )}

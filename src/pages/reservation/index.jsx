@@ -20,6 +20,7 @@ import {
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import useWindowSize from '@/hooks/useWindowSize';
 import MeetingLinkComponent from '@/components/MeetingLinkComponent';
+import { useReservation } from '@/context/ReservationContext';
 
 function parse(dateTime) {
     let date = dateTime.slice(0, 3);
@@ -43,51 +44,61 @@ export default function Reservation() {
     const user = useUser();
     const windowSize = useWindowSize();
     const [googleMeetLink, setGoogleMeetLink] = useState('');
+    const { reservationId, userId } = useReservation();
 
     useEffect(() => {
-        if (user.id && router.isReady) {
+        if (!reservationId || !userId) {
+            // Redirect to the classes page if data is missing
+            //router.push('/classes');
+            //return;
+        }
+
+        // ... rest of your useEffect code, replacing router.query.id with reservationId, and router.query.userId with userId
+
+        if (user.id && reservationId && userId) {
             setIsLoadingContent(true);
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${router.query.id}`, requestOptions).then(res => {
-                res.json().then(json => {
+
+            // Fetch reservation data
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservationId}`, requestOptions)
+                .then(res => res.json())
+                .then(json => {
                     setGoogleMeetLink(json.googleMeetLink);
                 });
-            });
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/loadedData/get-uploaded-data?id=${router.query.id}`, requestOptions)
-                .then(res => {
-                    res.json().then(json => {
-                        let comments = [];
-                        let files = [];
 
-                        json.forEach(e => {
-                            if (e.comment !== undefined) comments.push(e);
-                            else files.push(e);
-                        });
+            // Fetch uploaded data
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/loadedData/get-uploaded-data?id=${reservationId}`, requestOptions)
+                .then(res => res.json())
+                .then(json => {
+                    let comments = [];
+                    let files = [];
 
-                        setFiles(files);
-                        setComments(comments);
+                    json.forEach(e => {
+                        if (e.comment !== undefined) comments.push(e);
+                        else files.push(e);
                     });
+
+                    setFiles(files);
+                    setComments(comments);
                 })
                 .finally(() => setIsLoadingContent(false));
 
-            if (user.role === 'student') {
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${router.query.userId}`, requestOptions).then(res => {
-                    res.json().then(json => {
-                        setUserInfo(json);
-                    });
+            // Fetch user info
+            const userEndpoint =
+                user.role === 'student'
+                    ? `${process.env.NEXT_PUBLIC_API_URI}/api/professor/${userId}`
+                    : `${process.env.NEXT_PUBLIC_API_URI}/api/student/${userId}`;
+
+            fetch(userEndpoint, requestOptions)
+                .then(res => res.json())
+                .then(json => {
+                    setUserInfo(json);
                 });
-            } else {
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/${router.query.userId}`, requestOptions).then(res => {
-                    res.json().then(json => {
-                        setUserInfo(json);
-                    });
-                });
-            }
         }
-    }, [user, router]);
+    }, [user, reservationId, userId]);
 
     const handleClick = message => {
         setMessage(message);

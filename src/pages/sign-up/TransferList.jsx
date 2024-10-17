@@ -57,10 +57,20 @@ export default function TransferList({ request, setPage, setStateSnackbar }) {
     };
 
     const handlePriceChange = (subjectId, new_price) => {
+        const priceValue = Number(new_price);
+        if (priceValue < 0) {
+            setStateSnackbar({
+                open: true,
+                message: 'Price cannot be negative.',
+                severity: 'error',
+            });
+            return; // Do not update the state with negative values
+        }
+
         setSelectedSubjects(prevSubjects => {
             const updatedSubjects = prevSubjects.map(s => (s.id === subjectId ? { ...s, new_price } : s));
             const subject = updatedSubjects.find(s => s.id === subjectId);
-            if (Number(new_price) > 2 * Number(subject.price)) {
+            if (priceValue > 2 * Number(subject.price)) {
                 setStateSnackbar({
                     open: true,
                     message: `Price for ${subject.name} exceeds double the suggested price`,
@@ -78,20 +88,31 @@ export default function TransferList({ request, setPage, setStateSnackbar }) {
         }));
         try {
             setIsProcessing(true);
-            await sendRequestForRegistrationProfessor(request, subjectsBody, setIsProcessing);
-            setIsProcessing(false);
-            // Registration successful
-            setStateSnackbar({ open: true, message: 'An email has been sent for confirmation.', severity: 'success' });
-            setPage('login');
+            const response = await sendRequestForRegistrationProfessor(request, subjectsBody, setIsProcessing);
+            if (response.ok) {
+                setStateSnackbar({ open: true, message: 'An email has been sent for confirmation.', severity: 'success' });
+                setPage('login');
+            }
         } catch (error) {
+            console.error('Submission error:', error);
+            setStateSnackbar({ open: true, message: 'Registration failed. Please try again.', severity: 'error' });
+        } finally {
             setIsProcessing(false);
-            // Handle error
-            console.error(error);
         }
     };
 
     const handleSubmit = async e => {
         e.preventDefault();
+        const hasNegativePrice = selectedSubjects.some(subject => Number(subject.new_price) < 0);
+        if (hasNegativePrice) {
+            setStateSnackbar({
+                open: true,
+                message: 'Please ensure all prices are non-negative.',
+                severity: 'error',
+            });
+            return;
+        }
+
         const hasEmptyPrice = selectedSubjects.some(subject => subject.new_price === '');
         if (hasEmptyPrice) {
             setShowEmptyPriceModal(true);
@@ -99,7 +120,6 @@ export default function TransferList({ request, setPage, setStateSnackbar }) {
         }
         submitForm();
     };
-
     const handleConfirmSubmitEmptyPrice = () => {
         setShowEmptyPriceModal(false);
         submitForm();
@@ -108,13 +128,13 @@ export default function TransferList({ request, setPage, setStateSnackbar }) {
     const filteredSubjects = subjects.filter(subject => subject.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const isSubmitDisabled =
-        selectedSubjects.length === 0 || selectedSubjects.some(subject => Number(subject.new_price) > 2 * Number(subject.price));
-
+        selectedSubjects.length === 0 ||
+        selectedSubjects.some(subject => Number(subject.new_price) > 2 * Number(subject.price) || Number(subject.new_price) < 0);
     return (
         <Box
             sx={{
                 width: '100%',
-                minHeight: '100vh',
+                height: 'calc(100vh - 64px)',
                 backgroundImage: 'url(/alumnos-primaria-clase.jpg)',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
@@ -159,6 +179,7 @@ export default function TransferList({ request, setPage, setStateSnackbar }) {
                                     height: { xs: '200px', md: 'calc(100% - 120px)' },
                                     overflow: 'auto',
                                     mb: 2,
+                                    maxHeight: '350px',
                                 }}
                             >
                                 {filteredSubjects.map(subject => (
@@ -182,8 +203,9 @@ export default function TransferList({ request, setPage, setStateSnackbar }) {
                             <TableContainer
                                 component={Paper}
                                 sx={{
-                                    height: { xs: '300px', md: 'calc(100% - 50px)' },
+                                    height: { xs: '300px', md: 'calc(100% - 48px)' },
                                     overflow: 'auto',
+                                    maxHeight: '400px',
                                 }}
                             >
                                 <Table stickyHeader size={isMobile ? 'small' : 'medium'}>
@@ -193,7 +215,7 @@ export default function TransferList({ request, setPage, setStateSnackbar }) {
                                             <TableCell align='right' style={{ whiteSpace: 'nowrap' }}>
                                                 Suggested price
                                             </TableCell>
-                                            <TableCell align='right'>Price per half hour</TableCell>
+                                            <TableCell align='right'>Price per hour</TableCell>
                                             <TableCell align='right'>Action</TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -213,6 +235,7 @@ export default function TransferList({ request, setPage, setStateSnackbar }) {
                                                         size='small'
                                                         error={Number(subject.new_price) > 2 * Number(subject.price)}
                                                         inputProps={{
+                                                            min: 0,
                                                             style: {
                                                                 textAlign: 'center',
                                                                 width: isMobile ? 60 : 80,
@@ -244,8 +267,8 @@ export default function TransferList({ request, setPage, setStateSnackbar }) {
                 <DialogTitle>Empty Prices Detected</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Some of the selected subjects have empty prices. If the field is empty, the cost of half an hour of lecture is going
-                        to be the suggest price. Do you want to proceed?
+                        Some of the selected subjects have empty prices. If the field is empty, the cost of an hour of lecture is going to
+                        be the suggest price. Do you want to proceed?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

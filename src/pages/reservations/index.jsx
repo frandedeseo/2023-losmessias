@@ -35,6 +35,7 @@ import LoadingModal from '@/components/modals/LoadingModal';
 import useSWR from 'swr';
 import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 import useWindowSize from '@/hooks/useWindowSize';
+import { useProfessor } from '@/context/ProfessorContext';
 
 // Consts
 const dayNumber = {
@@ -49,7 +50,6 @@ const dayNumber = {
 
 export default function Reservation() {
     const router = useRouter();
-    const { code } = router.query;
     const [selectedBlocks, setSelectedBlocks] = useState([]);
     const [orderedSelectedBlocks, setOrderedSelectedBlocks] = useState([]);
     const [subject, setSubject] = useState(0);
@@ -62,15 +62,23 @@ export default function Reservation() {
     const [isProcessingReservation, setIsProcessingReservation] = useState(false);
     const [disabledBlocks, setDisabledBlocks] = useState([]);
     const [day, setDay] = useState(1);
+    const [price, setPrice] = useState(null);
     const windowSize = useWindowSize();
+    const { professorId } = useProfessor();
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
 
     const { data: professor, isLoading } = useSWR(
-        [`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${router.query.professorId}`, user.token],
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${professorId}`, user.token],
         fetcherGetWithToken,
         { fallbackData: { subjects: [] } }
+    );
+
+    const { data: professorSubjects } = useSWR(
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByProfessor/${professorId}`, user.token],
+        fetcherGetWithToken,
+        { fallbackData: [] }
     );
 
     useEffect(() => {
@@ -79,26 +87,25 @@ export default function Reservation() {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
-            fetch(
-                `${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByAppUserId?appUserId=${router.query.professorId}`,
-                requestOptions
-            ).then(res => {
-                res.json().then(json => {
-                    setDisabledBlocks(
-                        json.map(e => {
-                            e['day'] = e.date;
-                            if (e.date[1] < 10) e.day[1] = '0' + e.date[1];
-                            if (e.date[2] < 10) e.day[2] = '0' + e.date[2];
-                            if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
-                            if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
-                            if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
-                            if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByAppUserId?appUserId=${professorId}`, requestOptions).then(
+                res => {
+                    res.json().then(json => {
+                        setDisabledBlocks(
+                            json.map(e => {
+                                e['day'] = e.date;
+                                if (e.date[1] < 10) e.day[1] = '0' + e.date[1];
+                                if (e.date[2] < 10) e.day[2] = '0' + e.date[2];
+                                if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
+                                if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
+                                if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
+                                if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
 
-                            return e;
-                        })
-                    );
-                });
-            });
+                                return e;
+                            })
+                        );
+                    });
+                }
+            );
         }
     }, [user, router]);
 
@@ -196,6 +203,8 @@ export default function Reservation() {
 
             date = [year, month, day].join('-');
 
+            console.log(block.totalHours);
+
             const reservation = {
                 day: date,
                 startingHour: block.startingHour,
@@ -204,7 +213,7 @@ export default function Reservation() {
                 professorId: professor.id,
                 subjectId: professor.subjects[subject].id,
                 studentId: parseInt(user.id),
-                price: 250 * block.totalHours,
+                totalHours: block.totalHours,
             };
 
             // Send the reservation and the access token to the backend
@@ -244,6 +253,30 @@ export default function Reservation() {
     };
 
     const handleConfirmationOpen = () => {
+        console.log('professor:', professor);
+        console.log('professorSubjects:', professorSubjects);
+
+        // Ensure 'subject' is defined and valid
+        if (typeof subject === 'undefined' || !professor.subjects[subject]) {
+            console.error('Subject is undefined or invalid');
+            return;
+        }
+
+        // Correctly compare the subject IDs
+        var professorSubject = professorSubjects.find(subject_item => subject_item.subject.id === professor.subjects[subject].id);
+
+        // Check if professorSubject was found
+        if (!professorSubject) {
+            console.error('Professor subject not found');
+            return;
+        }
+
+        if (professorSubject.price === null) {
+            setPrice(professor.subjects[subject].price);
+        } else {
+            setPrice(professorSubject.price);
+        }
+
         let orderedSelectedBlocks = order_and_group(selectedBlocks);
         setOrderedSelectedBlocks(orderedSelectedBlocks);
         setShowConfirmationReservation(true);
@@ -357,11 +390,13 @@ export default function Reservation() {
                             ))}
                         </div>
                         <Divider orientation='vertical' flexItem />
-                        <div style={{ paddingInline: '2rem' }}>
-                            <Typography>{`Subject: ${professor.subjects[subject]?.name}`}</Typography>
-                            <Typography>{`Price per hour: 250`}</Typography>
-                            <Typography>{`Total: $${(250 * selectedBlocks.length) / 2}`}</Typography>
-                        </div>
+                        {price != null && (
+                            <div style={{ paddingInline: '2rem' }}>
+                                <Typography>{`Subject: ${professor.subjects[subject]?.name}`}</Typography>
+                                <Typography>{`Price per hour: ${price}`}</Typography>
+                                <Typography>{`Total: $${(price * selectedBlocks.length) / 2}`}</Typography>
+                            </div>
+                        )}
                     </div>
                 </DialogContent>
                 <DialogActions>

@@ -99,18 +99,21 @@ export const useApi = () => {
             }),
         };
         setIsProcessing(true);
-        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/registration-professor`, requestOptions)
-            .then(response => {
-                if (!response.ok) {
-                    showAlert({ message: 'Price cannot be more than double the price per half hour.', status: 400 });
-                }
-                if (response.status == 200) {
-                    showAlert({ message: 'We have sent you an email. Please confirm email adress', status: 200 });
-                }
-            })
-            .finally(() => {
-                setIsProcessing(false);
-            });
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/registration-professor`, requestOptions);
+            if (!response.ok) {
+                // Handle error response
+                const errorData = await response.json();
+                showAlert({ message: errorData.message || 'An error occurred', status: response.status });
+                throw new Error('Network response was not ok');
+            }
+            return response;
+        } catch (error) {
+            console.error('Fetch error:', error);
+            throw error; // Rethrow to be caught in submitForm
+        } finally {
+            setIsProcessing(false);
+        }
     };
     const sendRequestForLogIn = (request, setIsLoading) => {
         const requestOptions = {

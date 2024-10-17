@@ -61,16 +61,15 @@ const CreatedSubjects = ({ open, setOpen }) => {
     // Handle subject creation
     const handleCreate = () => {
         // Check if subject name already exists
-        const subjectExists = subjects.some(subject => subject.name.toLowerCase() === subjectName.trim().toLowerCase());
-        if (subjectExists) {
+        const priceValue = parseFloat(subjectPrice);
+        if (isNaN(priceValue) || priceValue < 0) {
             setAlert({
                 open: true,
-                message: 'Subject with this name already exists.',
+                message: 'Please enter a valid, non-negative price.',
                 severity: 'error',
             });
             return;
         }
-
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/create`, {
             method: 'POST',
             headers: {
@@ -116,6 +115,15 @@ const CreatedSubjects = ({ open, setOpen }) => {
     };
 
     const handleSave = id => {
+        const priceValue = parseFloat(editPrice);
+        if (isNaN(priceValue) || priceValue < 0) {
+            setAlert({
+                open: true,
+                message: 'Please enter a valid, non-negative price.',
+                severity: 'error',
+            });
+            return;
+        }
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/subject/edit-price?id=${id}&price=${parseFloat(editPrice)}`, {
             method: 'POST',
             headers: {
@@ -145,11 +153,20 @@ const CreatedSubjects = ({ open, setOpen }) => {
 
     // Handle price input change during editing
     const handlePriceChange = e => {
-        setEditPrice(e.target.value);
+        const value = e.target.value;
+        if (value === '' || parseFloat(value) >= 0) {
+            setEditPrice(value);
+        } else {
+            setAlert({
+                open: true,
+                message: 'Price cannot be negative.',
+                severity: 'error',
+            });
+        }
     };
 
     // Validate that both inputs have values and the price is a number
-    const isFormValid = subjectName.trim() !== '' && subjectPrice.trim() !== '' && !isNaN(subjectPrice);
+    const isFormValid = subjectName.trim() !== '' && subjectPrice.trim() !== '' && !isNaN(subjectPrice) && parseFloat(subjectPrice) >= 0;
 
     return (
         <Dialog open={open} onClose={handleClose} fullWidth maxWidth='md'>
@@ -173,9 +190,19 @@ const CreatedSubjects = ({ open, setOpen }) => {
                             value={subjectPrice}
                             label='Subject Price'
                             onChange={event => {
-                                setSubjectPrice(event.target.value);
+                                const value = event.target.value;
+                                if (value === '' || parseFloat(value) >= 0) {
+                                    setSubjectPrice(value);
+                                } else {
+                                    setAlert({
+                                        open: true,
+                                        message: 'Price cannot be negative.',
+                                        severity: 'error',
+                                    });
+                                }
                             }}
                             type='number'
+                            inputProps={{ min: 0 }}
                         />
                     </Grid>
                 </Grid>
@@ -204,7 +231,7 @@ const CreatedSubjects = ({ open, setOpen }) => {
                                                 type='number'
                                                 size='small'
                                                 sx={{ width: 100 }}
-                                                inputProps={{ style: { textAlign: 'center' } }}
+                                                inputProps={{ style: { textAlign: 'center' }, min: 0 }}
                                             />
                                         ) : (
                                             `$${subject.price ? subject.price.toFixed(2) : '0.00'}`

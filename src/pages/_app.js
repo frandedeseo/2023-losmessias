@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import { UserContext } from '@/context/UserContext';
 import { UserProvider } from '@/context/UserContext';
 import { useUserDispatch } from '@/context/UserContext';
+import { ProfessorProvider } from '@/context/ProfessorContext';
+import { ReservationProvider } from '@/context/ReservationContext';
 
 export default function App({ Component, pageProps, data }) {
     // const dispatch = useUserDispatch();
@@ -19,8 +21,12 @@ export default function App({ Component, pageProps, data }) {
     // }, []);
 
     return (
-        <Layout>
-            <Component {...pageProps} />
-        </Layout>
+        <ReservationProvider>
+            <ProfessorProvider>
+                <Layout>
+                    <Component {...pageProps} />
+                </Layout>
+            </ProfessorProvider>
+        </ReservationProvider>
     );
 }
