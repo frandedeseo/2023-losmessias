@@ -103,10 +103,12 @@ export default function Validator() {
                 );
                 setAlert(true);
                 setAlertSeverity('success');
-                setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} has been approved!`);
+                setAlertMessage(
+                    `It has been approved successfully the subject ${teacherSubject.subject.name} for ${teacherSubject.professor.firstName}`
+                );
             } else {
                 setAlertSeverity('error');
-                setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} approval failed!`);
+                setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} Approval failed!`);
             }
         });
     };
@@ -148,10 +150,12 @@ export default function Validator() {
                     })
                 );
                 setAlertSeverity('success');
-                setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} has been rejected!`);
+                setAlertMessage(
+                    `It has been rejected successfully the subject ${teacherSubject.subject.name} for ${teacherSubject.professor.firstName}`
+                );
             } else {
                 setAlertSeverity('error');
-                setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} rejection failed!`);
+                setAlertMessage(`Rejection failed!`);
             }
             setAlert(true);
         });

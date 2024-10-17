@@ -1,6 +1,5 @@
-import { Grid, IconButton, InputAdornment, OutlinedInput, Snackbar } from '@mui/material';
-import { Password, Visibility, VisibilityOff } from '@mui/icons-material';
-import TextField from '@mui/material/TextField';
+import { Grid, IconButton, InputAdornment, TextField } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 
 const REG_PASSWORD = /.{8,}/;
@@ -20,13 +19,19 @@ export default function PasswordComponent({ setPasswordValidated }) {
         event.preventDefault();
     };
 
-    // useEffect(() => {
-    //     if (REG_PASSWORD.test(firstPassword) && REG_PASSWORD.test(secondPassword) && firstPassword == secondPassword) {
-    //         setPasswordValidated(true);
-    //     } else {
-    //         setPasswordValidated(false);
-    //     }
-    // }, [firstPassword, secondPassword]);
+    useEffect(() => {
+        if (
+            REG_PASSWORD.test(firstPassword) &&
+            REG_PASSWORD.test(secondPassword) &&
+            firstPassword === secondPassword &&
+            errorPassword1 === '' &&
+            errorPassword2 === ''
+        ) {
+            setPasswordValidated(true);
+        } else {
+            setPasswordValidated(false);
+        }
+    }, [firstPassword, secondPassword, errorPassword1, errorPassword2, setPasswordValidated]);
 
     return (
         <>
@@ -36,14 +41,14 @@ export default function PasswordComponent({ setPasswordValidated }) {
                     fullWidth
                     name='password'
                     label='Password'
-                    id='password'
+                    id='password1'
                     type={showPassword1 ? 'text' : 'password'}
-                    error={errorPassword1 != ''}
+                    error={errorPassword1 !== ''}
                     onChange={event => setFirstPassword(event.target.value)}
                     value={firstPassword}
                     onBlur={event => {
                         if (!REG_PASSWORD.test(event.target.value)) {
-                            setErrorPassword1('Password must be longer than 8 characters');
+                            setErrorPassword1('Password must be at least 8 characters');
                         } else {
                             setErrorPassword1('');
                         }
@@ -69,18 +74,18 @@ export default function PasswordComponent({ setPasswordValidated }) {
                 <TextField
                     required
                     fullWidth
-                    name='password'
+                    name='confirmPassword'
                     label='Repeat Password'
-                    id='password'
+                    id='password2'
                     type={showPassword2 ? 'text' : 'password'}
-                    error={errorPassword2 != ''}
+                    error={errorPassword2 !== ''}
                     onChange={event => setSecondPassword(event.target.value)}
                     value={secondPassword}
                     onBlur={event => {
                         if (!REG_PASSWORD.test(event.target.value)) {
-                            setErrorPassword2('Password must be longer than 8 characters');
+                            setErrorPassword2('Password must be at least 8 characters');
                         } else if (event.target.value !== firstPassword) {
-                            setErrorPassword2('The password must be the same');
+                            setErrorPassword2('Passwords must match');
                         } else {
                             setErrorPassword2('');
                         }

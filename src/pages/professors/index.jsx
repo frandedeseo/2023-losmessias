@@ -178,35 +178,37 @@ export default function Professors() {
                 >
                     <Box
                         sx={{
-                            flexDirection: 'column',
-                            minWidth: 300,
-                            minHeight: 300,
                             display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            marginTop: 2,
+
                             px: 1,
                         }}
                     >
-                        <Typography variant='h3' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
+                        <Typography variant='h5' component='div' sx={{ ml: 2 }} color={'black'}>
                             Filters
                         </Typography>
-                        <Divider width={'100%'} sx={{ my: 2 }} />
-                        <FormControl sx={{ ml: 2, backgroundColor: '#fff' }}>
+
+                        <FormControl sx={{ ml: 2, backgroundColor: '#fff', minWidth: '200px' }}>
+                            {/* Location Select */}
                             <InputLabel id='office-select'>Location</InputLabel>
                             <Select
                                 multiple
                                 labelId='office-select'
                                 input={<OutlinedInput label='Location' />}
                                 value={locationSelected}
-                                onChange={event => handleLocationChange(event)}
+                                onChange={handleLocationChange}
                                 onClose={handleFilter}
                                 renderValue={selected => (
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, width: 100 }}>
                                         {selected.map(value => (
                                             <Chip key={value} label={value} />
                                         ))}
                                     </Box>
                                 )}
                             >
-                                {data != undefined &&
+                                {data &&
                                     data.map((profesor, index) => (
                                         <MenuItem key={index} value={profesor.location}>
                                             {profesor.location}
@@ -215,14 +217,15 @@ export default function Professors() {
                             </Select>
                         </FormControl>
 
-                        <FormControl sx={{ ml: 2, marginTop: '1.5rem', backgroundColor: '#fff' }}>
-                            <InputLabel id='office-select'>Subjects</InputLabel>
+                        <FormControl sx={{ ml: 2, backgroundColor: '#fff', minWidth: '200px' }}>
+                            {/* Subjects Select */}
+                            <InputLabel id='subject-select'>Subjects</InputLabel>
                             <Select
                                 multiple
-                                labelId='office-select'
+                                labelId='subject-select'
                                 input={<OutlinedInput label='Subjects' />}
                                 value={subjectSelected}
-                                onChange={event => handleSubjectChange(event)}
+                                onChange={handleSubjectChange}
                                 onClose={handleFilter}
                                 renderValue={selected => (
                                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -240,6 +243,7 @@ export default function Professors() {
                             </Select>
                         </FormControl>
                     </Box>
+                    <Divider width='100%' sx={{ my: 2 }} />
                     {pendingFeedback.length === 0 && (
                         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
                             {isLoading ? (

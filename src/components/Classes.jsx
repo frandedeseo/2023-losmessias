@@ -15,7 +15,7 @@ import {
     Alert,
     CircularProgress,
 } from '@mui/material';
-import { Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material';
+import { Edit as EditIcon } from '@mui/icons-material';
 import { CheckIcon } from 'lucide-react';
 import axios from 'axios'; // or fetch API if you prefer
 import { useUser } from '@/context/UserContext';
@@ -39,6 +39,8 @@ export default function Classes() {
     useEffect(() => {
         if (data.length > 0) {
             setSubjects(data);
+        } else {
+            setSubjects([]); // Ensure subjects is an empty array if no data
         }
     }, [data]);
 
@@ -102,49 +104,57 @@ export default function Classes() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {subjects.map(subject => (
-                            <TableRow key={subject.id}>
-                                <TableCell component='th' scope='row'>
-                                    {subject.subject.name}
-                                </TableCell>
-                                <TableCell align='right' sx={{ opacity: 0.7 }}>
-                                    {`$${subject.subject.price.toFixed(2)}`}
-                                </TableCell>
+                        {subjects.length > 0 ? (
+                            subjects.map(subject => (
+                                <TableRow key={subject.id}>
+                                    <TableCell component='th' scope='row'>
+                                        {subject.subject.name}
+                                    </TableCell>
+                                    <TableCell align='right' sx={{ opacity: 0.7 }}>
+                                        {`$${subject.subject.price.toFixed(2)}`}
+                                    </TableCell>
 
-                                <TableCell align='right'>
-                                    {editingId === subject.id ? (
-                                        <TextField
-                                            value={editPrice}
-                                            onChange={handlePriceChange}
-                                            type='number'
-                                            size='small'
-                                            sx={{ width: 80 }}
-                                            inputProps={{ style: { textAlign: 'center' }, min: 0 }} // Prevent negative values
-                                        />
-                                    ) : (
-                                        `$${
-                                            subject.price !== null && subject.price !== undefined
-                                                ? subject.price.toFixed(2)
-                                                : subject.subject.price.toFixed(2)
-                                        }`
-                                    )}
-                                </TableCell>
-                                <TableCell align='right'>
-                                    {editingId === subject.id ? (
-                                        <IconButton onClick={() => handleSave(subject.id)} color='primary'>
-                                            <CheckIcon />
-                                        </IconButton>
-                                    ) : (
-                                        <IconButton
-                                            onClick={() => handleEdit(subject.id, subject.price, subject.subject.price)}
-                                            color='primary'
-                                        >
-                                            <EditIcon />
-                                        </IconButton>
-                                    )}
+                                    <TableCell align='right'>
+                                        {editingId === subject.id ? (
+                                            <TextField
+                                                value={editPrice}
+                                                onChange={handlePriceChange}
+                                                type='number'
+                                                size='small'
+                                                sx={{ width: 80 }}
+                                                inputProps={{ style: { textAlign: 'center' }, min: 0 }} // Prevent negative values
+                                            />
+                                        ) : (
+                                            `$${
+                                                subject.price !== null && subject.price !== undefined
+                                                    ? subject.price.toFixed(2)
+                                                    : subject.subject.price.toFixed(2)
+                                            }`
+                                        )}
+                                    </TableCell>
+                                    <TableCell align='right'>
+                                        {editingId === subject.id ? (
+                                            <IconButton onClick={() => handleSave(subject.id)} color='primary'>
+                                                <CheckIcon />
+                                            </IconButton>
+                                        ) : (
+                                            <IconButton
+                                                onClick={() => handleEdit(subject.id, subject.price, subject.subject.price)}
+                                                color='primary'
+                                            >
+                                                <EditIcon />
+                                            </IconButton>
+                                        )}
+                                    </TableCell>
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={4} align='center'>
+                                    No subjects have been approved yet
                                 </TableCell>
                             </TableRow>
-                        ))}
+                        )}
                     </TableBody>
                 </Table>
             </TableContainer>

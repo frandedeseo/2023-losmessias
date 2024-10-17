@@ -292,14 +292,10 @@ export default function Feedbacks() {
                                         {feedbacks.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(feed => (
                                             <TableRow key={feed.id}>
                                                 <TableCell>
-                                                    {feed.receptorRole === 'STUDENT'
-                                                        ? `${feed.professor.firstName} ${feed.professor.lastName}`
-                                                        : `${feed.student.firstName} ${feed.student.lastName}`}
+                                                    {feed.sender.firstName} {feed.sender.lastName}
                                                 </TableCell>
                                                 <TableCell>
-                                                    {feed.receptorRole === 'STUDENT'
-                                                        ? `${feed.student.firstName} ${feed.student.lastName}`
-                                                        : `${feed.professor.firstName} ${feed.professor.lastName}`}
+                                                    {feed.receiver.firstName} {feed.receiver.lastName}
                                                 </TableCell>
                                                 <TableCell>
                                                     {`${feed.dateTimeOfFeedback[2]}-${feed.dateTimeOfFeedback[1]}-${feed.dateTimeOfFeedback[0]}`}

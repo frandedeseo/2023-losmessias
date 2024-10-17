@@ -32,11 +32,11 @@ export default function RecoverPassword() {
 
     const handleSubmit = event => {
         event.preventDefault();
-        const datos = new FormData(event.currentTarget);
+        const formData = new FormData(event.currentTarget);
 
         const request = {
             email: email,
-            password: datos.get('password'),
+            password: formData.get('password'),
         };
         changePassword(request, setIsProcessing);
     };

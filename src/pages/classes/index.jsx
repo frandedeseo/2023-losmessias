@@ -142,23 +142,24 @@ export default function Classes() {
                 sx={{
                     display: 'flex',
                     backgroundColor: '#F5F5F5',
+                    maxWidth: '100%',
                 }}
             >
                 <Box
                     sx={{
-                        flexDirection: 'column',
-                        minWidth: 300,
-                        minHeight: 300,
                         display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginTop: 2,
+
                         px: 1,
                     }}
                 >
-                    <Typography variant='h3' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
+                    <Typography variant='h5' component='div' sx={{ ml: 2 }} color={'black'}>
                         Filters
                     </Typography>
-                    <Divider width={'100%'} sx={{ my: 2 }} />
 
-                    <FormControl sx={{ ml: 2, marginTop: '1.5rem', backgroundColor: '#fff' }}>
+                    <FormControl sx={{ ml: 2, backgroundColor: '#fff', minWidth: '200px' }}>
                         <form onSubmit={handleSubmit}>
                             <TextField
                                 value={search}
@@ -170,7 +171,7 @@ export default function Classes() {
                         </form>
                     </FormControl>
 
-                    <FormControl sx={{ ml: 2, marginTop: '1.5rem', backgroundColor: '#fff' }}>
+                    <FormControl sx={{ ml: 2, backgroundColor: '#fff', minWidth: '200px' }}>
                         <InputLabel id='office-select'>Subjects</InputLabel>
                         <Select
                             multiple
@@ -195,6 +196,7 @@ export default function Classes() {
                         </Select>
                     </FormControl>
                 </Box>
+                <Divider width={'100%'} sx={{ my: 2 }} />
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
                     {isLoading ? (
                         <>
