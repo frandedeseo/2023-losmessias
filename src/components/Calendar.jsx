@@ -6,6 +6,7 @@ import { compare_time, first_block, parseDate } from '@/utils/compareDate';
 import { useUser } from '@/context/UserContext';
 import { useRouter } from 'next/router';
 import useWindowSize from '@/hooks/useWindowSize';
+import { useReservation } from '@/context/ReservationContext';
 
 const blocks = [
     '09:00 - 09:30',
@@ -72,6 +73,7 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
     const user = useUser();
     const router = useRouter();
     const windowSize = useWindowSize();
+    const { setReservationId, setUserId } = useReservation();
 
     let test = new Date().toLocaleString();
 
@@ -90,7 +92,11 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
         } else {
             let { id, otherUserId } = redirect_to_reservation(showData, block, day);
 
-            if (id !== undefined) router.push('reservation?id=' + id + '&userId=' + otherUserId);
+            if (id !== undefined) {
+                setReservationId(id);
+                setUserId(otherUserId);
+                router.push('/reservation'); // Navigate without query parameters
+            }
         }
     };
 

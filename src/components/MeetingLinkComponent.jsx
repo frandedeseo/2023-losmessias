@@ -1,32 +1,43 @@
 import VideoCall from '@mui/icons-material/VideoCall';
-import { Typography, Link, Grid, Card, CardContent, List, ListItem, ListItemIcon } from '@mui/material';
-import useWindowSize from '@/hooks/useWindowSize';
+import { Typography, Link, Grid, Card, useTheme, useMediaQuery } from '@mui/material';
+import { styled } from '@mui/system';
+
+const StyledCard = styled(Card)({
+    overflow: 'visible',
+    transition: 'transform 0.3s, box-shadow 0.3s',
+    '&:hover': {
+        transform: 'translateY(-5px)',
+        boxShadow: '0 8px 16px 0 rgba(0,0,0,0.2)',
+    },
+});
 
 const MeetingLinkComponent = ({ googleMeetLink }) => {
-    const windowSize = useWindowSize();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     return (
         googleMeetLink && (
-            <Card
-                sx={
-                    windowSize.width > 500
-                        ? { marginTop: '10px', marginLeft: '140px', maxWidth: 491, paddingTop: 2, paddingBottom: 1, paddingLeft: '16px' }
-                        : { marginTop: '10px', maxWidth: 491, paddingTop: 2, paddingBottom: 1, paddingLeft: '16px' }
-                }
+            <StyledCard
+                sx={{
+                    maxWidth: 662,
+                    width: !isMobile ? 'calc(100% - 80px)' : 'calc(100% - 16px)',
+                    padding: 1,
+                    marginLeft: isMobile ? 0 : 8,
+                }}
             >
-                <Grid container direction='row' justifyContent='flex-start' alignItems='flex-start'>
-                    <Grid item sx={{ minWidth: '56px' }}>
-                        <VideoCall color='primary' />
-                    </Grid>
+                <Grid container alignItems='center' spacing={1}>
                     <Grid item>
+                        <VideoCall color='primary' fontSize='large' />
+                    </Grid>
+                    <Grid item xs>
                         <Typography variant='body1' color='text.secondary'>
-                            {`Join the Meeting:   `}
-                            <Link href={googleMeetLink} target='_blank' style={{ color: 'text.secondary' }}>
+                            Join the Meeting:{' '}
+                            <Link href={googleMeetLink} target='_blank' rel='noopener' color='primary'>
                                 {googleMeetLink}
                             </Link>
                         </Typography>
                     </Grid>
                 </Grid>
-            </Card>
+            </StyledCard>
         )
     );
 };

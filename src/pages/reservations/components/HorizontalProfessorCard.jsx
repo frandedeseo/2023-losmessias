@@ -1,9 +1,8 @@
-import { Business, MailOutline, Phone } from '@mui/icons-material';
+import React from 'react';
+import { Business, MailOutline, Phone, AccessTime, InsertDriveFile, SentimentSatisfiedAlt, Person } from '@mui/icons-material';
 import {
     Card,
-    CardActionArea,
     CardContent,
-    CardMedia,
     List,
     ListItem,
     ListItemIcon,
@@ -11,238 +10,190 @@ import {
     Skeleton,
     Tooltip,
     Typography,
+    Box,
+    Avatar,
+    Chip,
+    useMediaQuery,
+    useTheme,
 } from '@mui/material';
-import PersonIcon from '@mui/icons-material/Person';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import useWindowSize from '@/hooks/useWindowSize';
+import { styled } from '@mui/system';
+
+const StyledCard = styled(Card)({
+    overflow: 'visible',
+    transition: 'transform 0.3s, box-shadow 0.3s',
+    '&:hover': {
+        transform: 'translateY(-5px)',
+        boxShadow: '0 8px 16px 0 rgba(0,0,0,0.2)',
+    },
+});
+
+const IconWrapper = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: theme.spacing(1),
+}));
+
+const StyledRating = styled(Rating)(({ theme }) => ({
+    '& .MuiRating-iconFilled': {
+        color: 'blue',
+    },
+}));
+
+const InfoItem = ({ icon, text, loading }) => (
+    <ListItem>
+        <ListItemIcon>{icon}</ListItemIcon>
+        {loading ? (
+            <Skeleton variant='text' width={190} height={30} />
+        ) : (
+            <Typography variant='body2' color='text.secondary'>
+                {text}
+            </Typography>
+        )}
+    </ListItem>
+);
 
 export default function HorizontalProfessorCard({ professor }) {
-    const windowSize = useWindowSize();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-    const link =
-        professor && professor.sex == 'FEMALE'
+    const loading = !professor;
+    const avatarUrl =
+        professor && professor.sex === 'FEMALE'
             ? 'https://cdn1.vectorstock.com/i/1000x1000/38/15/foreign-language-woman-teacher-icon-flat-style-vector-36033815.jpg'
             : 'https://www.w3schools.com/howto/img_avatar.png';
 
-    return (
-        <>
-            {windowSize.width > 500 && (
-                <div style={{ display: 'flex', gap: 20 }}>
-                    <Card>
-                        <CardActionArea sx={{ display: 'flex', justifyContent: 'start' }}>
-                            <CardMedia component='img' height='140' image={link} alt='Professor' />
-                            <CardContent sx={{ padding: 0, display: 'flex', alignSelf: 'start' }}>
-                                <List>
-                                    <ListItem>
-                                        <ListItemIcon>
-                                            <PersonIcon />
-                                        </ListItemIcon>
-                                        {professor && professor.firstName !== undefined ? (
-                                            <Typography variant='body1' color='text.secondary'>
-                                                {professor.firstName + ' ' + professor.lastName}
-                                            </Typography>
-                                        ) : (
-                                            <Skeleton variant='text' width={190} height={30} />
-                                        )}
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItemIcon>
-                                            <MailOutline />
-                                        </ListItemIcon>
-                                        {professor && professor.email !== undefined ? (
-                                            <Typography variant='body1' color='text.secondary'>
-                                                {professor.email}
-                                            </Typography>
-                                        ) : (
-                                            <Skeleton variant='text' width={190} height={30} />
-                                        )}
-                                    </ListItem>
-                                </List>
-                                <List>
-                                    <ListItem>
-                                        <ListItemIcon>
-                                            <Phone />
-                                        </ListItemIcon>
-                                        {professor && professor.phone !== undefined ? (
-                                            <Typography variant='body1' color='text.secondary'>
-                                                {professor.phone}
-                                            </Typography>
-                                        ) : (
-                                            <Skeleton variant='text' width={190} height={30} />
-                                        )}
-                                    </ListItem>
-                                    <ListItem>
-                                        <ListItemIcon>
-                                            <Business />
-                                        </ListItemIcon>
-                                        {professor && professor.location !== undefined ? (
-                                            <Typography variant='body1' color='text.secondary'>
-                                                {professor.location}
-                                            </Typography>
-                                        ) : (
-                                            <Skeleton variant='text' width={190} height={30} />
-                                        )}
-                                    </ListItem>
-                                </List>
-                            </CardContent>
-                        </CardActionArea>
-                    </Card>
-
-                    <Card>
-                        <CardContent>
-                            <div style={{ display: 'flex', justifyContent: 'center' }}>
-                                <Rating precision={0.5} value={parseFloat(professor?.avgRating)} max={3} size='large' readOnly />
-                            </div>
-                            <div
-                                style={{
-                                    marginTop: '1.5rem',
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(3, 1fr)',
-                                    gridGap: '10px',
-                                    gap: 10,
-                                    textAlign: 'center',
-                                    rowGap: 0,
-                                }}
-                            >
-                                <Tooltip title='Is always on time'>
-                                    <AccessTimeIcon fontSize='large' sx={{ gridColumn: 1 / 3, row: 1 }} />
-                                </Tooltip>
-
-                                <Tooltip
-                                    title={
-                                        professor?.role?.toLowerCase() === 'student' ? 'Do the homework' : 'Has extra material to practice'
-                                    }
-                                >
-                                    <InsertDriveFileIcon fontSize='large' sx={{ gridColumn: 1 / 3, row: 1 }} />
-                                </Tooltip>
-
-                                <Tooltip
-                                    title={
-                                        professor?.role?.toLowerCase() === 'student'
-                                            ? 'Pays attention and listens'
-                                            : 'Is respectful and patient'
-                                    }
-                                >
-                                    <SentimentSatisfiedAltIcon fontSize='large' sx={{ gridColumn: 1 / 3, row: 1 }} />
-                                </Tooltip>
-
-                                <Typography sx={{ gridColumn: 1 / 3 }}>{professor?.sumPunctuality}</Typography>
-                                <Typography sx={{ gridColumn: 1 / 3 }}>{professor?.sumMaterial}</Typography>
-                                {/* <Typography sx={{ gridColumn: 1 / 3 }}>{professor ? professor.sumPolite : 0}</Typography> */}
-                                <Typography sx={{ gridColumn: 1 / 3 }}>{professor?.sumPolite}</Typography>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-            )}
-
-            {windowSize.width <= 500 && (
-                <Card>
-                    <CardContent>
-                        <List>
-                            <ListItem>
-                                <ListItemIcon>
-                                    <PersonIcon />
-                                </ListItemIcon>
-                                {professor && professor.firstName !== undefined ? (
-                                    <Typography variant='body1' color='text.secondary'>
-                                        {professor.firstName + ' ' + professor.lastName}
-                                    </Typography>
-                                ) : (
-                                    <Skeleton variant='text' width={190} height={30} />
-                                )}
-                            </ListItem>
-                            <ListItem>
-                                <ListItemIcon>
-                                    <MailOutline />
-                                </ListItemIcon>
-                                {professor && professor.email !== undefined ? (
-                                    <Typography variant='body1' color='text.secondary'>
-                                        {professor.email}
-                                    </Typography>
-                                ) : (
-                                    <Skeleton variant='text' width={190} height={30} />
-                                )}
-                            </ListItem>
-                        </List>
-                        <List>
-                            <ListItem>
-                                <ListItemIcon>
-                                    <Phone />
-                                </ListItemIcon>
-                                {professor && professor.phone !== undefined ? (
-                                    <Typography variant='body1' color='text.secondary'>
-                                        {professor.phone}
-                                    </Typography>
-                                ) : (
-                                    <Skeleton variant='text' width={190} height={30} />
-                                )}
-                            </ListItem>
-                            <ListItem>
-                                <ListItemIcon>
-                                    <Business />
-                                </ListItemIcon>
-                                {professor && professor.location !== undefined ? (
-                                    <Typography variant='body1' color='text.secondary'>
-                                        {professor.location}
-                                    </Typography>
-                                ) : (
-                                    <Skeleton variant='text' width={190} height={30} />
-                                )}
-                            </ListItem>
-
-                            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}>
-                                <Rating precision={0.5} value={parseFloat(professor?.avgRating)} max={3} size='large' readOnly />
-                            </div>
-                            <div
-                                style={{
-                                    marginTop: '1.2rem',
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(3, 1fr)',
-                                    gridGap: '1px',
-                                    gap: 1,
-                                    textAlign: 'center',
-                                    rowGap: 0,
-                                }}
-                            >
-                                <Tooltip title='Is always on time'>
-                                    <div style={{ gridColumn: 1 / 3, row: 1 }}>
-                                        <AccessTimeIcon fontSize='large' />
-                                    </div>
-                                </Tooltip>
-
-                                <Tooltip
-                                    title={
-                                        professor?.role?.toLowerCase() === 'student' ? 'Do the homework' : 'Has extra material to practice'
-                                    }
-                                >
-                                    <div style={{ gridColumn: 1 / 3, row: 1 }}>
-                                        <InsertDriveFileIcon fontSize='large' sx={{ gridColumn: 1 / 3, row: 1 }} />
-                                    </div>
-                                </Tooltip>
-
-                                <Tooltip
-                                    title={
-                                        professor?.role?.toLowerCase() === 'student'
-                                            ? 'Pays attention and listens'
-                                            : 'Is respectful and patient'
-                                    }
-                                >
-                                    <div style={{ gridColumn: 1 / 3, row: 1 }}>
-                                        <SentimentSatisfiedAltIcon fontSize='large' sx={{ gridColumn: 1 / 3, row: 1 }} />
-                                    </div>
-                                </Tooltip>
-
-                                <Typography sx={{ gridColumn: 1 / 3 }}>{professor?.sumPunctuality}</Typography>
-                                <Typography sx={{ gridColumn: 1 / 3 }}>{professor?.sumMaterial}</Typography>
-                                <Typography sx={{ gridColumn: 1 / 3 }}>{professor?.sumPolite}</Typography>
-                            </div>
+    const DesktopLayout = () => (
+        <Box sx={{ display: 'flex', gap: 1, paddingLeft: 8 }}>
+            {' '}
+            {/* Reduced gap */}
+            <StyledCard sx={{ flex: 1 }}>
+                <Box sx={{ display: 'flex', p: 1 }}>
+                    {' '}
+                    {/* Reduced padding */}
+                    <Avatar src={avatarUrl} alt='Professor' sx={{ width: 80, height: 80, mr: 1 }} /> {/* Reduced size */}
+                    <Box sx={{ p: 1 }}>
+                        <Typography variant='h6'>
+                            {loading ? <Skeleton width={150} /> : `${professor.firstName} ${professor.lastName}`}
+                        </Typography>
+                        <Chip
+                            icon={<Person />}
+                            label={loading ? <Skeleton width={60} /> : professor ? professor.role : ''}
+                            size='small'
+                            color='primary'
+                            variant='outlined'
+                        />
+                    </Box>
+                    <CardContent sx={{ flex: 1, p: 0 }}>
+                        <List dense>
+                            <InfoItem icon={<MailOutline />} text={professor ? professor.email : ''} loading={loading} />
+                            <InfoItem icon={<Phone />} text={professor ? professor.phone : ''} loading={loading} />
+                            <InfoItem icon={<Business />} text={professor ? professor.location : ''} loading={loading} />
                         </List>
                     </CardContent>
-                </Card>
-            )}
-        </>
+                </Box>
+            </StyledCard>
+            <StyledCard sx={{ flex: 1 }}>
+                <CardContent>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+                        <StyledRating
+                            precision={0.5}
+                            value={professor ? parseFloat(professor.avgRating) : 0}
+                            max={3}
+                            size='large'
+                            readOnly
+                        />
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
+                        {[
+                            { icon: <AccessTime />, value: professor ? professor.sumPunctuality : 0, tooltip: 'Is always on time' },
+                            {
+                                icon: <InsertDriveFile />,
+                                value: professor ? professor.sumMaterial : 0,
+                                tooltip:
+                                    professor && professor.role && professor.role.toLowerCase() === 'student'
+                                        ? 'Does the homework'
+                                        : 'Has extra material to practice',
+                            },
+                            {
+                                icon: <SentimentSatisfiedAlt />,
+                                value: professor ? professor.sumPolite : 0,
+                                tooltip:
+                                    professor && professor.role && professor.role.toLowerCase() === 'student'
+                                        ? 'Pays attention and listens'
+                                        : 'Is respectful and patient',
+                            },
+                        ].map((item, index) => (
+                            <Tooltip key={index} title={item.tooltip}>
+                                <IconWrapper>
+                                    {item.icon}
+                                    <Typography variant='body2'>{loading ? <Skeleton width={20} /> : item.value}</Typography>
+                                </IconWrapper>
+                            </Tooltip>
+                        ))}
+                    </Box>
+                </CardContent>
+            </StyledCard>
+        </Box>
     );
+
+    const MobileLayout = () => (
+        <StyledCard sx={{ width: '100%' }}>
+            <CardContent>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Avatar src={avatarUrl} alt='Professor' sx={{ width: 60, height: 60, mr: 2 }} />
+                    <Box>
+                        <Typography variant='h6'>
+                            {loading ? <Skeleton width={150} /> : `${professor.firstName} ${professor.lastName}`}
+                        </Typography>
+                        <Chip
+                            icon={<Person />}
+                            label={loading ? <Skeleton width={60} /> : professor ? professor.role : ''}
+                            size='small'
+                            color='primary'
+                            variant='outlined'
+                        />
+                    </Box>
+                </Box>
+                <List dense>
+                    <InfoItem icon={<MailOutline />} text={professor ? professor.email : ''} loading={loading} />
+                    <InfoItem icon={<Phone />} text={professor ? professor.phone : ''} loading={loading} />
+                    <InfoItem icon={<Business />} text={professor ? professor.location : ''} loading={loading} />
+                </List>
+                <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+                    <StyledRating precision={0.5} value={professor ? parseFloat(professor.avgRating) : 0} max={3} size='large' readOnly />
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
+                    {[
+                        { icon: <AccessTime />, value: professor ? professor.sumPunctuality : 0, tooltip: 'Is always on time' },
+                        {
+                            icon: <InsertDriveFile />,
+                            value: professor ? professor.sumMaterial : 0,
+                            tooltip:
+                                professor && professor.role && professor.role.toLowerCase() === 'student'
+                                    ? 'Do the homework'
+                                    : 'Has extra material to practice',
+                        },
+                        {
+                            icon: <SentimentSatisfiedAlt />,
+                            value: professor ? professor.sumPolite : 0,
+                            tooltip:
+                                professor && professor.role && professor.role.toLowerCase() === 'student'
+                                    ? 'Pays attention and listens'
+                                    : 'Is respectful and patient',
+                        },
+                    ].map((item, index) => (
+                        <Tooltip key={index} title={item.tooltip}>
+                            <IconWrapper>
+                                {item.icon}
+                                <Typography variant='body2'>{loading ? <Skeleton width={20} /> : item.value}</Typography>
+                            </IconWrapper>
+                        </Tooltip>
+                    ))}
+                </Box>
+            </CardContent>
+        </StyledCard>
+    );
+
+    return isMobile ? <MobileLayout /> : <DesktopLayout />;
 }

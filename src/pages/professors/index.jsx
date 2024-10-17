@@ -269,7 +269,7 @@ export default function Professors() {
                                                             phone={profesor.phone}
                                                             sex={profesor.sex}
                                                             office={profesor.location}
-                                                            style={{ mr: 3, mt: 2 }}
+                                                            style={{ mr: 3, mt: 2, height: 440, width: 320 }}
                                                             subjects={profesor.subjects}
                                                             rating={profesor.avgRating}
                                                         />
