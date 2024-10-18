@@ -67,7 +67,7 @@ export default function Upload({ id, setFiles, setComments, setUploadingFileName
                     if (res.status === 200) {
                         setAlertMessage('File uploaded successfully!');
                         setAlertSeverity('success');
-                        setFiles(prevFiles => [...prevFiles, { fileName: file.name, role: user.role }]);
+
                         return res.json();
                     } else {
                         setAlertSeverity('error');
@@ -75,6 +75,7 @@ export default function Upload({ id, setFiles, setComments, setUploadingFileName
                     }
                 })
                 .then(json => {
+                    setFiles(prevFiles => [...prevFiles, { id: json.fileId, fileName: file.name, role: user.role }]);
                     fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/setUploadInformation`, {
                         method: 'POST',
                         headers: {

@@ -50,8 +50,6 @@ export default function Feedbacks() {
 
     useEffect(() => {
         if (user.id) {
-            if (user.role === 'professor') router.push('/professor-landing');
-            if (user.role === 'student') router.push('/student-landing');
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
@@ -65,10 +63,8 @@ export default function Feedbacks() {
                     })
                 )
                 .finally(() => setIsLoading(false));
-        } else {
-            router.push('/');
         }
-    }, [user, router]);
+    }, [user]);
 
     const handleSearch = e => {
         e.preventDefault();
@@ -288,7 +284,7 @@ export default function Feedbacks() {
                                 {feedbacks.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={8} align='center'>
-                                            <Typography variant='h4'>No students found</Typography>
+                                            <Typography variant='h4'>No Feedbacks found</Typography>
                                         </TableCell>
                                     </TableRow>
                                 ) : (
@@ -296,14 +292,10 @@ export default function Feedbacks() {
                                         {feedbacks.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(feed => (
                                             <TableRow key={feed.id}>
                                                 <TableCell>
-                                                    {feed.receptorRole === 'STUDENT'
-                                                        ? `${feed.professor.firstName} ${feed.professor.lastName}`
-                                                        : `${feed.student.firstName} ${feed.student.lastName}`}
+                                                    {feed.sender.firstName} {feed.sender.lastName}
                                                 </TableCell>
                                                 <TableCell>
-                                                    {feed.receptorRole === 'STUDENT'
-                                                        ? `${feed.student.firstName} ${feed.student.lastName}`
-                                                        : `${feed.professor.firstName} ${feed.professor.lastName}`}
+                                                    {feed.receiver.firstName} {feed.receiver.lastName}
                                                 </TableCell>
                                                 <TableCell>
                                                     {`${feed.dateTimeOfFeedback[2]}-${feed.dateTimeOfFeedback[1]}-${feed.dateTimeOfFeedback[0]}`}

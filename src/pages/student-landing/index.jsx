@@ -24,6 +24,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import useWindowSize from '@/hooks/useWindowSize';
 import useSWR from 'swr';
 import { fetcherGetWithTokenFeedbacks } from '@/helpers/FetchHelpers';
+import { useUserDispatch } from '@/context/UserContext';
 
 export default function StudentLandingPage() {
     const [week, setWeek] = useState(0);
@@ -39,26 +40,42 @@ export default function StudentLandingPage() {
     const [autoHideDuration, setAutoHideDuration] = useState(null);
     const windowSize = useWindowSize();
     var router = useRouter();
+    const { token } = router.query; // Get the token from the URL
 
     useEffect(() => {
-        setIsLoading(true);
-        if (user.id && router.isReady) {
-            if (user.role == 'professor') router.push('/professor-landing');
-            if (user.role === 'admin') router.push('/admin-landing');
+        if (token) {
+            // Store the token in localStorage
+            localStorage.setItem('googleAccessToken', token);
+
+            // Alert the parent window (if this is a popup) to refresh or notify of token storage
+            if (window.opener) {
+                window.opener.postMessage('googleAuthSuccess', '*');
+                window.close(); // Close the OAuth popup window
+            }
+        }
+    }, [token]);
+
+    useEffect(() => {
+        //setIsLoading(true);
+        if (user.id) {
+            // if (user.role == 'professor') router.push('/professor-landing');
+            // if (user.role === 'admin') router.push('/admin-landing');
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByStudent?studentId=${user.id}`, requestOptions).then(res => {
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByAppUserId?appUserId=${user.id}`, requestOptions).then(res => {
                 res.json().then(json => {
                     setDisabledBlocks(
                         json.map(e => {
+                            e['day'] = e.date;
                             if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
                             if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
                             if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
                             if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
                             if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
                             if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
+                            console.log(e);
                             return e;
                         })
                     );
@@ -97,10 +114,8 @@ export default function StudentLandingPage() {
             });
 
             setIsLoading(false);
-        } else {
-            router.push('/');
         }
-    }, [user, router.isReady]);
+    }, [user]);
 
     const handleFeedback = () => {
         setIsLoadingFeedback(true);
@@ -119,8 +134,8 @@ export default function StudentLandingPage() {
                 Authorization: `Bearer ${user.token}`,
             },
             body: JSON.stringify({
-                studentId: user.id,
-                professorId: pendingFeedback[0].receiver.id,
+                senderId: user.id,
+                receiverId: pendingFeedback[0].receiver.id,
                 roleReceptor: 'PROFESSOR',
                 classId: pendingFeedback[0].reservation_id,
                 rating: feedback.rating,

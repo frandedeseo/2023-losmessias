@@ -14,12 +14,12 @@ import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 import { useUser } from '@/context/UserContext';
 import { useRouter } from 'next/router';
 
-export async function getServerSideProps() {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`);
-    if (!res.ok) return { props: { data: [] } };
-    const data = await res.json();
-    return { props: { data } };
-}
+// export async function getServerSideProps() {
+//     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`);
+//     if (!res.ok) return { props: { data: [] } };
+//     const data = await res.json();
+//     return { props: { data } };
+// }
 
 export default function Validator() {
     const [allTeachersSubjects, setAllTeachersSubjects] = useState([]);
@@ -29,20 +29,16 @@ export default function Validator() {
     const [alertSeverity, setAlertSeverity] = useState('');
     const user = useUser();
     const router = useRouter();
-    const { data, isLoading, mutate } = useSWR([
-        `${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`,
-        user.token],
+    const { data, isLoading, mutate } = useSWR(
+        [`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`, user.token],
         fetcherGetWithToken,
-        { fallbackData: [] })
+        { fallbackData: [] }
+    );
 
     useEffect(() => {
         if (user.id) {
-            if (user.role === 'student') router.push('/student-landing');
-            if (user.role === 'professor') router.push('/professor-landing');
             setTeachersSubjects(data);
             setAllTeachersSubjects(data);
-        } else {
-            router.push('/');
         }
     }, [data, user, router]);
 
@@ -74,7 +70,7 @@ export default function Validator() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${user.token}`
+                Authorization: `Bearer ${user.token}`,
             },
             body: JSON.stringify({
                 professorId: teacherSubject.professor.id,
@@ -105,14 +101,16 @@ export default function Validator() {
                         return true;
                     })
                 );
+                setAlert(true);
                 setAlertSeverity('success');
-                setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} has been approved!`);
+                setAlertMessage(
+                    `It has been approved successfully the subject ${teacherSubject.subject.name} for ${teacherSubject.professor.firstName}`
+                );
             } else {
                 setAlertSeverity('error');
-                setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} approval failed!`);
+                setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} Approval failed!`);
             }
         });
-        setAlert(true);
     };
 
     const handleReject = teacherSubject => {
@@ -120,7 +118,7 @@ export default function Validator() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${user.token}`
+                Authorization: `Bearer ${user.token}`,
             },
             body: JSON.stringify({
                 professorId: teacherSubject.professor.id,
@@ -152,10 +150,12 @@ export default function Validator() {
                     })
                 );
                 setAlertSeverity('success');
-                setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} has been rejected!`);
+                setAlertMessage(
+                    `It has been rejected successfully the subject ${teacherSubject.subject.name} for ${teacherSubject.professor.firstName}`
+                );
             } else {
                 setAlertSeverity('error');
-                setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} rejection failed!`);
+                setAlertMessage(`Rejection failed!`);
             }
             setAlert(true);
         });
@@ -168,12 +168,7 @@ export default function Validator() {
             <div style={{ paddingBlock: '1rem' }} />
             <Searchbar search={handleSearch} />
             <div style={styles.divPadding} />
-            <TeachersTable
-                isLoading={isLoading}
-                data={teachersSubjects}
-                approve={handleApprove}
-                reject={handleReject}
-            />
+            <TeachersTable isLoading={isLoading} data={teachersSubjects} approve={handleApprove} reject={handleReject} />
 
             <Snackbar
                 open={alert}

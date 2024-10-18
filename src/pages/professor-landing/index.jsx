@@ -28,6 +28,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import useWindowSize from '@/hooks/useWindowSize';
+import Classes from '@/components/Classes';
 
 // Consts
 const dayNumber = {
@@ -62,6 +63,7 @@ export default function ProfessorLandingPage() {
     const [day, setDay] = useState(1);
     const windowSize = useWindowSize();
     const [nullFeedback, setNullFeedback] = useState(false);
+    const [professorData, setProfessorData] = useState(null);
 
     var curr = new Date();
     var first = curr.getDate() - curr.getDay();
@@ -69,18 +71,23 @@ export default function ProfessorLandingPage() {
     useEffect(() => {
         setIsLoading(true);
         if (user.id) {
-            if (user.role == 'student') router.push('/student-landing');
-            if (user.role === 'admin') router.push('/admin-landing');
             const requestOptions = {
                 method: 'GET',
                 headers: { Authorization: `Bearer ${user.token}` },
             };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByProfessor?professorId=${user.id}`, requestOptions).then(res => {
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByAppUserId?appUserId=${user.id}`, requestOptions).then(res => {
                 if (res.status === 200) {
                     res.json().then(json => {
                         setDisabledBlocks(
                             json.map(e => {
+                                e['day'] = e.date;
+                                if (e.day[1] < 10) e.day[1] = '0' + e.day[1];
                                 if (e.day[2] < 10) e.day[2] = '0' + e.day[2];
+                                if (e.startingHour[0] < 10) e.startingHour[0] = '0' + e.startingHour[0];
+                                if (e.startingHour[1] < 10) e.startingHour[1] = '0' + e.startingHour[1];
+                                if (e.endingHour[0] < 10) e.endingHour[0] = '0' + e.endingHour[0];
+                                if (e.endingHour[1] < 10) e.endingHour[1] = '0' + e.endingHour[1];
+                                console.log(e);
                                 return e;
                             })
                         );
@@ -91,6 +98,7 @@ export default function ProfessorLandingPage() {
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor/${user.id}`, requestOptions).then(res => {
                 if (res.status === 200) {
                     return res.json().then(json => {
+                        setProfessorData(json);
                         json.pendingClassesFeedbacks.map(reservation => {
                             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/${reservation}`, requestOptions).then(res2 => {
                                 res2.json().then(json2 => {
@@ -120,10 +128,8 @@ export default function ProfessorLandingPage() {
                     });
                 }
             });
-        } else {
-            router.push('/');
         }
-    }, [router, user]);
+    }, [user]);
 
     const handleCancel = () => {
         setSelectedBlocks([]);
@@ -142,19 +148,19 @@ export default function ProfessorLandingPage() {
 
     const handleDisable = () => {
         orderedSelectedBlocks.forEach(block => {
-            let date = new Date(curr.setDate(first + dayNumber[block.day] + 7 * week)).toLocaleString().split(',')[0];
-            let dateElements = date.split('/');
-            let bubble = dateElements[0];
-            dateElements[0] = dateElements[2];
-            dateElements[2] = dateElements[1];
-            dateElements[1] = bubble;
-            date = dateElements.join('-');
+            let date = new Date(curr.setDate(first + dayNumber[block.day] + 7 * week));
+            const year = date.toLocaleString('default', { year: 'numeric' });
+            const month = date.toLocaleString('default', {
+                month: '2-digit',
+            });
+            const day = date.toLocaleString('default', { day: '2-digit' });
+
+            date = [year, month, day].join('-');
 
             const reservation = {
                 day: date,
                 startingHour: block.startingHour,
                 endingHour: block.endingHour,
-                duration: block.totalHours,
                 professorId: parseInt(user.id),
             };
 
@@ -175,7 +181,7 @@ export default function ProfessorLandingPage() {
                     setDisabledBlocks(prevDisabled => [
                         ...prevDisabled,
                         {
-                            day: dateElements,
+                            day: [year, month, day],
                             startingHour: block.startingHour.split(':'),
                             endingHour: block.endingHour.split(':'),
                             status: 'NOT_AVAILABLE',
@@ -242,8 +248,8 @@ export default function ProfessorLandingPage() {
                     Authorization: `Bearer ${user.token}`,
                 },
                 body: JSON.stringify({
-                    studentId: pendingFeedback[0].receiver.id,
-                    professorId: user.id,
+                    receiverId: pendingFeedback[0].receiver.id,
+                    senderId: user.id,
                     roleReceptor: 'STUDENT',
                     classId: pendingFeedback[0].reservation_id,
                     rating: feedback.rating,
@@ -325,6 +331,7 @@ export default function ProfessorLandingPage() {
 
                     <Tabs value={tab} onChange={handleTabChange}>
                         <Tab label='Agenda' />
+                        <Tab label='Classes' />
                         <Tab label='Dashboard' />
                     </Tabs>
                     <div style={{ paddingBlock: '0.75rem' }} />
@@ -428,7 +435,8 @@ export default function ProfessorLandingPage() {
                             </Snackbar>
                         </>
                     )}
-                    {tab === 1 && <Dashboard id={user.id} />}
+                    {tab === 1 && <Classes />}
+                    {tab === 2 && <Dashboard />}
 
                     {pendingFeedback.length > 0 && (
                         <Dialog open={giveFeedback} onClose={() => setGiveFeedback(false)}>

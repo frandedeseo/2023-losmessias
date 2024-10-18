@@ -1,6 +1,6 @@
 import dynamic from 'next/dynamic';
 const Pie = dynamic(() => import('@ant-design/plots').then(({ Pie }) => Pie), { ssr: false });
-import { Box, CircularProgress, Typography } from '@mui/material';
+import { Box, CircularProgress, Skeleton, Typography } from '@mui/material';
 import PaidIcon from '@mui/icons-material/Paid';
 import { getColor } from '@/utils/getColor';
 import { useUser } from '@/context/UserContext';
@@ -62,7 +62,7 @@ export default function MonthlyChart({ id, legend = false }) {
                 statistic: {
                     title: false,
                     content: {
-                        customHtml: () => <Typography variant='h4'>{data[2].total}</Typography>,
+                        customHtml: () => <Typography variant='h4'>{data[2].total.toFixed(2)}</Typography>,
                         style: {
                             whiteSpace: 'pre-wrap',
                             overflow: 'hidden',
@@ -90,9 +90,9 @@ export default function MonthlyChart({ id, legend = false }) {
                     </Typography>
                 </Box>
             ) : (
-                <>
+                <div>
                     {configDonut && (
-                        <div style={{ justifyContent: 'center', display: 'flex', justifySelf: 'center' }}>
+                        <div style={{ justifyContent: 'center', display: 'flex', minHeight: 400, justifySelf: 'center' }}>
                             <Pie {...configDonut} />
                         </div>
                     )}
@@ -109,11 +109,11 @@ export default function MonthlyChart({ id, legend = false }) {
                             </Typography>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center' }}>
                                 <PaidIcon sx={{ fontSize: 30 }} />
-                                <Typography variant='h6'>{data[2]?.income}</Typography>
+                                <Typography variant='h6'>{data[2]?.income.toFixed(2)}</Typography>
                             </div>
                         </>
                     )}
-                </>
+                </div>
             )}
         </>
     );

@@ -49,28 +49,22 @@ export default function AllStudents() {
     const [sorters, setSorters] = useState({ avgRating: false, sumPunctuality: false, sumMaterial: false, sumPolite: false });
 
     useEffect(() => {
-        if (router.isReady && user.id) {
-            if (user.authenticated) {
-                if (user.role === 'student') router.push('/student-landing');
-                if (user.role === 'professor') router.push('/professor-landing');
-                const requestOptions = {
-                    method: 'GET',
-                    headers: { Authorization: `Bearer ${user.token}` },
-                };
-                setIsLoading(true);
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/all`, requestOptions)
-                    .then(res =>
-                        res.json().then(json => {
-                            setAllStudents(json);
-                            setStudents(json);
-                        })
-                    )
-                    .finally(() => setIsLoading(false));
-            } else {
-                router.push('/');
-            }
+        if (user.id && user.authenticated) {
+            const requestOptions = {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${user.token}` },
+            };
+            setIsLoading(true);
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/all`, requestOptions)
+                .then(res =>
+                    res.json().then(json => {
+                        setAllStudents(json);
+                        setStudents(json);
+                    })
+                )
+                .finally(() => setIsLoading(false));
         }
-    }, [router, user]);
+    }, [user]);
 
     const handleSearch = e => {
         e.preventDefault();
@@ -219,7 +213,7 @@ export default function AllStudents() {
                                             }}
                                         >
                                             <CircularProgress sx={{ mr: 2 }} />
-                                            <Typography variant='h4'>Loading professors...</Typography>
+                                            <Typography variant='h4'>Loading students...</Typography>
                                         </Box>
                                     </TableCell>
                                 </TableRow>
@@ -240,13 +234,13 @@ export default function AllStudents() {
                                                 <TableCell>{stu.email}</TableCell>
                                                 <TableCell>
                                                     <div style={{ display: 'flex', gap: 5 }}>
-                                                        <Rating precision={0.5} value={stu.avgRating} max={3} readOnly />
-                                                        <Typography>{`(${stu.avgRating.toFixed(2)})`}</Typography>
+                                                        <Rating precision={0.5} value={stu.feedbackReceived.avgRating} max={3} readOnly />
+                                                        <Typography>{`(${stu.feedbackReceived.avgRating.toFixed(2)})`}</Typography>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell align='center'>{stu.sumPunctuality}</TableCell>
-                                                <TableCell align='center'>{stu.sumMaterial}</TableCell>
-                                                <TableCell align='center'>{stu.sumPolite}</TableCell>
+                                                <TableCell align='center'>{stu.feedbackReceived.sumPunctuality}</TableCell>
+                                                <TableCell align='center'>{stu.feedbackReceived.sumMaterial}</TableCell>
+                                                <TableCell align='center'>{stu.feedbackReceived.sumPolite}</TableCell>
                                             </TableRow>
                                         ))}
                                     </>

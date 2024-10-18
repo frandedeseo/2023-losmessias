@@ -44,37 +44,32 @@ export default function Classes() {
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
-
-    const { data: subjects } = useSWR(
-        [`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`, user.token],
-        fetcherGetWithToken,
-        { fallbackData: [] }
-    );
+    const { data: subjects } = useSWR([`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`, user.token], fetcherGetWithToken, {
+        fallbackData: [],
+    });
 
     useEffect(() => {
         if (user.id) {
-            if (user.role === 'admin') router.push('/admin-landing');
             setIsLoading(true);
             const requestOptions = {
                 method: 'GET',
                 headers: {
                     'Content-type': 'application/json',
-                    Authorization: `Bearer ${user.token}`
+                    Authorization: `Bearer ${user.token}`,
                 },
             };
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findBy${camelCaseUserRole}?${user.role}Id=${user.id}`, requestOptions)
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/reservation/findByAppUserId?appUserId=${user.id}`, requestOptions)
                 .then(res => {
                     if (!res.ok) throw Error(res.status);
                     res.json().then(json => {
                         setData(json);
-                        setClasses(json.filter((resrv) => resrv.status !== "NOT_AVAILABLE"));
+                        setClasses(json.filter(resrv => resrv.status !== 'NOT_AVAILABLE'));
                     });
-                }).catch(err => console.log(err))
+                })
+                .catch(err => console.log(err))
                 .finally(() => setIsLoading(false));
-        } else {
-            router.push('/');
         }
-    }, [router, user, camelCaseUserRole])
+    }, [user, camelCaseUserRole]);
 
     const handleCancel = id => {
         setIsProcessing(true);
@@ -86,17 +81,19 @@ export default function Classes() {
             },
             body: JSON.stringify({
                 id,
-                role: user.role.toUpperCase(),
+                idCancelsUser: user.id,
             }),
-        }).then(res => {
-            if (res.status !== 200) {
-                setAlertSeverity('error');
-                setAlertMessage('There was an error making the reservation!');
-                setAlert(true);
-            } else {
-                setClasses(prevClasses => prevClasses.filter(reservation => reservation.id !== id));
-            }
-        }).finally(() => setIsProcessing(false));
+        })
+            .then(res => {
+                if (res.status !== 200) {
+                    setAlertSeverity('error');
+                    setAlertMessage('There was an error making the reservation!');
+                    setAlert(true);
+                } else {
+                    setClasses(prevClasses => prevClasses.filter(reservation => reservation.id !== id));
+                }
+            })
+            .finally(() => setIsProcessing(false));
     };
 
     const handleSubjectChange = event => {
@@ -109,9 +106,9 @@ export default function Classes() {
                 data.filter(reservation =>
                     user.role === 'student'
                         ? reservation.professor.firstName.toLowerCase().includes(search.toLowerCase()) ||
-                        reservation.professor.lastName.toLowerCase().includes(search.toLowerCase())
+                          reservation.professor.lastName.toLowerCase().includes(search.toLowerCase())
                         : reservation.student.firstName.toLowerCase().includes(search.toLowerCase()) ||
-                        reservation.student.lastName.toLowerCase().includes(search.toLowerCase())
+                          reservation.student.lastName.toLowerCase().includes(search.toLowerCase())
                 )
             );
         } else if (search === '' && subjectSelected.length > 0) {
@@ -122,9 +119,9 @@ export default function Classes() {
                     reservation =>
                         (user.role === 'student'
                             ? reservation.professor.firstName.toLowerCase().includes(search.toLowerCase()) ||
-                            reservation.professor.lastName.toLowerCase().includes(search.toLowerCase())
+                              reservation.professor.lastName.toLowerCase().includes(search.toLowerCase())
                             : reservation.student.firstName.toLowerCase().includes(search.toLowerCase()) ||
-                            reservation.student.lastName.toLowerCase().includes(search.toLowerCase())) &&
+                              reservation.student.lastName.toLowerCase().includes(search.toLowerCase())) &&
                         subjectSelected.includes(reservation.subject.name)
                 )
             );
@@ -140,27 +137,29 @@ export default function Classes() {
 
     return (
         <>
-            <Grid container
+            <Grid
+                container
                 sx={{
                     display: 'flex',
                     backgroundColor: '#F5F5F5',
+                    maxWidth: '100%',
                 }}
             >
                 <Box
                     sx={{
-                        flexDirection: 'column',
-                        minWidth: 300,
-                        minHeight: 300,
                         display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginTop: 2,
+
                         px: 1,
                     }}
                 >
-                    <Typography variant='h3' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
+                    <Typography variant='h5' component='div' sx={{ ml: 2 }} color={'black'}>
                         Filters
                     </Typography>
-                    <Divider width={'100%'} sx={{ my: 2 }} />
 
-                    <FormControl sx={{ ml: 2, marginTop: '1.5rem', backgroundColor: '#fff' }}>
+                    <FormControl sx={{ ml: 2, backgroundColor: '#fff', minWidth: '200px' }}>
                         <form onSubmit={handleSubmit}>
                             <TextField
                                 value={search}
@@ -172,7 +171,7 @@ export default function Classes() {
                         </form>
                     </FormControl>
 
-                    <FormControl sx={{ ml: 2, marginTop: '1.5rem', backgroundColor: '#fff' }}>
+                    <FormControl sx={{ ml: 2, backgroundColor: '#fff', minWidth: '200px' }}>
                         <InputLabel id='office-select'>Subjects</InputLabel>
                         <Select
                             multiple
@@ -197,6 +196,7 @@ export default function Classes() {
                         </Select>
                     </FormControl>
                 </Box>
+                <Divider width={'100%'} sx={{ my: 2 }} />
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
                     {isLoading ? (
                         <>

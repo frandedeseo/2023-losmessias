@@ -9,6 +9,7 @@ export const styles = {
 
     tableCell: {
         display: 'flex',
+        justifyContent: 'flex-end',
         gap: '0.5rem',
     },
 
