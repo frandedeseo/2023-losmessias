@@ -164,24 +164,6 @@ export const useApi = () => {
             });
     };
 
-    const getStudentById = id => {
-        const requestOptions = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                Authentication: `Bearer ${this.state.token}`,
-            },
-        };
-        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/student/` + id, requestOptions)
-            .then(response => response.json())
-            .then(json => {
-                setData(json);
-            })
-            .catch(error => {
-                console.log(error);
-            });
-    };
-
     const addProfessorLecture = request => {
         const requestOptions = {
             method: 'POST',
@@ -301,6 +283,5 @@ export const useApi = () => {
         confirmToken,
         validateEmailNotTaken,
         sendRequestForRegistrationProfessor,
-        getStudentById,
     };
 };

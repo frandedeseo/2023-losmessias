@@ -4,6 +4,30 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Badge, Card, CardContent, Typography, Avatar, Box, Button, Stack, IconButton } from '@mui/material';
 
+const DisplayNotification = ({ id, message, opened }) => {
+    const cardStyle = {
+        backgroundColor: !opened ? '#f5f5f5' : '#ffffff',
+        boxShadow: !opened ? '0 4px 6px rgba(0, 0, 0, 0.1)' : 'none',
+        marginBottom: '10px',
+        borderRadius: '8px',
+    };
+
+    const user = useUser();
+
+    return (
+        <Card key={id} sx={cardStyle}>
+            <CardContent>
+                <Stack direction='row' spacing={2} alignItems='center'>
+                    <Avatar sx={{ bgcolor: '#1976d2' }}>{user.firstName.charAt(0).toUpperCase()}</Avatar>
+                    <Typography variant='body1' color='textPrimary'>
+                        {message}
+                    </Typography>
+                </Stack>
+            </CardContent>
+        </Card>
+    );
+};
+
 export default function Notifications() {
     const [notifications, setNotifications] = useState([]);
     const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
@@ -56,29 +80,6 @@ export default function Notifications() {
         }
     }, [user, router]);
 
-    const displayNotification = ({ id, message, opened }) => {
-        const cardStyle = {
-            backgroundColor: !opened ? '#f5f5f5' : '#ffffff',
-            boxShadow: !opened ? '0 4px 6px rgba(0, 0, 0, 0.1)' : 'none',
-            marginBottom: '10px',
-            borderRadius: '8px',
-        };
-        const user = useUser();
-
-        return (
-            <Card key={id} sx={cardStyle}>
-                <CardContent>
-                    <Stack direction='row' spacing={2} alignItems='center'>
-                        <Avatar sx={{ bgcolor: '#1976d2' }}>{user.firstName.charAt(0).toUpperCase()}</Avatar>
-                        <Typography variant='body1' color='textPrimary'>
-                            {message}
-                        </Typography>
-                    </Stack>
-                </CardContent>
-            </Card>
-        );
-    };
-
     return (
         <>
             <IconButton onClick={handleToggle} color='inherit'>
@@ -99,12 +100,14 @@ export default function Notifications() {
                         boxShadow: 3,
                         borderRadius: 1,
                         borderColor: 'grey.300',
-                        borderRadiusRadius: '8px',
+                        borderRadius: '8px', // Fixed the typo here
                         p: 2,
                         zIndex: 1000,
                     }}
                 >
-                    {notifications.slice(0, visibleCount).map(n => displayNotification(n))}
+                    {notifications.slice(0, visibleCount).map(n => (
+                        <DisplayNotification key={n.id} id={n.id} message={n.message} opened={n.opened} />
+                    ))}
                     {visibleCount < notifications.length && (
                         <Button variant='outlined' fullWidth onClick={() => setVisibleCount(visibleCount + 10)} sx={{ mt: 1 }}>
                             Show more
