@@ -75,7 +75,7 @@ export default function SignUp({ setRequest, setPage }) {
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/validate-email?email=${req.email}`, { method: 'POST' })
                 .then(response => {
                     if (response.status === 200) {
-                        setPage('transferlist');
+                        setTimeout(() => setPage('transferlist'), 600);
                     } else {
                         showAlert({ message: 'Email already taken', status: 500 });
                     }
@@ -125,7 +125,11 @@ export default function SignUp({ setRequest, setPage }) {
                             color='primary'
                             value={role}
                             exclusive
-                            onChange={(event, newAlignment) => setRole(newAlignment)}
+                            onChange={(event, newAlignment) => {
+                                if (newAlignment !== null) {
+                                    setRole(newAlignment);
+                                }
+                            }}
                             aria-label='Role'
                         >
                             <ToggleButton value='Student'>Student</ToggleButton>
@@ -138,7 +142,11 @@ export default function SignUp({ setRequest, setPage }) {
                             color='primary'
                             value={sex}
                             exclusive
-                            onChange={(event, newAlignment) => setSex(newAlignment)}
+                            onChange={(event, newAlignment) => {
+                                if (newAlignment !== null) {
+                                    setSex(newAlignment);
+                                }
+                            }}
                             aria-label='Sex'
                         >
                             <ToggleButton value='MALE'>Male</ToggleButton>
@@ -223,9 +231,18 @@ export default function SignUp({ setRequest, setPage }) {
                             label='Phone Number'
                             name='phone'
                             value={phone}
-                            onChange={e => setPhone(e.target.value)}
+                            onChange={e => {
+                                // Limit the input to a maximum of 10 digits
+                                if (e.target.value.length <= 15) {
+                                    setPhone(e.target.value);
+                                }
+                            }}
                             onKeyDown={event => {
-                                if (!REG_ONLY_NUM.test(event.key) && event.keyCode !== 8) {
+                                // Allow only numeric input, backspace, and prevent additional input if length exceeds 10 digits
+                                if (
+                                    (!REG_ONLY_NUM.test(event.key) && event.keyCode !== 8) ||
+                                    (phone.length >= 15 && event.keyCode !== 8) // Prevent more than 10 digits
+                                ) {
                                     event.preventDefault();
                                 }
                             }}

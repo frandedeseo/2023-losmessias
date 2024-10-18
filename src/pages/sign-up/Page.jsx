@@ -37,7 +37,11 @@ export default function Page({ page, setPage }) {
                 </Box>
             ) : (
                 <>
-                    <Grid container component='main' justifyContent='center' direction='row' sx={{ height: '91vh' }}>
+                    <Grid
+                        container
+                        component='main'
+                        sx={{ height: 'calc(100vh - 64px)' }} // Adjusted height to account for any headers
+                    >
                         <CssBaseline />
                         {page !== 'transferlist' && (
                             <>
@@ -53,9 +57,23 @@ export default function Page({ page, setPage }) {
                                         backgroundColor: t => (t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900]),
                                         backgroundSize: 'cover',
                                         backgroundPosition: 'center',
+                                        height: '100%', // Match the height of the parent container
+                                        overflow: 'hidden', // Prevent scrollbars for the image
                                     }}
                                 />
-                                <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
+                                <Grid
+                                    item
+                                    xs={12}
+                                    sm={8}
+                                    md={5}
+                                    component={Paper}
+                                    elevation={6}
+                                    square
+                                    sx={{
+                                        height: '100%', // Match the height of the parent container
+                                        overflowY: 'auto', // Make this grid scrollable
+                                    }}
+                                >
                                     <Box
                                         sx={{
                                             my: 6,

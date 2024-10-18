@@ -52,7 +52,7 @@ export default function AllProfessors() {
     const windowSize = useWindowSize();
     const [searchValue, setSearchValue] = useState('');
     const [filterValues, setFilterValues] = useState([]);
-    const [sorters, setSorters] = useState({ avgRating: false, sumPunctuality: false, sumMaterial: false, sumPolite: false });
+    const [sorter, setSorter] = useState({ field: null, direction: null });
 
     const user = useUser();
 
@@ -74,36 +74,68 @@ export default function AllProfessors() {
         }
     }, [user]);
 
-    const applySearchFilter = (searchValue, filterValues) => {
-        if (searchValue !== '' && filterValues.length === 0) {
-            setProfessors(
-                allProfessors.filter(
-                    prevprofessors =>
-                        prevprofessors.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
-                        prevprofessors.lastName.toLowerCase().includes(searchValue.toLowerCase())
-                )
+    function applySearchFilter(searchValue, filterValues, data) {
+        let filteredProfessors = data;
+
+        if (searchValue !== '') {
+            filteredProfessors = filteredProfessors.filter(
+                professor =>
+                    professor.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+                    professor.lastName.toLowerCase().includes(searchValue.toLowerCase())
             );
-        } else if (searchValue === '' && filterValues.length > 0) {
-            setProfessors(
-                allProfessors.filter(prevProfessors => prevProfessors.subjects.some(subject => filterValues.includes(subject.name)))
+        }
+
+        if (filterValues.length > 0) {
+            filteredProfessors = filteredProfessors.filter(professor =>
+                professor.subjects.some(subject => filterValues.includes(subject.name))
             );
-        } else if (searchValue !== '' && filterValues.length > 0) {
-            setProfessors(
-                allProfessors.filter(
-                    prevProfessors =>
-                        (prevProfessors.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
-                            prevProfessors.lastName.toLowerCase().includes(searchValue.toLowerCase())) &&
-                        prevProfessors.subjects.some(subject => filterValues.includes(subject.name))
-                )
-            );
-        } else setProfessors(allProfessors);
+        }
+
+        return filteredProfessors;
+    }
+
+    const sortData = (data, field, direction) => {
+        const sortedData = [...data];
+        if (direction === 'asc') {
+            sortedData.sort((a, b) => a[field] - b[field]);
+        } else if (direction === 'desc') {
+            sortedData.sort((a, b) => b[field] - a[field]);
+        }
+        return sortedData;
     };
 
     const handleSearch = (searchValue, filterValues) => {
         setPage(0);
-        applySearchFilter(searchValue, filterValues);
+        let filteredData = applySearchFilter(searchValue, filterValues, allProfessors);
+        if (sorter.field && sorter.direction) {
+            filteredData = sortData(filteredData, sorter.field, sorter.direction);
+        }
+        setProfessors(filteredData);
         setSearchValue(searchValue);
         setFilterValues(filterValues);
+    };
+
+    const handleSorterClick = property => {
+        let newDirection = 'asc';
+        if (sorter.field === property && sorter.direction === 'asc') {
+            newDirection = 'desc';
+        } else if (sorter.field === property && sorter.direction === 'desc') {
+            newDirection = null;
+        }
+
+        const newSorter = {
+            field: newDirection ? property : null,
+            direction: newDirection,
+        };
+
+        let filteredData = applySearchFilter(searchValue, filterValues, allProfessors);
+        if (newSorter.field && newSorter.direction) {
+            filteredData = sortData(filteredData, newSorter.field, newSorter.direction);
+        }
+
+        setProfessors(filteredData);
+        setPage(0);
+        setSorter(newSorter);
     };
 
     const handleChangePage = (event, newPage) => {
@@ -122,40 +154,6 @@ export default function AllProfessors() {
 
     const handleClose = () => {
         setOpen(false);
-    };
-
-    function sortDataBy(field, direction) {
-        const ascSorter = (a, b) => {
-            return a[field] - b[field];
-        };
-
-        const descSorter = (a, b) => {
-            return (a[field] - b[field]) * -1;
-        };
-
-        let sortedStudents = allProfessors;
-        if (direction === 'asc') sortedStudents = allProfessors.sort(ascSorter);
-        else if (direction === 'desc') sortedStudents = allProfessors.sort(descSorter);
-
-        if (searchValue !== '' || filterValues.length > 0) {
-            applySearchFilter(searchValue, filterValues);
-        }
-
-        setProfessors(sortedStudents);
-        setPage(0);
-    }
-
-    const handleSorterClick = property => {
-        let newSorter = {};
-        Object.keys(sorters).forEach(key => {
-            if (key === property) {
-                if (!sorters[key]) newSorter[key] = 'asc';
-                else if (sorters[key] === 'asc') newSorter[key] = 'desc';
-                else if (sorters[key] === 'desc') newSorter[key] = false;
-            } else newSorter[key] = false;
-        });
-        sortDataBy(property, newSorter[property]);
-        setSorters(newSorter);
     };
 
     return (
@@ -177,8 +175,8 @@ export default function AllProfessors() {
                             <TableCell>Subjects</TableCell>
                             <TableCell>
                                 <TableSortLabel
-                                    active={sorters.avgRating}
-                                    direction={!sorters.avgRating ? 'asc' : sorters.avgRating}
+                                    active={sorter.field === 'avgRating'}
+                                    direction={sorter.field === 'avgRating' ? sorter.direction : 'asc'}
                                     onClick={() => handleSorterClick('avgRating')}
                                 >
                                     Rating
@@ -187,8 +185,8 @@ export default function AllProfessors() {
                             <TableCell align='center'>
                                 <Tooltip title='Is always on time'>
                                     <TableSortLabel
-                                        active={sorters.sumPunctuality}
-                                        direction={!sorters.sumPunctuality ? 'asc' : sorters.sumPunctuality}
+                                        active={sorter.field === 'sumPunctuality'}
+                                        direction={sorter.field === 'sum' ? sorter.direction : 'asc'}
                                         onClick={() => handleSorterClick('sumPunctuality')}
                                     >
                                         <AccessTimeIcon />
@@ -198,103 +196,95 @@ export default function AllProfessors() {
                             <TableCell align='center'>
                                 <Tooltip title='Do the homework'>
                                     <TableSortLabel
-                                        active={sorters.sumMaterial}
-                                        direction={!sorters.sumMaterial ? 'asc' : sorters.sumMaterial}
+                                        active={sorter.field === 'sum'}
+                                        direction={sorter.field === 'sum' ? sorter.direction : 'asc'}
                                         onClick={() => handleSorterClick('sumMaterial')}
                                     >
                                         <InsertDriveFileIcon />
                                     </TableSortLabel>
                                 </Tooltip>
                             </TableCell>
-                            <TableCell align='center'>
+                            <TableCell base='center'>
                                 <Tooltip title='Pays attention and listens'>
                                     <TableSortLabel
-                                        active={sorters.sumPolite}
-                                        direction={!sorters.sumPolite ? 'asc' : sorters.sumPolite}
+                                        active={sorter.field === 'sum'}
+                                        direction={sorter.field === 'sum' ? sorter.direction : 'asc'}
                                         onClick={() => handleSorterClick('sumPolite')}
                                     >
                                         <SentimentSatisfiedAltIcon />
                                     </TableSortLabel>
                                 </Tooltip>
                             </TableCell>
-                            <TableCell align='right'>Monthly Mean</TableCell>
+                            <TableCell base='right'>Monthly Mean</TableCell>
                         </TableRow>
                     </TableHead>
 
                     <TableBody>
                         {isLoading ? (
-                            <>
-                                <TableRow>
-                                    <TableCell colSpan={8} align='center'>
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                flexDirection: 'row',
-                                            }}
-                                        >
-                                            <CircularProgress sx={{ mr: 2 }} />
-                                            <Typography variant='h4'>Loading professors...</Typography>
-                                        </Box>
+                            <TableRow>
+                                <TableCell colSpan={8} align='center'>
+                                    <Box
+                                        sx={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            flexDirection: 'row',
+                                        }}
+                                    >
+                                        <CircularProgress sx={{ mr: 2 }} />
+                                        <Typography variant='h4'>Loading professors...</Typography>
+                                    </Box>
+                                </TableCell>
+                            </TableRow>
+                        ) : professors.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={8} align='center'>
+                                    <Typography variant='h4'>No professors found</Typography>
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            professors.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(prof => (
+                                <TableRow key={prof.id} onClick={() => handleClick(prof.id)}>
+                                    <TableCell>{`${prof.firstName} ${prof.lastName}`}</TableCell>
+                                    <TableCell>{prof.email}</TableCell>
+                                    <TableCell>
+                                        {prof.subjects.map(subject => (
+                                            <Chip
+                                                key={subject.id}
+                                                label={subject.name}
+                                                sx={{
+                                                    backgroundColor: getColor(subject.name),
+                                                    marginRight: '0.2rem',
+                                                }}
+                                            />
+                                        ))}
+                                    </TableCell>
+                                    <TableCell>
+                                        <div style={{ display: 'flex', gap: 5 }}>
+                                            <Rating precision={0.5} value={prof.feedbackReceived.avgRating} max={3} readOnly />
+                                            <Typography>{`(${prof.feedbackReceived.avgRating.toFixed(2)})`}</Typography>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell align='center'>{prof.feedbackReceived.sumPunctuality}</TableCell>
+                                    <TableCell base='center'>{prof.feedbackReceived.sumMaterial}</TableCell>
+                                    <TableCell base='center'>{prof.feedbackReceived.sumPolite}</TableCell>
+                                    <TableCell base='right'>
+                                        <Button variant='contained' onClick={() => handleClick(prof.id)}>
+                                            Dashboard
+                                        </Button>
                                     </TableCell>
                                 </TableRow>
-                            </>
-                        ) : (
-                            <>
-                                {professors.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={8} align='center'>
-                                            <Typography variant='h4'>No professors found</Typography>
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    <>
-                                        {professors.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(prof => (
-                                            <TableRow key={prof.id} onClick={() => handleClick(prof.id)}>
-                                                <TableCell>{`${prof.firstName} ${prof.lastName}`}</TableCell>
-                                                <TableCell>{prof.email}</TableCell>
-                                                <TableCell>
-                                                    {prof.subjects.map(subject => (
-                                                        <Chip
-                                                            key={subject.id}
-                                                            label={subject.name}
-                                                            sx={{
-                                                                backgroundColor: getColor(subject.name),
-                                                                marginRight: '0.2rem',
-                                                            }}
-                                                        />
-                                                    ))}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div style={{ display: 'flex', gap: 5 }}>
-                                                        <Rating precision={0.5} value={prof.feedbackReceived.avgRating} max={3} readOnly />
-                                                        <Typography>{`(${prof.feedbackReceived.avgRating.toFixed(2)})`}</Typography>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell align='center'>{prof.feedbackReceived.sumPunctuality}</TableCell>
-                                                <TableCell align='center'>{prof.feedbackReceived.sumMaterial}</TableCell>
-                                                <TableCell align='center'>{prof.feedbackReceived.sumPolite}</TableCell>
-                                                <TableCell align='right'>
-                                                    <Button variant='contained' onClick={() => handleClick(prof.id)}>
-                                                        Dashboard
-                                                    </Button>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </>
-                                )}
-                            </>
+                            ))
                         )}
                     </TableBody>
                 </Table>
                 <TablePagination
                     component='div'
-                    count={professors ? professors.length : 0}
+                    count={professors.length}
                     page={page}
                     rowsPerPage={rowsPerPage}
                     onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
+                    onRowsPerPageChange={handleChangePage}
                 />
             </TableContainer>
 
