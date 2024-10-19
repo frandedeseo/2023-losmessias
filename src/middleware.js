@@ -17,7 +17,7 @@ export async function middleware(request) {
             return NextResponse.next();
         }
         if (token == undefined) {
-            return NextResponse.redirect(new URL('/'));
+            return NextResponse.redirect(new URL('/', request.url));
         } else {
             const decoded = jwt.decode(token.value, '404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970');
             const role = decoded.role.toLowerCase();
@@ -26,7 +26,7 @@ export async function middleware(request) {
         }
     } else if (request.nextUrl.pathname.startsWith('/professor-landing')) {
         if (token == undefined) {
-            return NextResponse.redirect(new URL('/'));
+            return NextResponse.redirect(new URL('/', request.url));
         } else {
             const decoded = jwt.decode(token.value, '404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970');
             const role = decoded.role.toLowerCase();
@@ -42,7 +42,7 @@ export async function middleware(request) {
         request.nextUrl.pathname.startsWith('/validator')
     ) {
         if (token == undefined) {
-            return NextResponse.redirect(new URL('/'));
+            return NextResponse.redirect(new URL('/', request.url));
         } else {
             const decoded = jwt.decode(token.value, '404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970');
             const role = decoded.role.toLowerCase();
@@ -59,7 +59,7 @@ export async function middleware(request) {
         }
     } else if (request.nextUrl.pathname.startsWith('/classes') || request.nextUrl.pathname.startsWith('/reservation')) {
         if (token == undefined) {
-            return NextResponse.redirect(new URL('/'));
+            return NextResponse.redirect(new URL('/', request.url));
         } else {
             const decoded = jwt.decode(token.value, '404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970');
             const role = decoded.role.toLowerCase();
@@ -67,7 +67,7 @@ export async function middleware(request) {
         }
     } else if (request.nextUrl.pathname.startsWith('/personal-data')) {
         if (token == undefined) {
-            return NextResponse.redirect(new URL('/'));
+            return NextResponse.redirect(new URL('/', request.url));
         }
     } else if (token != undefined) {
         const decoded = jwt.decode(token.value, '404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970');

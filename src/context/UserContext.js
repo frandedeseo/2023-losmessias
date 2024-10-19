@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createContext, useContext, useReducer, useEffect } from 'react';
 //import { cookies } from 'next/headers';
-import jwt_decode from 'jwt-decode';
 import * as Cookies from 'js-cookie';
 
 export const getSessionCookie = () => {

@@ -37,7 +37,7 @@ export default function PersonalData() {
         if (editMode) {
             setEditMode(false);
             setIsProcessing(true);
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/app-user/update/${user.id}`, {
+            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/app-user/update`, {
                 method: 'PATCH',
                 body: JSON.stringify({
                     email: emailAddress ? emailAddress : null,
