@@ -39,6 +39,7 @@ import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { useRouter } from 'next/router';
 import useWindowSize from '@/hooks/useWindowSize.js';
+import Layout from '@/components/ui/Layout.jsx';
 
 export default function AllProfessors() {
     const [allProfessors, setAllProfessors] = useState([]);
@@ -157,150 +158,152 @@ export default function AllProfessors() {
     };
 
     return (
-        <div style={styles.container}>
-            <Typography variant='h4'>Professors</Typography>
-            <Divider />
-            <div style={{ paddingBlock: '1rem' }} />
+        <Layout>
+            <div style={styles.container}>
+                <Typography variant='h4'>Professors</Typography>
+                <Divider />
+                <div style={{ paddingBlock: '1rem' }} />
 
-            {windowSize.width > 500}
-            <Searchbar search={handleSearch} />
-            <div style={styles.divPadding} />
+                {windowSize.width > 500}
+                <Searchbar search={handleSearch} />
+                <div style={styles.divPadding} />
 
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Email</TableCell>
-                            <TableCell>Subjects</TableCell>
-                            <TableCell>
-                                <TableSortLabel
-                                    active={sorter.field === 'avgRating'}
-                                    direction={sorter.field === 'avgRating' ? sorter.direction : 'asc'}
-                                    onClick={() => handleSorterClick('avgRating')}
-                                >
-                                    Rating
-                                </TableSortLabel>
-                            </TableCell>
-                            <TableCell align='center'>
-                                <Tooltip title='Is always on time'>
-                                    <TableSortLabel
-                                        active={sorter.field === 'sumPunctuality'}
-                                        direction={sorter.field === 'sum' ? sorter.direction : 'asc'}
-                                        onClick={() => handleSorterClick('sumPunctuality')}
-                                    >
-                                        <AccessTimeIcon />
-                                    </TableSortLabel>
-                                </Tooltip>
-                            </TableCell>
-                            <TableCell align='center'>
-                                <Tooltip title='Do the homework'>
-                                    <TableSortLabel
-                                        active={sorter.field === 'sum'}
-                                        direction={sorter.field === 'sum' ? sorter.direction : 'asc'}
-                                        onClick={() => handleSorterClick('sumMaterial')}
-                                    >
-                                        <InsertDriveFileIcon />
-                                    </TableSortLabel>
-                                </Tooltip>
-                            </TableCell>
-                            <TableCell base='center'>
-                                <Tooltip title='Pays attention and listens'>
-                                    <TableSortLabel
-                                        active={sorter.field === 'sum'}
-                                        direction={sorter.field === 'sum' ? sorter.direction : 'asc'}
-                                        onClick={() => handleSorterClick('sumPolite')}
-                                    >
-                                        <SentimentSatisfiedAltIcon />
-                                    </TableSortLabel>
-                                </Tooltip>
-                            </TableCell>
-                            <TableCell base='right'>Monthly Mean</TableCell>
-                        </TableRow>
-                    </TableHead>
-
-                    <TableBody>
-                        {isLoading ? (
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
                             <TableRow>
-                                <TableCell colSpan={8} align='center'>
-                                    <Box
-                                        sx={{
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            flexDirection: 'row',
-                                        }}
+                                <TableCell>Name</TableCell>
+                                <TableCell>Email</TableCell>
+                                <TableCell>Subjects</TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={sorter.field === 'avgRating'}
+                                        direction={sorter.field === 'avgRating' ? sorter.direction : 'asc'}
+                                        onClick={() => handleSorterClick('avgRating')}
                                     >
-                                        <CircularProgress sx={{ mr: 2 }} />
-                                        <Typography variant='h4'>Loading professors...</Typography>
-                                    </Box>
+                                        Rating
+                                    </TableSortLabel>
                                 </TableCell>
-                            </TableRow>
-                        ) : professors.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={8} align='center'>
-                                    <Typography variant='h4'>No professors found</Typography>
+                                <TableCell align='center'>
+                                    <Tooltip title='Is always on time'>
+                                        <TableSortLabel
+                                            active={sorter.field === 'sumPunctuality'}
+                                            direction={sorter.field === 'sum' ? sorter.direction : 'asc'}
+                                            onClick={() => handleSorterClick('sumPunctuality')}
+                                        >
+                                            <AccessTimeIcon />
+                                        </TableSortLabel>
+                                    </Tooltip>
                                 </TableCell>
+                                <TableCell align='center'>
+                                    <Tooltip title='Do the homework'>
+                                        <TableSortLabel
+                                            active={sorter.field === 'sum'}
+                                            direction={sorter.field === 'sum' ? sorter.direction : 'asc'}
+                                            onClick={() => handleSorterClick('sumMaterial')}
+                                        >
+                                            <InsertDriveFileIcon />
+                                        </TableSortLabel>
+                                    </Tooltip>
+                                </TableCell>
+                                <TableCell base='center'>
+                                    <Tooltip title='Pays attention and listens'>
+                                        <TableSortLabel
+                                            active={sorter.field === 'sum'}
+                                            direction={sorter.field === 'sum' ? sorter.direction : 'asc'}
+                                            onClick={() => handleSorterClick('sumPolite')}
+                                        >
+                                            <SentimentSatisfiedAltIcon />
+                                        </TableSortLabel>
+                                    </Tooltip>
+                                </TableCell>
+                                <TableCell base='right'>Monthly Mean</TableCell>
                             </TableRow>
-                        ) : (
-                            professors.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(prof => (
-                                <TableRow key={prof.id} onClick={() => handleClick(prof.id)}>
-                                    <TableCell>{`${prof.firstName} ${prof.lastName}`}</TableCell>
-                                    <TableCell>{prof.email}</TableCell>
-                                    <TableCell>
-                                        {prof.subjects.map(subject => (
-                                            <Chip
-                                                key={subject.id}
-                                                label={subject.name}
-                                                sx={{
-                                                    backgroundColor: getColor(subject.name),
-                                                    marginRight: '0.2rem',
-                                                }}
-                                            />
-                                        ))}
-                                    </TableCell>
-                                    <TableCell>
-                                        <div style={{ display: 'flex', gap: 5 }}>
-                                            <Rating precision={0.5} value={prof.feedbackReceived.avgRating} max={3} readOnly />
-                                            <Typography>{`(${prof.feedbackReceived.avgRating.toFixed(2)})`}</Typography>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell align='center'>{prof.feedbackReceived.sumPunctuality}</TableCell>
-                                    <TableCell base='center'>{prof.feedbackReceived.sumMaterial}</TableCell>
-                                    <TableCell base='center'>{prof.feedbackReceived.sumPolite}</TableCell>
-                                    <TableCell base='right'>
-                                        <Button variant='contained' onClick={() => handleClick(prof.id)}>
-                                            Dashboard
-                                        </Button>
+                        </TableHead>
+
+                        <TableBody>
+                            {isLoading ? (
+                                <TableRow>
+                                    <TableCell colSpan={8} align='center'>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                flexDirection: 'row',
+                                            }}
+                                        >
+                                            <CircularProgress sx={{ mr: 2 }} />
+                                            <Typography variant='h4'>Loading professors...</Typography>
+                                        </Box>
                                     </TableCell>
                                 </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
-                <TablePagination
-                    component='div'
-                    count={professors.length}
-                    page={page}
-                    rowsPerPage={rowsPerPage}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangePage}
-                />
-            </TableContainer>
+                            ) : professors.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={8} align='center'>
+                                        <Typography variant='h4'>No professors found</Typography>
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                professors.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(prof => (
+                                    <TableRow key={prof.id} onClick={() => handleClick(prof.id)}>
+                                        <TableCell>{`${prof.firstName} ${prof.lastName}`}</TableCell>
+                                        <TableCell>{prof.email}</TableCell>
+                                        <TableCell>
+                                            {prof.subjects.map(subject => (
+                                                <Chip
+                                                    key={subject.id}
+                                                    label={subject.name}
+                                                    sx={{
+                                                        backgroundColor: getColor(subject.name),
+                                                        marginRight: '0.2rem',
+                                                    }}
+                                                />
+                                            ))}
+                                        </TableCell>
+                                        <TableCell>
+                                            <div style={{ display: 'flex', gap: 5 }}>
+                                                <Rating precision={0.5} value={prof.feedbackReceived.avgRating} max={3} readOnly />
+                                                <Typography>{`(${prof.feedbackReceived.avgRating.toFixed(2)})`}</Typography>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell align='center'>{prof.feedbackReceived.sumPunctuality}</TableCell>
+                                        <TableCell base='center'>{prof.feedbackReceived.sumMaterial}</TableCell>
+                                        <TableCell base='center'>{prof.feedbackReceived.sumPolite}</TableCell>
+                                        <TableCell base='right'>
+                                            <Button variant='contained' onClick={() => handleClick(prof.id)}>
+                                                Dashboard
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                    <TablePagination
+                        component='div'
+                        count={professors.length}
+                        page={page}
+                        rowsPerPage={rowsPerPage}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangePage}
+                    />
+                </TableContainer>
 
-            <Dialog open={open} onClose={handleClose} fullWidth>
-                <DialogTitle align={windowSize.width > 500 ? 'left' : 'center'}>Monthly Mean</DialogTitle>
+                <Dialog open={open} onClose={handleClose} fullWidth>
+                    <DialogTitle align={windowSize.width > 500 ? 'left' : 'center'}>Monthly Mean</DialogTitle>
 
-                <DialogContent>
-                    <MonthlyChart id={professorId} legend />
-                </DialogContent>
+                    <DialogContent>
+                        <MonthlyChart id={professorId} legend />
+                    </DialogContent>
 
-                <DialogActions>
-                    <Button onClick={handleClose} variant='contained'>
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </div>
+                    <DialogActions>
+                        <Button onClick={handleClose} variant='contained'>
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </div>
+        </Layout>
     );
 }

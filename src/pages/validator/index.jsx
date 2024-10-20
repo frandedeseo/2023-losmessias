@@ -13,6 +13,7 @@ import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 
 import { useUser } from '@/context/UserContext';
 import { useRouter } from 'next/router';
+import Layout from '@/components/ui/Layout';
 
 // export async function getServerSideProps() {
 //     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByStatus?status=PENDING`);
@@ -162,22 +163,24 @@ export default function Validator() {
     };
 
     return (
-        <div style={styles.container}>
-            <Typography variant='h4'>Professor Validator</Typography>
-            <Divider />
-            <div style={{ paddingBlock: '1rem' }} />
-            <Searchbar search={handleSearch} />
-            <div style={styles.divPadding} />
-            <TeachersTable isLoading={isLoading} data={teachersSubjects} approve={handleApprove} reject={handleReject} />
+        <Layout>
+            <div style={styles.container}>
+                <Typography variant='h4'>Professor Validator</Typography>
+                <Divider />
+                <div style={{ paddingBlock: '1rem' }} />
+                <Searchbar search={handleSearch} />
+                <div style={styles.divPadding} />
+                <TeachersTable isLoading={isLoading} data={teachersSubjects} approve={handleApprove} reject={handleReject} />
 
-            <Snackbar
-                open={alert}
-                autoHideDuration={3000}
-                onClose={() => setAlert(false)}
-                anchorOrigin={{ vertical: 'top', horizontal: 'top' }}
-            >
-                <Alert severity={alertSeverity}>{alertMessage}</Alert>
-            </Snackbar>
-        </div>
+                <Snackbar
+                    open={alert}
+                    autoHideDuration={3000}
+                    onClose={() => setAlert(false)}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'top' }}
+                >
+                    <Alert severity={alertSeverity}>{alertMessage}</Alert>
+                </Snackbar>
+            </div>
+        </Layout>
     );
 }

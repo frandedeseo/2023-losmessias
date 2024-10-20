@@ -43,12 +43,6 @@ const StyledAvatar = styled(Avatar)(({ theme }) => ({
     transform: 'translateX(-50%)',
 }));
 
-const StyledRating = styled(Rating)(({ theme }) => ({
-    '& .MuiRating-iconFilled': {
-        color: '#ff6d75',
-    },
-}));
-
 const InfoItem = ({ icon, text }) => (
     <ListItem>
         <ListItemIcon>{icon}</ListItemIcon>
@@ -84,7 +78,7 @@ export default function ProfessorCard({ professorId, name, email, phone, sex, of
                         <Typography variant='h6' gutterBottom>
                             {name}
                         </Typography>
-                        <StyledRating name='read-only' precision={0.5} value={rating} max={3} size='large' readOnly />
+                        <Rating name='read-only' precision={0.5} value={rating} max={3} size='large' readOnly />
                     </Box>
                     <List>
                         <InfoItem icon={<MailOutline />} text={email} />

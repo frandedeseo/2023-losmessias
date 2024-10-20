@@ -35,6 +35,7 @@ import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import SearchIcon from '@mui/icons-material/Search';
 import { useRouter } from 'next/router.js';
+import Layout from '@/components/ui/Layout.jsx';
 
 export default function Feedbacks() {
     const [allFeedbacks, setAllFeedbacks] = useState([]);
@@ -181,151 +182,157 @@ export default function Feedbacks() {
     };
 
     return (
-        <div style={styles.container}>
-            <Typography variant='h4'>Feedbacks</Typography>
-            <Divider />
-            <div style={{ paddingBlock: '1rem' }} />
-            <form onSubmit={handleSearch} style={styles.searchForm}>
-                <TextField
-                    value={searchValue}
-                    onChange={event => setSearchValue(event.target.value)}
-                    label='Search'
-                    variant='outlined'
-                    size='small'
-                    sx={styles.searchInput}
-                />
-                <Button variant='contained' type='submit' sx={styles.searchButton}>
-                    <SearchIcon />
-                </Button>
-            </form>
-            <div style={styles.divPadding} />
+        <Layout>
+            <div style={styles.container}>
+                <Typography variant='h4'>Feedbacks</Typography>
+                <Divider />
+                <div style={{ paddingBlock: '1rem' }} />
+                <form onSubmit={handleSearch} style={styles.searchForm}>
+                    <TextField
+                        value={searchValue}
+                        onChange={event => setSearchValue(event.target.value)}
+                        label='Search'
+                        variant='outlined'
+                        size='small'
+                        sx={styles.searchInput}
+                    />
+                    <Button variant='contained' type='submit' sx={styles.searchButton}>
+                        <SearchIcon />
+                    </Button>
+                </form>
+                <div style={styles.divPadding} />
 
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Giver</TableCell>
-                            <TableCell>Receiver</TableCell>
-                            <TableCell>
-                                <TableSortLabel
-                                    active={sorters.date}
-                                    direction={!sorters.date ? 'asc' : sorters.date}
-                                    onClick={() => handleSorterClick('date')}
-                                >
-                                    Date
-                                </TableSortLabel>
-                            </TableCell>
-                            <TableCell>
-                                <TableSortLabel
-                                    active={sorters.rating}
-                                    direction={!sorters.rating ? 'asc' : sorters.rating}
-                                    onClick={() => handleSorterClick('rating')}
-                                >
-                                    Rating
-                                </TableSortLabel>
-                            </TableCell>
-                            <TableCell align='center'>
-                                <Tooltip title='Is always on time'>
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Giver</TableCell>
+                                <TableCell>Receiver</TableCell>
+                                <TableCell>
                                     <TableSortLabel
-                                        active={sorters.sumPunctuality}
-                                        direction={!sorters.sumPunctuality ? 'asc' : sorters.sumPunctuality}
-                                        onClick={() => handleSorterClick('sumPunctuality')}
+                                        active={sorters.date}
+                                        direction={!sorters.date ? 'asc' : sorters.date}
+                                        onClick={() => handleSorterClick('date')}
                                     >
-                                        <AccessTimeIcon />
+                                        Date
                                     </TableSortLabel>
-                                </Tooltip>
-                            </TableCell>
-                            <TableCell align='center'>
-                                <Tooltip title='Do the homework'>
+                                </TableCell>
+                                <TableCell>
                                     <TableSortLabel
-                                        active={sorters.sumMaterial}
-                                        direction={!sorters.sumMaterial ? 'asc' : sorters.sumMaterial}
-                                        onClick={() => handleSorterClick('sumMaterial')}
+                                        active={sorters.rating}
+                                        direction={!sorters.rating ? 'asc' : sorters.rating}
+                                        onClick={() => handleSorterClick('rating')}
                                     >
-                                        <InsertDriveFileIcon />
+                                        Rating
                                     </TableSortLabel>
-                                </Tooltip>
-                            </TableCell>
-                            <TableCell align='center'>
-                                <Tooltip title='Pays attention and listens'>
-                                    <TableSortLabel
-                                        active={sorters.sumPolite}
-                                        direction={!sorters.sumPolite ? 'asc' : sorters.sumPolite}
-                                        onClick={() => handleSorterClick('sumPolite')}
-                                    >
-                                        <SentimentSatisfiedAltIcon />
-                                    </TableSortLabel>
-                                </Tooltip>
-                            </TableCell>
-                        </TableRow>
-                    </TableHead>
-
-                    <TableBody>
-                        {isLoading ? (
-                            <>
-                                <TableRow>
-                                    <TableCell colSpan={8} align='center'>
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                flexDirection: 'row',
-                                            }}
+                                </TableCell>
+                                <TableCell align='center'>
+                                    <Tooltip title='Is always on time'>
+                                        <TableSortLabel
+                                            active={sorters.sumPunctuality}
+                                            direction={!sorters.sumPunctuality ? 'asc' : sorters.sumPunctuality}
+                                            onClick={() => handleSorterClick('sumPunctuality')}
                                         >
-                                            <CircularProgress sx={{ mr: 2 }} />
-                                            <Typography variant='h4'>Loading feedbacks...</Typography>
-                                        </Box>
-                                    </TableCell>
-                                </TableRow>
-                            </>
-                        ) : (
-                            <>
-                                {feedbacks.length === 0 ? (
+                                            <AccessTimeIcon />
+                                        </TableSortLabel>
+                                    </Tooltip>
+                                </TableCell>
+                                <TableCell align='center'>
+                                    <Tooltip title='Do the homework'>
+                                        <TableSortLabel
+                                            active={sorters.sumMaterial}
+                                            direction={!sorters.sumMaterial ? 'asc' : sorters.sumMaterial}
+                                            onClick={() => handleSorterClick('sumMaterial')}
+                                        >
+                                            <InsertDriveFileIcon />
+                                        </TableSortLabel>
+                                    </Tooltip>
+                                </TableCell>
+                                <TableCell align='center'>
+                                    <Tooltip title='Pays attention and listens'>
+                                        <TableSortLabel
+                                            active={sorters.sumPolite}
+                                            direction={!sorters.sumPolite ? 'asc' : sorters.sumPolite}
+                                            onClick={() => handleSorterClick('sumPolite')}
+                                        >
+                                            <SentimentSatisfiedAltIcon />
+                                        </TableSortLabel>
+                                    </Tooltip>
+                                </TableCell>
+                            </TableRow>
+                        </TableHead>
+
+                        <TableBody>
+                            {isLoading ? (
+                                <>
                                     <TableRow>
                                         <TableCell colSpan={8} align='center'>
-                                            <Typography variant='h4'>No Feedbacks found</Typography>
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    flexDirection: 'row',
+                                                }}
+                                            >
+                                                <CircularProgress sx={{ mr: 2 }} />
+                                                <Typography variant='h4'>Loading feedbacks...</Typography>
+                                            </Box>
                                         </TableCell>
                                     </TableRow>
-                                ) : (
-                                    <>
-                                        {feedbacks.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(feed => (
-                                            <TableRow key={feed.id}>
-                                                <TableCell>
-                                                    {feed.sender.firstName} {feed.sender.lastName}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {feed.receiver.firstName} {feed.receiver.lastName}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {`${feed.dateTimeOfFeedback[2]}-${feed.dateTimeOfFeedback[1]}-${feed.dateTimeOfFeedback[0]}`}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div style={{ display: 'flex', gap: 5 }}>
-                                                        <Rating precision={0.5} value={feed.rating} max={3} readOnly />
-                                                        <Typography>{`(${feed.rating.toFixed(2)})`}</Typography>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell align='center'>{feed.feedbackOptions.includes('PUNCTUALITY') ? 1 : 0}</TableCell>
-                                                <TableCell align='center'>{feed.feedbackOptions.includes('MATERIAL') ? 1 : 0}</TableCell>
-                                                <TableCell align='center'>{feed.feedbackOptions.includes('POLITE') ? 1 : 0}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </>
-                                )}
-                            </>
-                        )}
-                    </TableBody>
-                </Table>
-                <TablePagination
-                    component='div'
-                    count={feedbacks ? feedbacks.length : 0}
-                    page={page}
-                    rowsPerPage={rowsPerPage}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
-            </TableContainer>
-        </div>
+                                </>
+                            ) : (
+                                <>
+                                    {feedbacks.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={8} align='center'>
+                                                <Typography variant='h4'>No Feedbacks found</Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        <>
+                                            {feedbacks.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(feed => (
+                                                <TableRow key={feed.id}>
+                                                    <TableCell>
+                                                        {feed.sender.firstName} {feed.sender.lastName}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {feed.receiver.firstName} {feed.receiver.lastName}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {`${feed.dateTimeOfFeedback[2]}-${feed.dateTimeOfFeedback[1]}-${feed.dateTimeOfFeedback[0]}`}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <div style={{ display: 'flex', gap: 5 }}>
+                                                            <Rating precision={0.5} value={feed.rating} max={3} readOnly />
+                                                            <Typography>{`(${feed.rating.toFixed(2)})`}</Typography>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell align='center'>
+                                                        {feed.feedbackOptions.includes('PUNCTUALITY') ? 1 : 0}
+                                                    </TableCell>
+                                                    <TableCell align='center'>
+                                                        {feed.feedbackOptions.includes('MATERIAL') ? 1 : 0}
+                                                    </TableCell>
+                                                    <TableCell align='center'>{feed.feedbackOptions.includes('POLITE') ? 1 : 0}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </>
+                                    )}
+                                </>
+                            )}
+                        </TableBody>
+                    </Table>
+                    <TablePagination
+                        component='div'
+                        count={feedbacks ? feedbacks.length : 0}
+                        page={page}
+                        rowsPerPage={rowsPerPage}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
+                </TableContainer>
+            </div>
+        </Layout>
     );
 }

@@ -17,7 +17,7 @@ const ChatContainer = styled(Paper)({
     flexDirection: 'column',
     height: '600px',
     maxWidth: '800px',
-    minWidth: '90%',
+    width: 'calc(300px + 20vw)',
     margin: 'auto',
     borderRadius: '12px',
     overflow: 'hidden',
@@ -180,9 +180,124 @@ const Chat = ({ userInfo }) => {
             })
             .catch(error => console.error('Error:', error));
     };
-    const handleFileUpload = event => {
-        event.preventDefault();
-        const file = event.dataTransfer.files[0];
+    // const handleFileUpload = event => {
+    //     event.preventDefault();
+    //     const file = event.dataTransfer.files[0];
+    //     if (file) {
+    //         setIsUploading(true);
+    //         const tempMessageId = Date.now();
+    //         const newMessage = {
+    //             id: tempMessageId,
+    //             sender: user.role.toLowerCase(),
+    //             content: file.name,
+    //             isFile: true,
+    //             fileName: file.name,
+    //             uploadedDateTime: new Date().toLocaleString(),
+    //             uploading: true,
+    //         };
+    //         setMessages([...messages, newMessage]);
+
+    //         // Upload file to API
+    //         const formData = new FormData();
+    //         formData.append('file', file);
+    //         formData.append('reservationId', reservationId);
+    //         formData.append('role', user.role);
+
+    //         const requestOptions = {
+    //             method: 'POST',
+    //             headers: { Authorization: `Bearer ${user.token}` },
+    //             body: formData,
+    //         };
+
+    //         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/uploadFile`, {
+    //             method: 'POST',
+    //             headers: {
+    //                 Authorization: `Bearer ${user.token}`,
+    //             },
+    //             body: formData,
+    //         })
+    //             .then(res => res.json())
+    //             .then(json => {
+    //                 // The part where you update messages
+
+    //                 // Ensure the following fetch is executed:
+    //                 fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/setUploadInformation`, {
+    //                     method: 'POST',
+    //                     headers: {
+    //                         'Content-Type': 'application/json',
+    //                         Authorization: `Bearer ${user.token}`,
+    //                     },
+    //                     body: JSON.stringify({
+    //                         idFile: json.fileId,
+    //                         classReservation: parseInt(reservationId),
+    //                         role: user.role.toUpperCase(),
+    //                         uploadedDateTime: getLocalISOTime(),
+    //                         associatedId: user.id,
+    //                     }),
+    //                 })
+    //                     .then(response => {
+    //                         if (!response.ok) {
+    //                             throw new Error('Error setting upload information');
+    //                         } else {
+    //                             return response.json();
+    //                         }
+    //                     })
+    //                     .then(json => {
+    //                         console.log('Upload information successfully updated:', json);
+    //                         setIsUploading(false);
+    //                         setMessages(prevMessages =>
+    //                             prevMessages.map(msg => (msg.id === tempMessageId ? { ...msg, id: json.id, uploading: false } : msg))
+    //                         );
+    //                     });
+    //             })
+    //             .catch(err => {
+    //                 console.error('Error:', err);
+    //             });
+    //     }
+    // };
+    const uploadFileToAPI = (file, tempMessageId) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('reservationId', reservationId);
+        formData.append('role', user.role);
+
+        return fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/uploadFile`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${user.token}`,
+            },
+            body: formData,
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('File upload failed');
+                return res.json();
+            })
+            .then(json => {
+                return json;
+            });
+    };
+
+    const setUploadInformation = fileId => {
+        return fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/setUploadInformation`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${user.token}`,
+            },
+            body: JSON.stringify({
+                idFile: fileId,
+                classReservation: parseInt(reservationId),
+                role: user.role.toUpperCase(),
+                uploadedDateTime: getLocalISOTime(),
+                associatedId: user.id,
+            }),
+        }).then(response => {
+            if (!response.ok) throw new Error('Error setting upload information');
+            return response.json();
+        });
+    };
+
+    const handleFileUploadCommon = file => {
         if (file) {
             setIsUploading(true);
             const tempMessageId = Date.now();
@@ -197,63 +312,29 @@ const Chat = ({ userInfo }) => {
             };
             setMessages([...messages, newMessage]);
 
-            // Upload file to API
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('reservationId', reservationId);
-            formData.append('role', user.role);
-
-            const requestOptions = {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${user.token}` },
-                body: formData,
-            };
-
-            fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/uploadFile`, {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${user.token}`,
-                },
-                body: formData,
-            })
-                .then(res => res.json())
+            uploadFileToAPI(file, tempMessageId)
+                .then(json => setUploadInformation(json.fileId))
                 .then(json => {
-                    // The part where you update messages
-
-                    // Ensure the following fetch is executed:
-                    fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/setUploadInformation`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: `Bearer ${user.token}`,
-                        },
-                        body: JSON.stringify({
-                            idFile: json.fileId,
-                            classReservation: parseInt(reservationId),
-                            role: user.role.toUpperCase(),
-                            uploadedDateTime: getLocalISOTime(),
-                            associatedId: user.id,
-                        }),
-                    })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Error setting upload information');
-                            } else {
-                                return response.json();
-                            }
-                        })
-                        .then(json => {
-                            console.log('Upload information successfully updated:', json);
-                            setIsUploading(false);
-                            setMessages(prevMessages =>
-                                prevMessages.map(msg => (msg.id === tempMessageId ? { ...msg, id: json.id, uploading: false } : msg))
-                            );
-                        });
+                    setMessages(prevMessages =>
+                        prevMessages.map(msg => (msg.id === tempMessageId ? { ...msg, id: json.id, uploading: false } : msg))
+                    );
+                    setIsUploading(false);
                 })
                 .catch(err => {
-                    console.error('Error:', err);
+                    console.error('Error during file upload process:', err);
                 });
         }
+    };
+
+    const handleDrop = event => {
+        event.preventDefault();
+        const file = event.dataTransfer.files[0];
+        handleFileUploadCommon(file);
+    };
+
+    const handleFileUpload = event => {
+        const file = event.target.files[0];
+        handleFileUploadCommon(file);
     };
 
     const getLocalISOTime = () => {
@@ -328,7 +409,7 @@ const Chat = ({ userInfo }) => {
                     <CircularProgress />
                 </Box>
             ) : (
-                <ChatArea ref={chatContainerRef} onDragOver={e => e.preventDefault()} onDrop={handleFileUpload}>
+                <ChatArea ref={chatContainerRef} onDragOver={e => e.preventDefault()} onDrop={handleDrop}>
                     {messages.map((message, index) => (
                         <Fade in={true} key={message.id} timeout={300} style={{ transitionDelay: `${index * 50}ms` }}>
                             <Box

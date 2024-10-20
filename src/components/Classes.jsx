@@ -14,6 +14,7 @@ import {
     Snackbar,
     Alert,
     CircularProgress,
+    Backdrop, // Import Backdrop
 } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 import { CheckIcon } from 'lucide-react';
@@ -27,17 +28,18 @@ export default function Classes() {
     const [editingId, setEditingId] = useState(null);
     const [editPrice, setEditPrice] = useState('');
     const [alert, setAlert] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false); // New state for saving loader
     const [alertMessage, setAlertMessage] = useState('');
     const user = useUser();
 
-    const { data } = useSWR(
+    const { data, isValidating } = useSWR(
         [`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/findByProfessor/${user.id}`, user.token],
         fetcherGetWithToken,
         { fallbackData: [] }
     );
+
     useEffect(() => {
-        if (data.length > 0) {
+        if (data && data.length > 0) {
             setSubjects(data);
         } else {
             setSubjects([]); // Ensure subjects is an empty array if no data
@@ -53,6 +55,7 @@ export default function Classes() {
     };
 
     const handleSave = id => {
+        setIsSaving(true); // Start loader when saving
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/edit-price?id=${id}&price=${parseFloat(editPrice)}`, {
             method: 'POST',
             headers: {
@@ -60,6 +63,7 @@ export default function Classes() {
                 Authorization: `Bearer ${user.token}`,
             },
         }).then(response => {
+            setIsSaving(false); // Stop loader after saving
             if (!response.ok) {
                 // Read the response as text if it's not JSON
                 return response.text().then(errorMessage => {
@@ -91,72 +95,92 @@ export default function Classes() {
             <Typography variant='h4' component='h2' gutterBottom>
                 Prices Per Classes
             </Typography>
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Subject</TableCell>
-                            <TableCell align='right' sx={{ opacity: 0.7 }}>
-                                Suggested price
-                            </TableCell>
-                            <TableCell align='right'>Price per hour</TableCell>
-                            <TableCell align='right'>Action</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {subjects.length > 0 ? (
-                            subjects.map(subject => (
-                                <TableRow key={subject.id}>
-                                    <TableCell component='th' scope='row'>
-                                        {subject.subject.name}
-                                    </TableCell>
-                                    <TableCell align='right' sx={{ opacity: 0.7 }}>
-                                        {`$${subject.subject.price.toFixed(2)}`}
-                                    </TableCell>
 
-                                    <TableCell align='right'>
-                                        {editingId === subject.id ? (
-                                            <TextField
-                                                value={editPrice}
-                                                onChange={handlePriceChange}
-                                                type='number'
-                                                size='small'
-                                                sx={{ width: 80 }}
-                                                inputProps={{ style: { textAlign: 'center' }, min: 0 }} // Prevent negative values
-                                            />
-                                        ) : (
-                                            `$${
-                                                subject.price !== null && subject.price !== undefined
-                                                    ? subject.price.toFixed(2)
-                                                    : subject.subject.price.toFixed(2)
-                                            }`
-                                        )}
-                                    </TableCell>
-                                    <TableCell align='right'>
-                                        {editingId === subject.id ? (
-                                            <IconButton onClick={() => handleSave(subject.id)} color='primary'>
-                                                <CheckIcon />
-                                            </IconButton>
-                                        ) : (
-                                            <IconButton
-                                                onClick={() => handleEdit(subject.id, subject.price, subject.subject.price)}
-                                                color='primary'
-                                            >
-                                                <EditIcon />
-                                            </IconButton>
-                                        )}
+            {/* Backdrop to block the whole screen */}
+            <Backdrop open={isSaving} sx={{ color: '#fff' }}>
+                <CircularProgress color='inherit' />
+            </Backdrop>
+
+            <TableContainer component={Paper}>
+                {isValidating ? (
+                    <Box
+                        sx={{
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            minHeight: '300px', // Adjust the height as needed
+                        }}
+                    >
+                        <CircularProgress />
+                    </Box>
+                ) : (
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Subject</TableCell>
+                                <TableCell align='right' sx={{ opacity: 0.7 }}>
+                                    Suggested price
+                                </TableCell>
+                                <TableCell align='right'>Price per hour</TableCell>
+                                <TableCell align='right'>Action</TableCell>
+                            </TableRow>
+                        </TableHead>
+
+                        <TableBody>
+                            {subjects.length > 0 ? (
+                                subjects.map(subject => (
+                                    <TableRow key={subject.id}>
+                                        <TableCell component='th' scope='row'>
+                                            {subject.subject.name}
+                                        </TableCell>
+                                        <TableCell align='right' sx={{ opacity: 0.7 }}>
+                                            {`$${subject.subject.price.toFixed(2)}`}
+                                        </TableCell>
+
+                                        <TableCell align='right'>
+                                            {editingId === subject.id ? (
+                                                <TextField
+                                                    value={editPrice}
+                                                    onChange={handlePriceChange}
+                                                    type='number'
+                                                    size='small'
+                                                    sx={{ width: 80 }}
+                                                    inputProps={{ style: { textAlign: 'center' }, min: 0 }} // Prevent negative values
+                                                />
+                                            ) : (
+                                                `$${
+                                                    subject.price !== null && subject.price !== undefined
+                                                        ? subject.price.toFixed(2)
+                                                        : subject.subject.price.toFixed(2)
+                                                }`
+                                            )}
+                                        </TableCell>
+                                        <TableCell align='right'>
+                                            {editingId === subject.id ? (
+                                                <IconButton onClick={() => handleSave(subject.id)} color='primary'>
+                                                    <CheckIcon />
+                                                </IconButton>
+                                            ) : (
+                                                <IconButton
+                                                    onClick={() => handleEdit(subject.id, subject.price, subject.subject.price)}
+                                                    color='primary'
+                                                >
+                                                    <EditIcon />
+                                                </IconButton>
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={4} align='center'>
+                                        No subjects have been approved yet
                                     </TableCell>
                                 </TableRow>
-                            ))
-                        ) : (
-                            <TableRow>
-                                <TableCell colSpan={4} align='center'>
-                                    No subjects have been approved yet
-                                </TableCell>
-                            </TableRow>
-                        )}
-                    </TableBody>
-                </Table>
+                            )}
+                        </TableBody>
+                    </Table>
+                )}
             </TableContainer>
             <Snackbar
                 open={alert}

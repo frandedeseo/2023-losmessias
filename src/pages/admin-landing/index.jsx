@@ -27,6 +27,7 @@ import { useUser } from '@/context/UserContext';
 import { useRouter } from 'next/router';
 import useWindowSize from '@/hooks/useWindowSize';
 import CreatedSubjects from '@/components/CreatedSubjects';
+import Layout from '@/components/ui/Layout';
 
 export default function AdminLandingPage() {
     const [page, setPage] = useState(0);
@@ -142,96 +143,62 @@ export default function AdminLandingPage() {
     };
 
     return (
-        <div style={{ margin: '2% auto', width: '95%' }}>
-            <Typography variant='h4'>Today&apos;s Summary</Typography>
-            <Divider />
-            <div style={{ paddingBlock: '1rem' }} />
-            {windowSize.width > 500 && (
-                <div style={{ display: 'flex', gap: '2rem' }}>
-                    <Searchbar search={handleSearch} />
-                    <Button variant='contained' sx={{ boxShadow: 'none' }} onClick={() => setOpen(true)}>
-                        Subjects
-                    </Button>
-                </div>
-            )}
-            {windowSize.width <= 500 && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                    <div>
+        <Layout>
+            <div style={{ margin: '2% auto', width: '95%' }}>
+                <Typography variant='h4'>Today&apos;s Summary</Typography>
+                <Divider />
+                <div style={{ paddingBlock: '1rem' }} />
+                {windowSize.width > 500 && (
+                    <div style={{ display: 'flex', gap: '2rem' }}>
                         <Searchbar search={handleSearch} />
+                        <Button variant='contained' sx={{ boxShadow: 'none' }} onClick={() => setOpen(true)}>
+                            Subjects
+                        </Button>
                     </div>
-                    <Button variant='contained' sx={{ boxShadow: 'none' }} onClick={() => setOpen(true)}>
-                        Subjects
-                    </Button>
-                </div>
-            )}
+                )}
+                {windowSize.width <= 500 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                        <div>
+                            <Searchbar search={handleSearch} />
+                        </div>
+                        <Button variant='contained' sx={{ boxShadow: 'none' }} onClick={() => setOpen(true)}>
+                            Subjects
+                        </Button>
+                    </div>
+                )}
 
-            <div style={{ paddingBlock: '0.5rem' }} />
+                <div style={{ paddingBlock: '0.5rem' }} />
 
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Subject</TableCell>
-                            <TableCell>
-                                <TableSortLabel
-                                    active={sorters.totalHours}
-                                    direction={!sorters.totalHours ? 'asc' : sorters.totalHours}
-                                    onClick={() => handleSorterClick('totalHours')}
-                                >
-                                    Hours
-                                </TableSortLabel>
-                            </TableCell>
-                            <TableCell sortDirection='asc'>
-                                <TableSortLabel
-                                    active={sorters.totalIncome}
-                                    direction={!sorters.totalIncome ? 'asc' : sorters.totalIncome}
-                                    onClick={() => handleSorterClick('totalIncome')}
-                                >
-                                    Income
-                                </TableSortLabel>
-                            </TableCell>
-                        </TableRow>
-                    </TableHead>
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Name</TableCell>
+                                <TableCell>Subject</TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={sorters.totalHours}
+                                        direction={!sorters.totalHours ? 'asc' : sorters.totalHours}
+                                        onClick={() => handleSorterClick('totalHours')}
+                                    >
+                                        Hours
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell sortDirection='asc'>
+                                    <TableSortLabel
+                                        active={sorters.totalIncome}
+                                        direction={!sorters.totalIncome ? 'asc' : sorters.totalIncome}
+                                        onClick={() => handleSorterClick('totalIncome')}
+                                    >
+                                        Income
+                                    </TableSortLabel>
+                                </TableCell>
+                            </TableRow>
+                        </TableHead>
 
-                    <TableBody>
-                        {isLoading ? (
-                            <>
-                                <TableRow>
-                                    <TableCell colSpan={4}>
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                            }}
-                                        >
-                                            <CircularProgress />
-                                        </Box>
-                                    </TableCell>
-                                </TableRow>
-                            </>
-                        ) : (
-                            <>
-                                {professors.length > 0 ? (
-                                    <>
-                                        {shownProfessors.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map((prof, idx) => (
-                                            <TableRow key={idx}>
-                                                <TableCell>{`${prof.professor.firstName} ${prof.professor.lastName}`}</TableCell>
-                                                <TableCell>
-                                                    <Chip
-                                                        label={prof.subject.name}
-                                                        sx={{
-                                                            backgroundColor: getColor(prof.subject.name),
-                                                        }}
-                                                    />
-                                                </TableCell>
-                                                <TableCell>{prof.totalHours} hs</TableCell>
-                                                <TableCell>${prof.totalIncome}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </>
-                                ) : (
+                        <TableBody>
+                            {isLoading ? (
+                                <>
                                     <TableRow>
                                         <TableCell colSpan={4}>
                                             <Box
@@ -241,28 +208,64 @@ export default function AdminLandingPage() {
                                                     alignItems: 'center',
                                                 }}
                                             >
-                                                <Typography variant='h6' sx={{ padding: '1rem' }}>
-                                                    No results found!
-                                                </Typography>
+                                                <CircularProgress />
                                             </Box>
                                         </TableCell>
                                     </TableRow>
-                                )}
-                            </>
-                        )}
-                    </TableBody>
-                </Table>
-                <TablePagination
-                    component='div'
-                    count={professors?.length}
-                    page={page}
-                    rowsPerPage={rowsPerPage}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
-            </TableContainer>
+                                </>
+                            ) : (
+                                <>
+                                    {professors.length > 0 ? (
+                                        <>
+                                            {shownProfessors.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map((prof, idx) => (
+                                                <TableRow key={idx}>
+                                                    <TableCell>{`${prof.professor.firstName} ${prof.professor.lastName}`}</TableCell>
+                                                    <TableCell>
+                                                        <Chip
+                                                            label={prof.subject.name}
+                                                            sx={{
+                                                                backgroundColor: getColor(prof.subject.name),
+                                                            }}
+                                                        />
+                                                    </TableCell>
+                                                    <TableCell>{prof.totalHours} hs</TableCell>
+                                                    <TableCell>${prof.totalIncome}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </>
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={4}>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        justifyContent: 'center',
+                                                        alignItems: 'center',
+                                                    }}
+                                                >
+                                                    <Typography variant='h6' sx={{ padding: '1rem' }}>
+                                                        No results found!
+                                                    </Typography>
+                                                </Box>
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </>
+                            )}
+                        </TableBody>
+                    </Table>
+                    <TablePagination
+                        component='div'
+                        count={professors?.length}
+                        page={page}
+                        rowsPerPage={rowsPerPage}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
+                </TableContainer>
 
-            <CreatedSubjects open={open} setOpen={setOpen} />
-        </div>
+                <CreatedSubjects open={open} setOpen={setOpen} />
+            </div>
+        </Layout>
     );
 }

@@ -36,6 +36,7 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import SearchIcon from '@mui/icons-material/Search';
+import Layout from '@/components/ui/Layout.jsx';
 
 export default function AllStudents() {
     const [allStudents, setAllStudents] = useState([]);
@@ -129,135 +130,142 @@ export default function AllStudents() {
     };
 
     return (
-        <div style={styles.container}>
-            <Typography variant='h4'>Students</Typography>
-            <Divider />
-            <div style={{ paddingBlock: '1rem' }} />
-            <form onSubmit={handleSearch} style={styles.searchForm}>
-                <TextField
-                    value={searchValue}
-                    onChange={event => setSearchValue(event.target.value)}
-                    label='Search'
-                    variant='outlined'
-                    size='small'
-                    sx={styles.searchInput}
-                />
-                <Button variant='contained' type='submit' sx={styles.searchButton}>
-                    <SearchIcon />
-                </Button>
-            </form>
-            <div style={styles.divPadding} />
+        <Layout>
+            <div style={styles.container}>
+                <Typography variant='h4'>Students</Typography>
+                <Divider />
+                <div style={{ paddingBlock: '1rem' }} />
+                <form onSubmit={handleSearch} style={styles.searchForm}>
+                    <TextField
+                        value={searchValue}
+                        onChange={event => setSearchValue(event.target.value)}
+                        label='Search'
+                        variant='outlined'
+                        size='small'
+                        sx={styles.searchInput}
+                    />
+                    <Button variant='contained' type='submit' sx={styles.searchButton}>
+                        <SearchIcon />
+                    </Button>
+                </form>
+                <div style={styles.divPadding} />
 
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Email</TableCell>
-                            <TableCell>
-                                <TableSortLabel
-                                    active={sorters.avgRating}
-                                    direction={!sorters.avgRating ? 'asc' : sorters.avgRating}
-                                    onClick={() => handleSorterClick('avgRating')}
-                                >
-                                    Rating
-                                </TableSortLabel>
-                            </TableCell>
-                            <TableCell align='center'>
-                                <Tooltip title='Is always on time'>
+                <TableContainer component={Paper}>
+                    <Table>
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Name</TableCell>
+                                <TableCell>Email</TableCell>
+                                <TableCell>
                                     <TableSortLabel
-                                        active={sorters.sumPunctuality}
-                                        direction={!sorters.sumPunctuality ? 'asc' : sorters.sumPunctuality}
-                                        onClick={() => handleSorterClick('sumPunctuality')}
+                                        active={sorters.avgRating}
+                                        direction={!sorters.avgRating ? 'asc' : sorters.avgRating}
+                                        onClick={() => handleSorterClick('avgRating')}
                                     >
-                                        <AccessTimeIcon />
+                                        Rating
                                     </TableSortLabel>
-                                </Tooltip>
-                            </TableCell>
-                            <TableCell align='center'>
-                                <Tooltip title='Do the homework'>
-                                    <TableSortLabel
-                                        active={sorters.sumMaterial}
-                                        direction={!sorters.sumMaterial ? 'asc' : sorters.sumMaterial}
-                                        onClick={() => handleSorterClick('sumMaterial')}
-                                    >
-                                        <InsertDriveFileIcon />
-                                    </TableSortLabel>
-                                </Tooltip>
-                            </TableCell>
-                            <TableCell align='center'>
-                                <Tooltip title='Pays attention and listens'>
-                                    <TableSortLabel
-                                        active={sorters.sumPolite}
-                                        direction={!sorters.sumPolite ? 'asc' : sorters.sumPolite}
-                                        onClick={() => handleSorterClick('sumPolite')}
-                                    >
-                                        <SentimentSatisfiedAltIcon />
-                                    </TableSortLabel>
-                                </Tooltip>
-                            </TableCell>
-                        </TableRow>
-                    </TableHead>
-
-                    <TableBody>
-                        {isLoading ? (
-                            <>
-                                <TableRow>
-                                    <TableCell colSpan={8} align='center'>
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                flexDirection: 'row',
-                                            }}
+                                </TableCell>
+                                <TableCell align='center'>
+                                    <Tooltip title='Is always on time'>
+                                        <TableSortLabel
+                                            active={sorters.sumPunctuality}
+                                            direction={!sorters.sumPunctuality ? 'asc' : sorters.sumPunctuality}
+                                            onClick={() => handleSorterClick('sumPunctuality')}
                                         >
-                                            <CircularProgress sx={{ mr: 2 }} />
-                                            <Typography variant='h4'>Loading students...</Typography>
-                                        </Box>
-                                    </TableCell>
-                                </TableRow>
-                            </>
-                        ) : (
-                            <>
-                                {students.length === 0 ? (
+                                            <AccessTimeIcon />
+                                        </TableSortLabel>
+                                    </Tooltip>
+                                </TableCell>
+                                <TableCell align='center'>
+                                    <Tooltip title='Do the homework'>
+                                        <TableSortLabel
+                                            active={sorters.sumMaterial}
+                                            direction={!sorters.sumMaterial ? 'asc' : sorters.sumMaterial}
+                                            onClick={() => handleSorterClick('sumMaterial')}
+                                        >
+                                            <InsertDriveFileIcon />
+                                        </TableSortLabel>
+                                    </Tooltip>
+                                </TableCell>
+                                <TableCell align='center'>
+                                    <Tooltip title='Pays attention and listens'>
+                                        <TableSortLabel
+                                            active={sorters.sumPolite}
+                                            direction={!sorters.sumPolite ? 'asc' : sorters.sumPolite}
+                                            onClick={() => handleSorterClick('sumPolite')}
+                                        >
+                                            <SentimentSatisfiedAltIcon />
+                                        </TableSortLabel>
+                                    </Tooltip>
+                                </TableCell>
+                            </TableRow>
+                        </TableHead>
+
+                        <TableBody>
+                            {isLoading ? (
+                                <>
                                     <TableRow>
                                         <TableCell colSpan={8} align='center'>
-                                            <Typography variant='h4'>No students found</Typography>
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    flexDirection: 'row',
+                                                }}
+                                            >
+                                                <CircularProgress sx={{ mr: 2 }} />
+                                                <Typography variant='h4'>Loading students...</Typography>
+                                            </Box>
                                         </TableCell>
                                     </TableRow>
-                                ) : (
-                                    <>
-                                        {students.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(stu => (
-                                            <TableRow key={stu.id}>
-                                                <TableCell>{`${stu.firstName} ${stu.lastName}`}</TableCell>
-                                                <TableCell>{stu.email}</TableCell>
-                                                <TableCell>
-                                                    <div style={{ display: 'flex', gap: 5 }}>
-                                                        <Rating precision={0.5} value={stu.feedbackReceived.avgRating} max={3} readOnly />
-                                                        <Typography>{`(${stu.feedbackReceived.avgRating.toFixed(2)})`}</Typography>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell align='center'>{stu.feedbackReceived.sumPunctuality}</TableCell>
-                                                <TableCell align='center'>{stu.feedbackReceived.sumMaterial}</TableCell>
-                                                <TableCell align='center'>{stu.feedbackReceived.sumPolite}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </>
-                                )}
-                            </>
-                        )}
-                    </TableBody>
-                </Table>
-                <TablePagination
-                    component='div'
-                    count={students ? students.length : 0}
-                    page={page}
-                    rowsPerPage={rowsPerPage}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                />
-            </TableContainer>
-        </div>
+                                </>
+                            ) : (
+                                <>
+                                    {students.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={8} align='center'>
+                                                <Typography variant='h4'>No students found</Typography>
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        <>
+                                            {students.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(stu => (
+                                                <TableRow key={stu.id}>
+                                                    <TableCell>{`${stu.firstName} ${stu.lastName}`}</TableCell>
+                                                    <TableCell>{stu.email}</TableCell>
+                                                    <TableCell>
+                                                        <div style={{ display: 'flex', gap: 5 }}>
+                                                            <Rating
+                                                                precision={0.5}
+                                                                value={stu.feedbackReceived.avgRating}
+                                                                max={3}
+                                                                readOnly
+                                                            />
+                                                            <Typography>{`(${stu.feedbackReceived.avgRating.toFixed(2)})`}</Typography>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell align='center'>{stu.feedbackReceived.sumPunctuality}</TableCell>
+                                                    <TableCell align='center'>{stu.feedbackReceived.sumMaterial}</TableCell>
+                                                    <TableCell align='center'>{stu.feedbackReceived.sumPolite}</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </>
+                                    )}
+                                </>
+                            )}
+                        </TableBody>
+                    </Table>
+                    <TablePagination
+                        component='div'
+                        count={students ? students.length : 0}
+                        page={page}
+                        rowsPerPage={rowsPerPage}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
+                </TableContainer>
+            </div>
+        </Layout>
     );
 }

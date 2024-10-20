@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, CircularProgress } from '@mui/material';
+import { Box, Grid, CircularProgress, Backdrop } from '@mui/material';
 import { useUser } from '@/context/UserContext';
 import { useReservation } from '@/context/ReservationContext';
 import MeetingLinkComponent from '@/components/MeetingLinkComponent';
 import HorizontalProfessorCard from '../reservations/components/HorizontalProfessorCard';
 import Chat from '@/components/Chat';
+import Layout from '@/components/ui/Layout';
 
 export default function ReservationChat() {
     const user = useUser();
@@ -44,53 +45,52 @@ export default function ReservationChat() {
     }, [user, reservationId, userId]);
 
     return (
-        <Box
-            sx={{
-                width: '100%',
-                margin: '2rem auto',
-            }}
-        >
-            <Grid container spacing={4}>
-                {/* Left Column: Professor Card and Google Meet Link */}
-                <Grid item xs={12} md={7}>
-                    {/* Adjusted md to 4 */}
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'flex-start',
-                            gap: 2,
-                        }}
-                    >
-                        <HorizontalProfessorCard professor={userInfo} />
-                        {googleMeetLink && <MeetingLinkComponent googleMeetLink={googleMeetLink} />}
-                    </Box>
-                </Grid>
+        <Layout>
+            <Box
+                sx={{
+                    width: '100%',
+                    margin: '2rem auto',
+                }}
+            >
+                {!isLoadingContent && (
+                    <Grid container spacing={4}>
+                        {/* Left Column */}
+                        <Grid item xs={12} md='auto' sx={{ marginLeft: 5, marginRight: 5 }}>
+                            <Box
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'flex-start',
+                                    gap: 2,
+                                }}
+                            >
+                                <HorizontalProfessorCard professor={userInfo} />
+                                {googleMeetLink && <MeetingLinkComponent googleMeetLink={googleMeetLink} />}
+                            </Box>
+                        </Grid>
 
-                {/* Right Column: Chat */}
-                <Grid item xs={12} md={5}>
-                    {/* Adjusted md to 8 */}
-                    <Box
-                        sx={{
-                            height: '100%',
-                            width: '100%',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'flex-end',
-                            justifyContent: 'flex-end',
-                        }}
-                    >
-                        <Chat userInfo={userInfo} />
-                    </Box>
-                </Grid>
-            </Grid>
+                        <Grid item xs={12} md='auto' sx={{ marginLeft: 'auto', marginRight: 5 }}>
+                            <Box
+                                sx={{
+                                    height: '100%',
+                                    width: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'flex-end',
+                                    justifyContent: 'flex-end',
+                                }}
+                            >
+                                <Chat userInfo={userInfo} />
+                            </Box>
+                        </Grid>
+                    </Grid>
+                )}
 
-            {/* Show loading state if content is being fetched */}
-            {isLoadingContent && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                    <CircularProgress />
-                </Box>
-            )}
-        </Box>
+                {/* Backdrop Loader */}
+                <Backdrop open={isLoadingContent} sx={{ color: '#fff', zIndex: 10000 }}>
+                    <CircularProgress color='inherit' />
+                </Backdrop>
+            </Box>
+        </Layout>
     );
 }

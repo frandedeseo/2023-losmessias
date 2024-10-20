@@ -29,6 +29,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import useWindowSize from '@/hooks/useWindowSize';
 import Classes from '@/components/Classes';
+import Layout from '@/components/ui/Layout';
 
 // Consts
 const dayNumber = {
@@ -280,231 +281,235 @@ export default function ProfessorLandingPage() {
 
     return (
         <>
-            {isLoading ? (
-                <>
-                    <Box
-                        sx={{
-                            height: 300,
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <CircularProgress />
-                    </Box>
-                </>
-            ) : (
-                <div style={{ width: '95%', margin: 'auto' }}>
-                    <Snackbar
-                        open={isLoadingFeedback}
-                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                        severity={feedbackStatus}
-                        autoHideDuration={autoHideDuration}
-                        onClose={() => {
-                            setFeedbackStatus('info');
-                            setAutoHideDuration(null);
-                            setIsLoadingFeedback(false);
-                        }}
-                    >
-                        <Alert severity={feedbackStatus}>
-                            {feedbackStatus === 'info'
-                                ? 'Sending feedback...'
-                                : feedbackStatus === 'success'
-                                ? 'Feedback sent!'
-                                : 'Error sending feedback'}
-                        </Alert>
-                    </Snackbar>
+            <Layout>
+                {isLoading ? (
+                    <>
+                        <Box
+                            sx={{
+                                height: 300,
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <CircularProgress />
+                        </Box>
+                    </>
+                ) : (
+                    <div style={{ width: '95%', margin: 'auto' }}>
+                        <Snackbar
+                            open={isLoadingFeedback}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                            severity={feedbackStatus}
+                            autoHideDuration={autoHideDuration}
+                            onClose={() => {
+                                setFeedbackStatus('info');
+                                setAutoHideDuration(null);
+                                setIsLoadingFeedback(false);
+                            }}
+                        >
+                            <Alert severity={feedbackStatus}>
+                                {feedbackStatus === 'info'
+                                    ? 'Sending feedback...'
+                                    : feedbackStatus === 'success'
+                                    ? 'Feedback sent!'
+                                    : 'Error sending feedback'}
+                            </Alert>
+                        </Snackbar>
 
-                    {windowSize.width > 500 && (
-                        <Typography variant='h4' sx={{ margin: '2% 0' }}>
-                            Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
-                        </Typography>
-                    )}
-
-                    {windowSize.width <= 500 && (
-                        <>
-                            <Typography variant='h5' sx={{ margin: '2% 0' }} textAlign='center'>
-                                Hi{' ' + user.firstName + ' ' + user.lastName}
+                        {windowSize.width > 500 && (
+                            <Typography variant='h4' sx={{ margin: '2% 0' }}>
+                                Hi{' ' + user.firstName + ' ' + user.lastName}, welcome back!
                             </Typography>
-                        </>
-                    )}
+                        )}
 
-                    <Tabs value={tab} onChange={handleTabChange}>
-                        <Tab label='Agenda' />
-                        <Tab label='Classes' />
-                        <Tab label='Dashboard' />
-                    </Tabs>
-                    <div style={{ paddingBlock: '0.75rem' }} />
-                    {tab === 0 && (
-                        <>
-                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <table style={{ height: '35px' }}>
-                                    <tbody>
-                                        <tr>
-                                            <td
-                                                style={{
-                                                    width: '130px',
-                                                    borderBlock: '1px solid #338aed70',
-                                                    backgroundColor: '#338aed90',
-                                                    textAlign: 'center',
-                                                }}
-                                            >
-                                                <Typography>Selected block</Typography>
-                                            </td>
-                                            <td
-                                                style={{
-                                                    textAlign: 'center',
-                                                    width: '130px',
-                                                    borderBlock: '1px solid #e64b4b70',
-                                                    backgroundColor: '#e64b4b90',
-                                                }}
-                                            >
-                                                <Typography>Reserved Class</Typography>
-                                            </td>
-                                            <td
-                                                style={{
-                                                    textAlign: 'center',
-                                                    width: '130px',
-                                                    borderBlock: '1px solid #adadad70',
-                                                    backgroundColor: '#adadad90',
-                                                }}
-                                            >
-                                                <Typography>Unavailable</Typography>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                                {windowSize.width > 500 && (
-                                    <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+                        {windowSize.width <= 500 && (
+                            <>
+                                <Typography variant='h5' sx={{ margin: '2% 0' }} textAlign='center'>
+                                    Hi{' ' + user.firstName + ' ' + user.lastName}
+                                </Typography>
+                            </>
+                        )}
+
+                        <Tabs value={tab} onChange={handleTabChange}>
+                            <Tab label='Agenda' />
+                            <Tab label='Classes' />
+                            <Tab label='Dashboard' />
+                        </Tabs>
+                        <div style={{ paddingBlock: '0.75rem' }} />
+                        {tab === 0 && (
+                            <>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <table style={{ height: '35px' }}>
+                                        <tbody>
+                                            <tr>
+                                                <td
+                                                    style={{
+                                                        width: '130px',
+                                                        borderBlock: '1px solid #338aed70',
+                                                        backgroundColor: '#338aed90',
+                                                        textAlign: 'center',
+                                                    }}
+                                                >
+                                                    <Typography>Selected block</Typography>
+                                                </td>
+                                                <td
+                                                    style={{
+                                                        textAlign: 'center',
+                                                        width: '130px',
+                                                        borderBlock: '1px solid #e64b4b70',
+                                                        backgroundColor: '#e64b4b90',
+                                                    }}
+                                                >
+                                                    <Typography>Reserved Class</Typography>
+                                                </td>
+                                                <td
+                                                    style={{
+                                                        textAlign: 'center',
+                                                        width: '130px',
+                                                        borderBlock: '1px solid #adadad70',
+                                                        backgroundColor: '#adadad90',
+                                                    }}
+                                                >
+                                                    <Typography>Unavailable</Typography>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    {windowSize.width > 500 && (
+                                        <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+                                    )}
+                                </div>
+
+                                {windowSize.width <= 500 && (
+                                    <CalendarPagination
+                                        week={week}
+                                        setWeek={setWeek}
+                                        day={day}
+                                        setDay={setDay}
+                                        setSelectedBlocks={setSelectedBlocks}
+                                    />
                                 )}
-                            </div>
-
-                            {windowSize.width <= 500 && (
-                                <CalendarPagination
-                                    week={week}
-                                    setWeek={setWeek}
-                                    day={day}
-                                    setDay={setDay}
+                                <Calendar
+                                    selectedBlocks={selectedBlocks}
                                     setSelectedBlocks={setSelectedBlocks}
+                                    disabledBlocks={disabledBlocks}
+                                    week={week}
+                                    day={day}
+                                    showData
                                 />
-                            )}
-                            <Calendar
-                                selectedBlocks={selectedBlocks}
-                                setSelectedBlocks={setSelectedBlocks}
-                                disabledBlocks={disabledBlocks}
-                                week={week}
-                                day={day}
-                                showData
-                            />
 
-                            <div style={{ display: 'flex', justifyContent: 'right', margin: '1rem auto', width: '90%' }}>
-                                <Button onClick={handleCancel}>Cancel</Button>
-                                <Button variant='contained' onClick={handleConfirmationOpen} disabled={selectedBlocks.length === 0}>
-                                    Disable
-                                </Button>
-                            </div>
+                                <div style={{ display: 'flex', justifyContent: 'right', margin: '1rem auto', width: '90%' }}>
+                                    <Button onClick={handleCancel}>Cancel</Button>
+                                    <Button variant='contained' onClick={handleConfirmationOpen} disabled={selectedBlocks.length === 0}>
+                                        Disable
+                                    </Button>
+                                </div>
 
-                            <Dialog open={showConfirmDisable}>
-                                <DialogTitle>Confirm Disable</DialogTitle>
-                                <DialogContent dividers>
-                                    <div style={{ display: 'flex' }}>
-                                        <div style={{ paddingInline: '2rem' }}>
-                                            {orderedSelectedBlocks.map((block, idx) => (
-                                                <Typography key={idx}>
-                                                    {block.day + ' ' + block.startingHour + ' - ' + block.endingHour}
-                                                </Typography>
-                                            ))}
+                                <Dialog open={showConfirmDisable}>
+                                    <DialogTitle>Confirm Disable</DialogTitle>
+                                    <DialogContent dividers>
+                                        <div style={{ display: 'flex' }}>
+                                            <div style={{ paddingInline: '2rem' }}>
+                                                {orderedSelectedBlocks.map((block, idx) => (
+                                                    <Typography key={idx}>
+                                                        {block.day + ' ' + block.startingHour + ' - ' + block.endingHour}
+                                                    </Typography>
+                                                ))}
+                                            </div>
                                         </div>
+                                    </DialogContent>
+                                    <DialogActions>
+                                        <Button onClick={handleCancel}>Cancel</Button>
+                                        <Button variant='contained' onClick={handleDisable}>
+                                            Disable
+                                        </Button>
+                                    </DialogActions>
+                                </Dialog>
+
+                                <Snackbar
+                                    open={alert}
+                                    autoHideDuration={3000}
+                                    onClose={() => setAlert(false)}
+                                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                                >
+                                    <Alert severity={alertSeverity}>{alertMessage}</Alert>
+                                </Snackbar>
+                            </>
+                        )}
+                        {tab === 1 && <Classes />}
+                        {tab === 2 && <Dashboard />}
+
+                        {pendingFeedback.length > 0 && (
+                            <Dialog open={giveFeedback} onClose={() => setGiveFeedback(false)}>
+                                <DialogTitle>{`Give Feedback to ${pendingFeedback[0].receiver.name}`}</DialogTitle>
+                                <DialogContent>
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                        <Rating
+                                            precision={0.5}
+                                            value={feedback.rating}
+                                            onChange={(event, newValue) => {
+                                                setFeedback(prev => ({ ...prev, rating: newValue }));
+                                            }}
+                                            sx={{ fontSize: 42 }}
+                                            max={3}
+                                            size='large'
+                                        />
                                     </div>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'center',
+                                            gap: 10,
+                                            marginBlock: '1.5rem',
+                                        }}
+                                    >
+                                        <Tooltip title='Is always on time'>
+                                            <AccessTimeIcon
+                                                fontSize='large'
+                                                sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                                onClick={() => handleFeedbackClick('time')}
+                                                color={feedback.time ? 'black' : 'disabled'}
+                                            />
+                                        </Tooltip>
+
+                                        <Tooltip title='Has extra material to practice'>
+                                            <InsertDriveFileIcon
+                                                fontSize='large'
+                                                sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                                onClick={() => handleFeedbackClick('material')}
+                                                color={feedback.material ? 'black' : 'disabled'}
+                                            />
+                                        </Tooltip>
+
+                                        <Tooltip title='Is respectful and patient'>
+                                            <SentimentSatisfiedAltIcon
+                                                fontSize='large'
+                                                sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
+                                                onClick={() => handleFeedbackClick('kind')}
+                                                color={feedback.kind ? 'black' : 'disabled'}
+                                            />
+                                        </Tooltip>
+                                    </div>
+
+                                    <FormControlLabel
+                                        label='I dont want to give feedback'
+                                        control={
+                                            <Checkbox checked={nullFeedback} onChange={event => setNullFeedback(event.target.checked)} />
+                                        }
+                                    />
                                 </DialogContent>
                                 <DialogActions>
-                                    <Button onClick={handleCancel}>Cancel</Button>
-                                    <Button variant='contained' onClick={handleDisable}>
-                                        Disable
+                                    <Button onClick={() => setGiveFeedback(false)}>Close</Button>
+                                    <Button variant='contained' onClick={handleFeedback}>
+                                        Submit
                                     </Button>
                                 </DialogActions>
                             </Dialog>
-
-                            <Snackbar
-                                open={alert}
-                                autoHideDuration={3000}
-                                onClose={() => setAlert(false)}
-                                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                            >
-                                <Alert severity={alertSeverity}>{alertMessage}</Alert>
-                            </Snackbar>
-                        </>
-                    )}
-                    {tab === 1 && <Classes />}
-                    {tab === 2 && <Dashboard />}
-
-                    {pendingFeedback.length > 0 && (
-                        <Dialog open={giveFeedback} onClose={() => setGiveFeedback(false)}>
-                            <DialogTitle>{`Give Feedback to ${pendingFeedback[0].receiver.name}`}</DialogTitle>
-                            <DialogContent>
-                                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                                    <Rating
-                                        precision={0.5}
-                                        value={feedback.rating}
-                                        onChange={(event, newValue) => {
-                                            setFeedback(prev => ({ ...prev, rating: newValue }));
-                                        }}
-                                        sx={{ fontSize: 42 }}
-                                        max={3}
-                                        size='large'
-                                    />
-                                </div>
-                                <div
-                                    style={{
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        gap: 10,
-                                        marginBlock: '1.5rem',
-                                    }}
-                                >
-                                    <Tooltip title='Is always on time'>
-                                        <AccessTimeIcon
-                                            fontSize='large'
-                                            sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
-                                            onClick={() => handleFeedbackClick('time')}
-                                            color={feedback.time ? 'black' : 'disabled'}
-                                        />
-                                    </Tooltip>
-
-                                    <Tooltip title='Has extra material to practice'>
-                                        <InsertDriveFileIcon
-                                            fontSize='large'
-                                            sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
-                                            onClick={() => handleFeedbackClick('material')}
-                                            color={feedback.material ? 'black' : 'disabled'}
-                                        />
-                                    </Tooltip>
-
-                                    <Tooltip title='Is respectful and patient'>
-                                        <SentimentSatisfiedAltIcon
-                                            fontSize='large'
-                                            sx={{ gridColumn: 1 / 3, row: 1, cursor: 'pointer' }}
-                                            onClick={() => handleFeedbackClick('kind')}
-                                            color={feedback.kind ? 'black' : 'disabled'}
-                                        />
-                                    </Tooltip>
-                                </div>
-
-                                <FormControlLabel
-                                    label='I dont want to give feedback'
-                                    control={<Checkbox checked={nullFeedback} onChange={event => setNullFeedback(event.target.checked)} />}
-                                />
-                            </DialogContent>
-                            <DialogActions>
-                                <Button onClick={() => setGiveFeedback(false)}>Close</Button>
-                                <Button variant='contained' onClick={handleFeedback}>
-                                    Submit
-                                </Button>
-                            </DialogActions>
-                        </Dialog>
-                    )}
-                </div>
-            )}
+                        )}
+                    </div>
+                )}
+            </Layout>
         </>
     );
 }

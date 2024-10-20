@@ -10,9 +10,7 @@ export default function App({ Component, pageProps }) {
         <UserProvider>
             <ReservationProvider>
                 <ProfessorProvider>
-                    <Layout>
-                        <Component {...pageProps} />
-                    </Layout>
+                    <Component {...pageProps} />
                 </ProfessorProvider>
             </ReservationProvider>
         </UserProvider>

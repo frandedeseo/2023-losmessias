@@ -18,10 +18,8 @@ const MeetingLinkComponent = ({ googleMeetLink }) => {
         googleMeetLink && (
             <StyledCard
                 sx={{
-                    maxWidth: 662,
-                    width: !isMobile ? 'calc(100% - 80px)' : 'calc(100% - 16px)',
+                    width: 'calc(100% - 16px)',
                     padding: 1,
-                    marginLeft: isMobile ? 0 : 8,
                 }}
             >
                 <Grid container alignItems='center' spacing={1}>

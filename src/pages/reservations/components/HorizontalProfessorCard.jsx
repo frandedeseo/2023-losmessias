@@ -34,12 +34,6 @@ const IconWrapper = styled(Box)(({ theme }) => ({
     gap: theme.spacing(1),
 }));
 
-const StyledRating = styled(Rating)(({ theme }) => ({
-    '& .MuiRating-iconFilled': {
-        color: 'blue',
-    },
-}));
-
 const InfoItem = ({ icon, text, loading }) => (
     <ListItem>
         <ListItemIcon>{icon}</ListItemIcon>
@@ -55,7 +49,7 @@ const InfoItem = ({ icon, text, loading }) => (
 
 export default function HorizontalProfessorCard({ professor }) {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     const loading = !professor;
     const avatarUrl =
@@ -64,10 +58,10 @@ export default function HorizontalProfessorCard({ professor }) {
             : 'https://www.w3schools.com/howto/img_avatar.png';
 
     const DesktopLayout = () => (
-        <Box sx={{ display: 'flex', gap: 1, paddingLeft: 8 }}>
+        <Box sx={{ display: 'flex', gap: 1 }}>
             {' '}
             {/* Reduced gap */}
-            <StyledCard sx={{ flex: 1 }}>
+            <StyledCard sx={{ flex: 1, minWidth: '500px' }}>
                 <Box sx={{ display: 'flex', p: 1 }}>
                     {' '}
                     {/* Reduced padding */}
@@ -93,12 +87,12 @@ export default function HorizontalProfessorCard({ professor }) {
                     </CardContent>
                 </Box>
             </StyledCard>
-            <StyledCard sx={{ flex: 1 }}>
+            <StyledCard sx={{ flex: 1, minWidth: '122px' }}>
                 <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
-                        <StyledRating
-                            precision={0.5}
-                            value={professor ? parseFloat(professor.avgRating) : 0}
+                        <Rating
+                            precision={0.25}
+                            value={professor.feedbackReceived ? parseFloat(professor.feedbackReceived.avgRating) || 0 : 0}
                             max={3}
                             size='large'
                             readOnly
@@ -106,10 +100,14 @@ export default function HorizontalProfessorCard({ professor }) {
                     </Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
                         {[
-                            { icon: <AccessTime />, value: professor ? professor.sumPunctuality : 0, tooltip: 'Is always on time' },
+                            {
+                                icon: <AccessTime />,
+                                value: professor.feedbackReceived ? professor.feedbackReceived.sumPunctuality : 0,
+                                tooltip: 'Is always on time',
+                            },
                             {
                                 icon: <InsertDriveFile />,
-                                value: professor ? professor.sumMaterial : 0,
+                                value: professor.feedbackReceived ? professor.feedbackReceived.sumMaterial : 0,
                                 tooltip:
                                     professor && professor.role && professor.role.toLowerCase() === 'student'
                                         ? 'Does the homework'
@@ -117,7 +115,7 @@ export default function HorizontalProfessorCard({ professor }) {
                             },
                             {
                                 icon: <SentimentSatisfiedAlt />,
-                                value: professor ? professor.sumPolite : 0,
+                                value: professor.feedbackReceived ? professor.feedbackReceived.sumPolite : 0,
                                 tooltip:
                                     professor && professor.role && professor.role.toLowerCase() === 'student'
                                         ? 'Pays attention and listens'
@@ -161,14 +159,24 @@ export default function HorizontalProfessorCard({ professor }) {
                     <InfoItem icon={<Business />} text={professor ? professor.location : ''} loading={loading} />
                 </List>
                 <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
-                    <StyledRating precision={0.5} value={professor ? parseFloat(professor.avgRating) : 0} max={3} size='large' readOnly />
+                    <Rating
+                        precision={0.5}
+                        value={professor.feedbackReceived ? parseFloat(professor.feedbackReceived.avgRating) : 0}
+                        max={3}
+                        size='large'
+                        readOnly
+                    />
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
                     {[
-                        { icon: <AccessTime />, value: professor ? professor.sumPunctuality : 0, tooltip: 'Is always on time' },
+                        {
+                            icon: <AccessTime />,
+                            value: professor.feedbackReceived ? professor.feedbackReceived.sumPunctuality : 0,
+                            tooltip: 'Is always on time',
+                        },
                         {
                             icon: <InsertDriveFile />,
-                            value: professor ? professor.sumMaterial : 0,
+                            value: professor.feedbackReceived ? professor.feedbackReceived.sumMaterial : 0,
                             tooltip:
                                 professor && professor.role && professor.role.toLowerCase() === 'student'
                                     ? 'Do the homework'
@@ -176,7 +184,7 @@ export default function HorizontalProfessorCard({ professor }) {
                         },
                         {
                             icon: <SentimentSatisfiedAlt />,
-                            value: professor ? professor.sumPolite : 0,
+                            value: professor.feedbackReceived ? professor.feedbackReceived.sumPolite : 0,
                             tooltip:
                                 professor && professor.role && professor.role.toLowerCase() === 'student'
                                     ? 'Pays attention and listens'

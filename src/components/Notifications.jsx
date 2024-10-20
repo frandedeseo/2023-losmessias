@@ -39,18 +39,21 @@ export default function Notifications() {
     const handleToggle = () => {
         if (open && unreadNotificationsCount !== 0) {
             setUnreadNotificationsCount(0);
+
             const newNotifications = notifications.map(n => {
-                n.opened = true;
+                if (!n.opened) {
+                    n.opened = true;
+                    // Send request to backend only for unopened notifications
+                    fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/notification/open-notification?id=${n.id}`, {
+                        method: 'POST',
+                        headers: {
+                            Authorization: `Bearer ${user.token}`,
+                        },
+                    });
+                }
                 return n;
             });
-            notifications.forEach(n => {
-                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/notification/open-notification?id=${n.id}`, {
-                    method: 'POST',
-                    headers: {
-                        Authorization: `Bearer ${user.token}`,
-                    },
-                });
-            });
+
             setNotifications(newNotifications);
         }
         setOpen(!open);

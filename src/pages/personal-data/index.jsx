@@ -11,6 +11,7 @@ import useSWR from 'swr';
 import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 import LoadingModal from '@/components/modals/LoadingModal';
 import { useRouter } from 'next/router';
+import Layout from '@/components/ui/Layout';
 
 export default function PersonalData() {
     const [editMode, setEditMode] = useState(false);
@@ -18,6 +19,8 @@ export default function PersonalData() {
     const [location, setLocation] = useState('');
     const [phone, setPhone] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
     const user = useUser();
     const router = useRouter();
 
@@ -40,7 +43,8 @@ export default function PersonalData() {
             fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/app-user/update`, {
                 method: 'PATCH',
                 body: JSON.stringify({
-                    email: emailAddress ? emailAddress : null,
+                    firstName: firstName ? firstName : null,
+                    lastName: lastName ? lastName : null,
                     location: location ? location : null,
                     phone: phone ? phone : null,
                 }),
@@ -58,7 +62,8 @@ export default function PersonalData() {
                 .finally(() => setIsProcessing(false));
         } else {
             setEditMode(true);
-            setEmailAddress('');
+            setFirstName('');
+            setLastName('');
             setLocation('');
             setPhone('');
         }
@@ -66,33 +71,41 @@ export default function PersonalData() {
 
     return (
         <>
-            <Grid sx={styles.globalContainer}>
-                <Typography variant='h4' sx={styles.typography}>
-                    My personal information
-                </Typography>
-                {editMode ? (
-                    <Grid container justifyContent='flex-end' sx={{ width: 230 }}>
-                        <Fab color='error' aria-label='edit' onClick={() => setEditMode(false)} style={{ marginRight: '1rem' }}>
-                            <Cancel />
-                        </Fab>
-                        <Fab color='success' aria-label='edit' onClick={() => handleSave()}>
-                            <CheckIcon />
-                        </Fab>
-                    </Grid>
+            <Layout>
+                <Grid sx={styles.globalContainer}>
+                    <Typography variant='h4' sx={styles.typography}>
+                        My personal information
+                    </Typography>
+                    {editMode ? (
+                        <Grid container justifyContent='flex-end' sx={{ width: 230 }}>
+                            <Fab color='error' aria-label='edit' onClick={() => setEditMode(false)} style={{ marginRight: '1rem' }}>
+                                <Cancel />
+                            </Fab>
+                            <Fab color='success' aria-label='edit' onClick={() => handleSave()}>
+                                <CheckIcon />
+                            </Fab>
+                        </Grid>
+                    ) : (
+                        <Grid container justifyContent='flex-end' sx={{ width: 70 }}>
+                            <Fab color={'primary'} aria-label='edit' onClick={() => handleSave()}>
+                                {editMode ? <CheckIcon /> : <EditIcon />}
+                            </Fab>
+                        </Grid>
+                    )}
+                </Grid>
+                {!editMode ? (
+                    <PersonalDataDisplay data={data} isLoading={isLoading} />
                 ) : (
-                    <Grid container justifyContent='flex-end' sx={{ width: 70 }}>
-                        <Fab color={'primary'} aria-label='edit' onClick={() => handleSave()}>
-                            {editMode ? <CheckIcon /> : <EditIcon />}
-                        </Fab>
-                    </Grid>
+                    <PersonalDataEdit
+                        data={data}
+                        setFirstName={setFirstName}
+                        setLastName={setLastName}
+                        setLocation={setLocation}
+                        setPhone={setPhone}
+                    />
                 )}
-            </Grid>
-            {!editMode ? (
-                <PersonalDataDisplay data={data} isLoading={isLoading} />
-            ) : (
-                <PersonalDataEdit data={data} setEmailAddress={setEmailAddress} setLocation={setLocation} setPhone={setPhone} />
-            )}
-            <LoadingModal isOpen={isProcessing} message={'Processing changes...'} />
+                <LoadingModal isOpen={isProcessing} message={'Processing changes...'} />
+            </Layout>
         </>
     );
 }
