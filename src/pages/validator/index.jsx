@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 
 // styles
 import { styles } from '../../styles/validator-styles.js';
-import { Alert, Snackbar, Typography, Divider } from '@mui/material';
+import { Alert, Snackbar, Typography, Divider, Backdrop, CircularProgress } from '@mui/material';
 import useSWR from 'swr';
 import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 
@@ -26,6 +26,7 @@ export default function Validator() {
     const [allTeachersSubjects, setAllTeachersSubjects] = useState([]);
     const [teachersSubjects, setTeachersSubjects] = useState([]);
     const [alert, setAlert] = useState(false);
+    const [waitingForServer, setWaitingForServer] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [alertSeverity, setAlertSeverity] = useState('');
     const user = useUser();
@@ -67,6 +68,7 @@ export default function Validator() {
     };
 
     const handleApprove = teacherSubject => {
+        setWaitingForServer(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/approve`, {
             method: 'POST',
             headers: {
@@ -102,7 +104,7 @@ export default function Validator() {
                         return true;
                     })
                 );
-                setAlert(true);
+
                 setAlertSeverity('success');
                 setAlertMessage(
                     `It has been approved successfully the subject ${teacherSubject.subject.name} for ${teacherSubject.professor.firstName}`
@@ -111,10 +113,13 @@ export default function Validator() {
                 setAlertSeverity('error');
                 setAlertMessage(`${teacherSubject.professor.firstName}: ${teacherSubject.subject.name} Approval failed!`);
             }
+            setWaitingForServer(false);
+            setAlert(true);
         });
     };
 
     const handleReject = teacherSubject => {
+        setWaitingForServer(true);
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/professor-subject/reject`, {
             method: 'POST',
             headers: {
@@ -158,6 +163,7 @@ export default function Validator() {
                 setAlertSeverity('error');
                 setAlertMessage(`Rejection failed!`);
             }
+            setWaitingForServer(false);
             setAlert(true);
         });
     };
@@ -180,6 +186,9 @@ export default function Validator() {
                 >
                     <Alert severity={alertSeverity}>{alertMessage}</Alert>
                 </Snackbar>
+                <Backdrop open={waitingForServer} sx={{ color: '#fff', zIndex: 10000 }}>
+                    <CircularProgress color='inherit' />
+                </Backdrop>
             </div>
         </Layout>
     );

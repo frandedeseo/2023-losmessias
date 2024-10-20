@@ -36,6 +36,7 @@ import useSWR from 'swr';
 import { fetcherGetWithToken } from '@/helpers/FetchHelpers';
 import useWindowSize from '@/hooks/useWindowSize';
 import { useProfessor } from '@/context/ProfessorContext';
+import Layout from '@/components/ui/Layout';
 
 // Consts
 const dayNumber = {
@@ -283,140 +284,164 @@ export default function Reservation() {
     };
 
     return (
-        <>
-            {windowSize.width > 500 && (
-                <div style={{ display: 'flex', width: '90%', margin: '2rem auto', alignItems: 'end', justifyContent: 'space-between' }}>
-                    <HorizontalProfessorCard professor={professor} />
-                    <FormControl sx={{ minWidth: 150, backgroundColor: '#fff', ml: 5 }}>
-                        <InputLabel>Subject</InputLabel>
-                        <Select value={subject} label='Subject' onChange={e => handleSubjectChange(e)}>
-                            {professor.subjects?.map((subject, idx) => (
-                                <MenuItem value={idx} key={subject.id}>
-                                    {subject.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </div>
-            )}
-            {windowSize.width <= 500 && (
+        <Layout>
+            {isLoading ? ( // Show loader while fetching data
+                <Box display='flex' justifyContent='center' alignItems='center' height='80vh'>
+                    <CircularProgress />
+                </Box>
+            ) : (
                 <>
-                    <HorizontalProfessorCard professor={professor} />
-                    <FormControl sx={{ backgroundColor: '#fff', marginBlock: '1.5rem' }} fullWidth>
-                        <InputLabel>Subject</InputLabel>
-                        <Select value={subject} label='Subject' onChange={e => handleSubjectChange(e)}>
-                            {professor.subjects?.map((subject, idx) => (
-                                <MenuItem value={idx} key={subject.id}>
-                                    {subject.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                    {windowSize.width > 500 && (
+                        <div
+                            style={{
+                                display: 'flex',
+                                width: '90%',
+                                margin: '2rem auto',
+                                alignItems: 'end',
+                                justifyContent: 'space-between',
+                            }}
+                        >
+                            <HorizontalProfessorCard professor={professor} />
+                            <FormControl sx={{ minWidth: 150, backgroundColor: '#fff', ml: 5 }}>
+                                <InputLabel>Subject</InputLabel>
+                                <Select value={subject} label='Subject' onChange={e => handleSubjectChange(e)}>
+                                    {professor.subjects?.map((subject, idx) => (
+                                        <MenuItem value={idx} key={subject.id}>
+                                            {subject.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </div>
+                    )}
+                    {windowSize.width <= 500 && (
+                        <>
+                            <HorizontalProfessorCard professor={professor} />
+                            <FormControl sx={{ backgroundColor: '#fff', marginBlock: '1.5rem' }} fullWidth>
+                                <InputLabel>Subject</InputLabel>
+                                <Select value={subject} label='Subject' onChange={e => handleSubjectChange(e)}>
+                                    {professor.subjects?.map((subject, idx) => (
+                                        <MenuItem value={idx} key={subject.id}>
+                                            {subject.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </>
+                    )}
+                    <div style={{ width: '90%', margin: 'auto' }}>
+                        <Typography variant='h5' textAlign='center'>
+                            Agenda
+                        </Typography>
+                        <Divider />
+                        <div style={{ paddingBlock: '0.75rem' }} />
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <table style={{ height: '35px' }}>
+                                <tbody>
+                                    <tr>
+                                        <td
+                                            style={{
+                                                width: '130px',
+                                                borderBlock: '1px solid #338aed70',
+                                                backgroundColor: '#338aed90',
+                                                textAlign: 'center',
+                                            }}
+                                        >
+                                            <Typography>Selected time</Typography>
+                                        </td>
+                                        <td
+                                            style={{
+                                                textAlign: 'center',
+                                                width: '130px',
+                                                borderBlock: '1px solid #e64b4b70',
+                                                backgroundColor: '#e64b4b90',
+                                            }}
+                                        >
+                                            <Typography>Reserved Class</Typography>
+                                        </td>
+                                        <td
+                                            style={{
+                                                textAlign: 'center',
+                                                width: '130px',
+                                                borderBlock: '1px solid #adadad70',
+                                                backgroundColor: '#adadad90',
+                                            }}
+                                        >
+                                            <Typography>Unavailable</Typography>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            {windowSize.width > 500 && (
+                                <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />
+                            )}
+                        </div>
+                        {windowSize.width <= 500 && (
+                            <CalendarPagination
+                                week={week}
+                                setWeek={setWeek}
+                                day={day}
+                                setDay={setDay}
+                                setSelectedBlocks={setSelectedBlocks}
+                            />
+                        )}
+
+                        <Calendar
+                            selectedBlocks={selectedBlocks}
+                            setSelectedBlocks={setSelectedBlocks}
+                            disabledBlocks={disabledBlocks}
+                            week={week}
+                            day={day}
+                        />
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'right', margin: '1rem auto', width: '90%' }}>
+                        <Button onClick={handleCancel}>Cancel</Button>
+                        <Button variant='contained' onClick={handleConfirmationOpen} disabled={selectedBlocks.length === 0}>
+                            Reserve
+                        </Button>
+                    </div>
+
+                    <Dialog open={showConfirmReservation}>
+                        <DialogTitle>Confirm Reservation</DialogTitle>
+                        <DialogContent dividers>
+                            <div style={{ display: 'flex' }}>
+                                <div style={{ paddingInline: '2rem' }}>
+                                    {orderedSelectedBlocks.map((block, idx) => (
+                                        <Typography key={idx}>{block.day + ' ' + block.startingHour + ' - ' + block.endingHour}</Typography>
+                                    ))}
+                                </div>
+                                <Divider orientation='vertical' flexItem />
+                                {price != null && (
+                                    <div style={{ paddingInline: '2rem' }}>
+                                        <Typography>{`Subject: ${professor.subjects[subject]?.name}`}</Typography>
+                                        <Typography>{`Price per hour: ${price}`}</Typography>
+                                        <Typography>{`Total: $${(price * selectedBlocks.length) / 2}`}</Typography>
+                                    </div>
+                                )}
+                            </div>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button onClick={handleCancel}>Cancel</Button>
+                            <Button variant='contained' onClick={handleReserve}>
+                                Reserve
+                            </Button>
+                        </DialogActions>
+                    </Dialog>
+
+                    <LoadingModal isOpen={isProcessingReservation} message={'Processing reservation, please wait...'} />
+
+                    <Snackbar
+                        open={alert}
+                        autoHideDuration={3000}
+                        onClose={() => setAlert(false)}
+                        anchorOrigin={{ vertical: 'top', horizontal: 'top' }}
+                    >
+                        <Alert severity={alertSeverity}>{alertMessage}</Alert>
+                    </Snackbar>
                 </>
             )}
-            <div style={{ width: '90%', margin: 'auto' }}>
-                <Typography variant='h5' textAlign='center'>
-                    Agenda
-                </Typography>
-                <Divider />
-                <div style={{ paddingBlock: '0.75rem' }} />
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <table style={{ height: '35px' }}>
-                        <tbody>
-                            <tr>
-                                <td
-                                    style={{
-                                        width: '130px',
-                                        borderBlock: '1px solid #338aed70',
-                                        backgroundColor: '#338aed90',
-                                        textAlign: 'center',
-                                    }}
-                                >
-                                    <Typography>Selected time</Typography>
-                                </td>
-                                <td
-                                    style={{
-                                        textAlign: 'center',
-                                        width: '130px',
-                                        borderBlock: '1px solid #e64b4b70',
-                                        backgroundColor: '#e64b4b90',
-                                    }}
-                                >
-                                    <Typography>Reserved Class</Typography>
-                                </td>
-                                <td
-                                    style={{
-                                        textAlign: 'center',
-                                        width: '130px',
-                                        borderBlock: '1px solid #adadad70',
-                                        backgroundColor: '#adadad90',
-                                    }}
-                                >
-                                    <Typography>Unavailable</Typography>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    {windowSize.width > 500 && <CalendarPagination week={week} setWeek={setWeek} setSelectedBlocks={setSelectedBlocks} />}
-                </div>
-                {windowSize.width <= 500 && (
-                    <CalendarPagination week={week} setWeek={setWeek} day={day} setDay={setDay} setSelectedBlocks={setSelectedBlocks} />
-                )}
-
-                <Calendar
-                    selectedBlocks={selectedBlocks}
-                    setSelectedBlocks={setSelectedBlocks}
-                    disabledBlocks={disabledBlocks}
-                    week={week}
-                    day={day}
-                />
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'right', margin: '1rem auto', width: '90%' }}>
-                <Button onClick={handleCancel}>Cancel</Button>
-                <Button variant='contained' onClick={handleConfirmationOpen} disabled={selectedBlocks.length === 0}>
-                    Reserve
-                </Button>
-            </div>
-
-            <Dialog open={showConfirmReservation}>
-                <DialogTitle>Confirm Reservation</DialogTitle>
-                <DialogContent dividers>
-                    <div style={{ display: 'flex' }}>
-                        <div style={{ paddingInline: '2rem' }}>
-                            {orderedSelectedBlocks.map((block, idx) => (
-                                <Typography key={idx}>{block.day + ' ' + block.startingHour + ' - ' + block.endingHour}</Typography>
-                            ))}
-                        </div>
-                        <Divider orientation='vertical' flexItem />
-                        {price != null && (
-                            <div style={{ paddingInline: '2rem' }}>
-                                <Typography>{`Subject: ${professor.subjects[subject]?.name}`}</Typography>
-                                <Typography>{`Price per hour: ${price}`}</Typography>
-                                <Typography>{`Total: $${(price * selectedBlocks.length) / 2}`}</Typography>
-                            </div>
-                        )}
-                    </div>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCancel}>Cancel</Button>
-                    <Button variant='contained' onClick={handleReserve}>
-                        Reserve
-                    </Button>
-                </DialogActions>
-            </Dialog>
-
-            <LoadingModal isOpen={isProcessingReservation} message={'Processing reservation, please wait...'} />
-
-            <Snackbar
-                open={alert}
-                autoHideDuration={3000}
-                onClose={() => setAlert(false)}
-                anchorOrigin={{ vertical: 'top', horizontal: 'top' }}
-            >
-                <Alert severity={alertSeverity}>{alertMessage}</Alert>
-            </Snackbar>
-        </>
+        </Layout>
     );
 }

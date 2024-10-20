@@ -241,12 +241,18 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
     return (
         <>
             {windowSize.width > 500 && (
-                <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                <table style={{ borderCollapse: 'collapse', width: '100%', tableLayout: 'fixed' }}>
                     <thead style={{ height: '3rem', backgroundColor: '#fafafa' }}>
                         <tr>
                             <th style={{ borderBottom: '1px solid #f0f0f0', width: '10%' }}></th>
                             {days.map(day => (
-                                <th style={{ borderBottom: '1px solid #f0f0f0' }} key={day}>
+                                <th
+                                    style={{
+                                        borderBottom: '1px solid #f0f0f0',
+                                        width: `${90 / days.length}%`, // Distribute remaining width evenly across all days
+                                    }}
+                                    key={day}
+                                >
                                     <Typography variant='h6'>{day}</Typography>
                                     <Typography>{parseDate(new Date(new Date().setDate(first + daysNumber[day] + 7 * week)))}</Typography>
                                 </th>
@@ -256,8 +262,15 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
 
                     <tbody style={{ backgroundColor: '#fff' }}>
                         {blocks.map(block => (
-                            <tr key={block} style={{ height: '2.3rem' }}>
-                                <td style={{ borderBlock: '1px solid #f0f0f0', textAlign: 'center' }}>
+                            <tr key={block}>
+                                <td
+                                    style={{
+                                        borderBlock: '1px solid #f0f0f0',
+                                        textAlign: 'center',
+                                        height: '45px', // Set height instead of minHeight
+                                        verticalAlign: 'middle', // Center content vertically
+                                    }}
+                                >
                                     <Typography variant='body1'>{block}</Typography>
                                 </td>
 
@@ -265,7 +278,16 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
                                     const data = show_data(showData, block, day);
 
                                     return (
-                                        <td style={style_of_block(block, day)} onClick={() => handleBlockSelection(block, day)} key={day}>
+                                        <td
+                                            style={{
+                                                ...style_of_block(block, day),
+                                                width: `${90 / days.length}%`, // Same fixed width as the header
+                                                height: '45px', // Set height instead of minHeight
+                                                verticalAlign: 'middle', // Center content vertically
+                                            }}
+                                            onClick={() => handleBlockSelection(block, day)}
+                                            key={day}
+                                        >
                                             <Typography fontSize={14} align='center'>
                                                 {data?.subject}
                                             </Typography>
@@ -289,11 +311,16 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
                     <Typography textAlign='center'>
                         {parseDate(new Date(new Date().setDate(first + daysNumber[days[day - 1]] + 7 * week)))}
                     </Typography>
-                    <table style={{ borderCollapse: 'collapse', width: '100%' }}>
+                    <table style={{ borderCollapse: 'collapse', width: '100%', tableLayout: 'fixed' }}>
                         <thead style={{ height: '0.2rem', backgroundColor: '#fafafa' }}>
                             <tr>
                                 <th style={{ borderBottom: '1px solid #f0f0f0', width: '35%' }}></th>
-                                <th style={{ borderBottom: '1px solid #f0f0f0' }} key={days[day - 1]}></th>
+                                <th
+                                    style={{
+                                        borderBottom: '1px solid #f0f0f0',
+                                        width: '65%', // Adjust the remaining space
+                                    }}
+                                ></th>
                             </tr>
                         </thead>
 
@@ -301,13 +328,25 @@ export default function Calendar({ selectedBlocks, setSelectedBlocks, disabledBl
                             {blocks.map(block => {
                                 const data = show_data(showData, block, days[day - 1]);
                                 return (
-                                    <tr key={block} style={{ height: '2.3rem' }}>
-                                        <td style={{ borderBlock: '1px solid #f0f0f0', textAlign: 'center' }}>
+                                    <tr key={block}>
+                                        <td
+                                            style={{
+                                                borderBlock: '1px solid #f0f0f0',
+                                                textAlign: 'center',
+                                                height: '45px', // Set height instead of minHeight
+                                                verticalAlign: 'middle', // Center content vertically
+                                            }}
+                                        >
                                             <Typography variant='body1'>{block}</Typography>
                                         </td>
 
                                         <td
-                                            style={style_of_block(block, days[day - 1])}
+                                            style={{
+                                                ...style_of_block(block, days[day - 1]),
+                                                width: '65%',
+                                                height: '45px', // Set height instead of minHeight
+                                                verticalAlign: 'middle', // Center content vertically
+                                            }}
                                             onClick={() => handleBlockSelection(block, days[day - 1])}
                                             key={days[day - 1]}
                                         >

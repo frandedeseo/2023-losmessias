@@ -105,7 +105,7 @@ export default function Notifications() {
                         borderColor: 'grey.300',
                         borderRadius: '8px', // Fixed the typo here
                         p: 2,
-                        zIndex: 1000,
+                        zIndex: 10000,
                     }}
                 >
                     {notifications.slice(0, visibleCount).map(n => (

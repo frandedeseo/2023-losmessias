@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { Avatar, Box, Button, CircularProgress, Fade, IconButton, Typography, Paper, TextField } from '@mui/material';
+import { Avatar, Box, Button, CircularProgress, Fade, IconButton, Typography, Paper, TextField, Backdrop } from '@mui/material';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import SendIcon from '@mui/icons-material/Send';
 import { useUser } from '@/context/UserContext';
@@ -90,6 +90,7 @@ const Chat = ({ userInfo }) => {
     const user = useUser();
     const router = useRouter();
     const [isLoadingContent, setIsLoadingContent] = useState(true);
+    const [waitingForDownload, setWaitingForDownload] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
 
     function parseDateTime(dateTimeArray) {
@@ -165,6 +166,7 @@ const Chat = ({ userInfo }) => {
                 Authorization: `Bearer ${user.token}`,
             },
         };
+        setWaitingForDownload(true);
 
         fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/file/downloadFile?id=${message.id}`, requestOptions)
             .then(response => response.blob())
@@ -177,8 +179,12 @@ const Chat = ({ userInfo }) => {
                 a.click();
                 document.body.removeChild(a);
                 window.URL.revokeObjectURL(url);
+                setWaitingForDownload(false);
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                setWaitingForDownload(false);
+            });
     };
     // const handleFileUpload = event => {
     //     event.preventDefault();
@@ -487,6 +493,9 @@ const Chat = ({ userInfo }) => {
                     disabled={isUploading || isLoadingContent}
                 ></Button>
             </InputArea>
+            <Backdrop open={waitingForDownload} sx={{ color: '#fff', zIndex: 10000 }}>
+                <CircularProgress color='inherit' />
+            </Backdrop>
         </ChatContainer>
     );
 };

@@ -97,11 +97,26 @@ export default function AllProfessors() {
 
     const sortData = (data, field, direction) => {
         const sortedData = [...data];
-        if (direction === 'asc') {
-            sortedData.sort((a, b) => a[field] - b[field]);
-        } else if (direction === 'desc') {
-            sortedData.sort((a, b) => b[field] - a[field]);
-        }
+
+        // Helper function to access nested properties
+        const getNestedValue = (obj, path) => {
+            return path.split('.').reduce((value, key) => value && value[key], obj);
+        };
+
+        sortedData.sort((a, b) => {
+            const valueA = getNestedValue(a, field);
+            const valueB = getNestedValue(b, field);
+
+            if (typeof valueA === 'number' && typeof valueB === 'number') {
+                return direction === 'asc' ? valueA - valueB : valueB - valueA;
+            }
+
+            if (typeof valueA === 'string' && typeof valueB === 'string') {
+                return direction === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+            }
+
+            return 0; // Default case if values are not comparable
+        });
         return sortedData;
     };
 
@@ -177,9 +192,9 @@ export default function AllProfessors() {
                                 <TableCell>Subjects</TableCell>
                                 <TableCell>
                                     <TableSortLabel
-                                        active={sorter.field === 'avgRating'}
-                                        direction={sorter.field === 'avgRating' ? sorter.direction : 'asc'}
-                                        onClick={() => handleSorterClick('avgRating')}
+                                        active={sorter.field === 'feedbackReceived.avgRating'}
+                                        direction={sorter.field === 'feedbackReceived.avgRating' ? sorter.direction : 'asc'}
+                                        onClick={() => handleSorterClick('feedbackReceived.avgRating')}
                                     >
                                         Rating
                                     </TableSortLabel>
@@ -187,9 +202,9 @@ export default function AllProfessors() {
                                 <TableCell align='center'>
                                     <Tooltip title='Is always on time'>
                                         <TableSortLabel
-                                            active={sorter.field === 'sumPunctuality'}
-                                            direction={sorter.field === 'sum' ? sorter.direction : 'asc'}
-                                            onClick={() => handleSorterClick('sumPunctuality')}
+                                            active={sorter.field === 'feedbackReceived.sumPunctuality'}
+                                            direction={sorter.field === 'feedbackReceived.sumPunctuality' ? sorter.direction : 'asc'}
+                                            onClick={() => handleSorterClick('feedbackReceived.sumPunctuality')}
                                         >
                                             <AccessTimeIcon />
                                         </TableSortLabel>
@@ -198,9 +213,9 @@ export default function AllProfessors() {
                                 <TableCell align='center'>
                                     <Tooltip title='Do the homework'>
                                         <TableSortLabel
-                                            active={sorter.field === 'sum'}
-                                            direction={sorter.field === 'sum' ? sorter.direction : 'asc'}
-                                            onClick={() => handleSorterClick('sumMaterial')}
+                                            active={sorter.field === 'feedbackReceived.sumMaterial'}
+                                            direction={sorter.field === 'feedbackReceived.sumMaterial' ? sorter.direction : 'asc'}
+                                            onClick={() => handleSorterClick('feedbackReceived.sumMaterial')}
                                         >
                                             <InsertDriveFileIcon />
                                         </TableSortLabel>
@@ -209,9 +224,9 @@ export default function AllProfessors() {
                                 <TableCell base='center'>
                                     <Tooltip title='Pays attention and listens'>
                                         <TableSortLabel
-                                            active={sorter.field === 'sum'}
-                                            direction={sorter.field === 'sum' ? sorter.direction : 'asc'}
-                                            onClick={() => handleSorterClick('sumPolite')}
+                                            active={sorter.field === 'feedbackReceived.sumPolite'}
+                                            direction={sorter.field === 'feedbackReceived.sumPolite' ? sorter.direction : 'asc'}
+                                            onClick={() => handleSorterClick('feedbackReceived.sumPolite')}
                                         >
                                             <SentimentSatisfiedAltIcon />
                                         </TableSortLabel>

@@ -1,21 +1,9 @@
 // components
-import Searchbar from '@/components/Searchbar.jsx';
-
-// Hooks
 import { useEffect, useState } from 'react';
 import { useUser } from '@/context/UserContext';
-import { getColor } from '@/utils/getColor.js';
-
-// styles
-import { styles } from '../../styles/validator-styles.js';
-
-import { useRouter } from 'next/router';
-
-// Mui
 import {
     Box,
     Button,
-    Chip,
     CircularProgress,
     Divider,
     Paper,
@@ -45,9 +33,14 @@ export default function AllStudents() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [isLoading, setIsLoading] = useState(true);
     const [searchValue, setSearchValue] = useState('');
-    const router = useRouter();
+    const [sorters, setSorters] = useState({
+        avgRating: false,
+        sumPunctuality: false,
+        sumMaterial: false,
+        sumPolite: false,
+    });
+
     const user = useUser();
-    const [sorters, setSorters] = useState({ avgRating: false, sumPunctuality: false, sumMaterial: false, sumPolite: false });
 
     useEffect(() => {
         if (user.id && user.authenticated) {
@@ -91,26 +84,31 @@ export default function AllStudents() {
         setPage(0);
     };
 
+    // Helper function to access nested properties
+    const getNestedValue = (obj, path) => {
+        return path.split('.').reduce((value, key) => (value ? value[key] : null), obj);
+    };
+
     function sortDataBy(field, direction) {
-        const ascSorter = (a, b) => {
-            return a[field] - b[field];
-        };
+        const sortedStudents = [...allStudents];
 
-        const descSorter = (a, b) => {
-            return (a[field] - b[field]) * -1;
-        };
+        sortedStudents.sort((a, b) => {
+            const valueA = getNestedValue(a, field);
+            const valueB = getNestedValue(b, field);
 
-        let sortedStudents = allStudents;
-        if (direction === 'asc') sortedStudents = allStudents.sort(ascSorter);
-        else if (direction === 'desc') sortedStudents = allStudents.sort(descSorter);
+            console.log(`Sorting by ${field}, direction: ${direction}`);
+            console.log(`Value A: ${valueA}, Value B: ${valueB}`);
 
-        if (searchValue !== '') {
-            sortedStudents = sortedStudents.filter(
-                prevStudents =>
-                    prevStudents.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
-                    prevStudents.lastName.toLowerCase().includes(searchValue.toLowerCase())
-            );
-        }
+            if (typeof valueA === 'number' && typeof valueB === 'number') {
+                return direction === 'asc' ? valueA - valueB : valueB - valueA;
+            }
+
+            if (typeof valueA === 'string' && typeof valueB === 'string') {
+                return direction === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+            }
+
+            return 0; // Default case if values are not comparable
+        });
 
         setStudents(sortedStudents);
         setPage(0);
@@ -125,30 +123,32 @@ export default function AllStudents() {
                 else if (sorters[key] === 'desc') newSorter[key] = false;
             } else newSorter[key] = false;
         });
+
+        console.log(`Sorting by: ${property}, Direction: ${newSorter[property]}`);
+
         sortDataBy(property, newSorter[property]);
         setSorters(newSorter);
     };
 
     return (
         <Layout>
-            <div style={styles.container}>
+            <div>
                 <Typography variant='h4'>Students</Typography>
                 <Divider />
                 <div style={{ paddingBlock: '1rem' }} />
-                <form onSubmit={handleSearch} style={styles.searchForm}>
+                <form onSubmit={handleSearch}>
                     <TextField
                         value={searchValue}
                         onChange={event => setSearchValue(event.target.value)}
                         label='Search'
                         variant='outlined'
                         size='small'
-                        sx={styles.searchInput}
                     />
-                    <Button variant='contained' type='submit' sx={styles.searchButton}>
+                    <Button variant='contained' type='submit'>
                         <SearchIcon />
                     </Button>
                 </form>
-                <div style={styles.divPadding} />
+                <div style={{ marginTop: '1rem' }} />
 
                 <TableContainer component={Paper}>
                     <Table>
@@ -158,9 +158,9 @@ export default function AllStudents() {
                                 <TableCell>Email</TableCell>
                                 <TableCell>
                                     <TableSortLabel
-                                        active={sorters.avgRating}
-                                        direction={!sorters.avgRating ? 'asc' : sorters.avgRating}
-                                        onClick={() => handleSorterClick('avgRating')}
+                                        active={sorters.avgRating !== false}
+                                        direction={sorters.avgRating ? sorters.avgRating : 'asc'}
+                                        onClick={() => handleSorterClick('feedbackReceived.avgRating')}
                                     >
                                         Rating
                                     </TableSortLabel>
@@ -168,9 +168,9 @@ export default function AllStudents() {
                                 <TableCell align='center'>
                                     <Tooltip title='Is always on time'>
                                         <TableSortLabel
-                                            active={sorters.sumPunctuality}
-                                            direction={!sorters.sumPunctuality ? 'asc' : sorters.sumPunctuality}
-                                            onClick={() => handleSorterClick('sumPunctuality')}
+                                            active={sorters.sumPunctuality !== false}
+                                            direction={sorters.sumPunctuality ? sorters.sumPunctuality : 'asc'}
+                                            onClick={() => handleSorterClick('feedbackReceived.sumPunctuality')}
                                         >
                                             <AccessTimeIcon />
                                         </TableSortLabel>
@@ -179,9 +179,9 @@ export default function AllStudents() {
                                 <TableCell align='center'>
                                     <Tooltip title='Do the homework'>
                                         <TableSortLabel
-                                            active={sorters.sumMaterial}
-                                            direction={!sorters.sumMaterial ? 'asc' : sorters.sumMaterial}
-                                            onClick={() => handleSorterClick('sumMaterial')}
+                                            active={sorters.sumMaterial !== false}
+                                            direction={sorters.sumMaterial ? sorters.sumMaterial : 'asc'}
+                                            onClick={() => handleSorterClick('feedbackReceived.sumMaterial')}
                                         >
                                             <InsertDriveFileIcon />
                                         </TableSortLabel>
@@ -190,9 +190,9 @@ export default function AllStudents() {
                                 <TableCell align='center'>
                                     <Tooltip title='Pays attention and listens'>
                                         <TableSortLabel
-                                            active={sorters.sumPolite}
-                                            direction={!sorters.sumPolite ? 'asc' : sorters.sumPolite}
-                                            onClick={() => handleSorterClick('sumPolite')}
+                                            active={sorters.sumPolite !== false}
+                                            direction={sorters.sumPolite ? sorters.sumPolite : 'asc'}
+                                            onClick={() => handleSorterClick('feedbackReceived.sumPolite')}
                                         >
                                             <SentimentSatisfiedAltIcon />
                                         </TableSortLabel>
@@ -203,56 +203,43 @@ export default function AllStudents() {
 
                         <TableBody>
                             {isLoading ? (
-                                <>
-                                    <TableRow>
-                                        <TableCell colSpan={8} align='center'>
-                                            <Box
-                                                sx={{
-                                                    display: 'flex',
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    flexDirection: 'row',
-                                                }}
-                                            >
-                                                <CircularProgress sx={{ mr: 2 }} />
-                                                <Typography variant='h4'>Loading students...</Typography>
-                                            </Box>
-                                        </TableCell>
-                                    </TableRow>
-                                </>
+                                <TableRow>
+                                    <TableCell colSpan={8} align='center'>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                                flexDirection: 'row',
+                                            }}
+                                        >
+                                            <CircularProgress sx={{ mr: 2 }} />
+                                            <Typography variant='h4'>Loading students...</Typography>
+                                        </Box>
+                                    </TableCell>
+                                </TableRow>
+                            ) : students.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={8} align='center'>
+                                        <Typography variant='h4'>No students found</Typography>
+                                    </TableCell>
+                                </TableRow>
                             ) : (
-                                <>
-                                    {students.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={8} align='center'>
-                                                <Typography variant='h4'>No students found</Typography>
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        <>
-                                            {students.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(stu => (
-                                                <TableRow key={stu.id}>
-                                                    <TableCell>{`${stu.firstName} ${stu.lastName}`}</TableCell>
-                                                    <TableCell>{stu.email}</TableCell>
-                                                    <TableCell>
-                                                        <div style={{ display: 'flex', gap: 5 }}>
-                                                            <Rating
-                                                                precision={0.5}
-                                                                value={stu.feedbackReceived.avgRating}
-                                                                max={3}
-                                                                readOnly
-                                                            />
-                                                            <Typography>{`(${stu.feedbackReceived.avgRating.toFixed(2)})`}</Typography>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell align='center'>{stu.feedbackReceived.sumPunctuality}</TableCell>
-                                                    <TableCell align='center'>{stu.feedbackReceived.sumMaterial}</TableCell>
-                                                    <TableCell align='center'>{stu.feedbackReceived.sumPolite}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </>
-                                    )}
-                                </>
+                                students.slice(page * rowsPerPage, (page + 1) * rowsPerPage).map(stu => (
+                                    <TableRow key={stu.id}>
+                                        <TableCell>{`${stu.firstName} ${stu.lastName}`}</TableCell>
+                                        <TableCell>{stu.email}</TableCell>
+                                        <TableCell>
+                                            <div style={{ display: 'flex', gap: 5 }}>
+                                                <Rating precision={0.5} value={stu.feedbackReceived.avgRating} max={3} readOnly />
+                                                <Typography>{`(${stu.feedbackReceived.avgRating.toFixed(2)})`}</Typography>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell align='center'>{stu.feedbackReceived.sumPunctuality}</TableCell>
+                                        <TableCell align='center'>{stu.feedbackReceived.sumMaterial}</TableCell>
+                                        <TableCell align='center'>{stu.feedbackReceived.sumPolite}</TableCell>
+                                    </TableRow>
+                                ))
                             )}
                         </TableBody>
                     </Table>
