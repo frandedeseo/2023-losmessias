@@ -115,36 +115,6 @@ export const useApi = () => {
             setIsProcessing(false);
         }
     };
-    const sendRequestForLogIn = (request, setIsLoading) => {
-        const requestOptions = {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-            // body: JSON.stringify({
-            //     email: request.email,
-            //     password: request.password,
-            // }), email=${request.email}&password=${request.password}
-        };
-        setIsLoading(true);
-        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/authentication`, requestOptions)
-            .then(response => {
-                if (response.status === 200) {
-                    //  return response.json();
-                } else {
-                    throw new Error();
-                }
-            })
-            .then(json => {
-                // getTokenValues(json.token);
-            })
-            .catch(error => {
-                console.log(error);
-                showAlert({ message: 'Error Log In', status: 403 });
-                setError(error);
-            })
-            .finally(() => {
-                setIsLoading(false);
-            });
-    };
 
     const getSubjects = () => {
         const requestOptions = {
@@ -250,18 +220,26 @@ export const useApi = () => {
             }),
         };
         setIsProcessing(true);
-        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/app-user/changePassword`, requestOptions)
-            .then(response => {
-                if (response.status === 200) {
-                    router.push('/');
-                }
-            })
-            .catch(res => {
-                console.log(res);
-            })
-            .finally(() => {
+        fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/forgot_password/confirm?token=${request.token}`).then(response => {
+            if (response.status === 200) {
+                fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/app-user/changePassword`, requestOptions)
+                    .then(response => {
+                        if (response.status === 200) {
+                            router.push('/');
+                        }
+                    })
+                    .catch(res => {
+                        console.log(res);
+                    })
+                    .finally(() => {
+                        setIsProcessing(false);
+                    });
+            } else {
+                showAlert({ message: 'The token was not validated', status: 403 });
+                setError(error);
                 setIsProcessing(false);
-            });
+            }
+        });
     };
 
     return {
@@ -274,7 +252,6 @@ export const useApi = () => {
         showAlert,
         setOpen,
         sendRequestForRegistration,
-        sendRequestForLogIn,
         getSubjects,
         addProfessorLecture,
         validateEmailForPasswordChange,

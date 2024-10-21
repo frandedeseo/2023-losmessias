@@ -157,10 +157,10 @@ export default function Feedbacks() {
         if (searchValue !== '') {
             sortedStudents = sortedStudents.filter(
                 prevFeedbacks =>
-                    prevFeedbacks.professor.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
-                    prevFeedbacks.professor.lastName.toLowerCase().includes(searchValue.toLowerCase()) ||
-                    prevFeedbacks.student.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
-                    prevFeedbacks.student.lastName.toLowerCase().includes(searchValue.toLowerCase())
+                    prevFeedbacks.sender.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+                    prevFeedbacks.sender.lastName.toLowerCase().includes(searchValue.toLowerCase()) ||
+                    prevFeedbacks.receiver.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+                    prevFeedbacks.receiver.lastName.toLowerCase().includes(searchValue.toLowerCase())
             );
         }
 

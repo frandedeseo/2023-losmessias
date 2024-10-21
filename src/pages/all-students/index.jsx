@@ -1,4 +1,3 @@
-// components
 import { useEffect, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import {
@@ -25,6 +24,7 @@ import SentimentSatisfiedAltIcon from '@mui/icons-material/SentimentSatisfiedAlt
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import SearchIcon from '@mui/icons-material/Search';
 import Layout from '@/components/ui/Layout.jsx';
+import { styles } from '../../styles/validator-styles.js';
 
 export default function AllStudents() {
     const [allStudents, setAllStudents] = useState([]);
@@ -33,12 +33,7 @@ export default function AllStudents() {
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [isLoading, setIsLoading] = useState(true);
     const [searchValue, setSearchValue] = useState('');
-    const [sorters, setSorters] = useState({
-        avgRating: false,
-        sumPunctuality: false,
-        sumMaterial: false,
-        sumPolite: false,
-    });
+    const [sorter, setSorter] = useState({ field: null, direction: null });
 
     const user = useUser();
 
@@ -60,19 +55,75 @@ export default function AllStudents() {
         }
     }, [user]);
 
+    function applySearchFilter(searchValue, data) {
+        let filteredStudents = data;
+
+        if (searchValue !== '') {
+            filteredStudents = filteredStudents.filter(
+                student =>
+                    student.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
+                    student.lastName.toLowerCase().includes(searchValue.toLowerCase())
+            );
+        }
+
+        return filteredStudents;
+    }
+
+    const sortData = (data, field, direction) => {
+        const sortedData = [...data];
+
+        const getNestedValue = (obj, path) => {
+            return path.split('.').reduce((value, key) => value && value[key], obj);
+        };
+
+        sortedData.sort((a, b) => {
+            const valueA = getNestedValue(a, field);
+            const valueB = getNestedValue(b, field);
+
+            if (typeof valueA === 'number' && typeof valueB === 'number') {
+                return direction === 'asc' ? valueA - valueB : valueB - valueA;
+            }
+
+            if (typeof valueA === 'string' && typeof valueB === 'string') {
+                return direction === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+            }
+
+            return 0;
+        });
+        return sortedData;
+    };
+
     const handleSearch = e => {
         e.preventDefault();
         setPage(0);
+        let filteredData = applySearchFilter(searchValue, allStudents);
+        if (sorter.field && sorter.direction) {
+            filteredData = sortData(filteredData, sorter.field, sorter.direction);
+        }
+        setStudents(filteredData);
+    };
 
-        if (searchValue !== '') {
-            setStudents(
-                allStudents.filter(
-                    prevStudents =>
-                        prevStudents.firstName.toLowerCase().includes(searchValue.toLowerCase()) ||
-                        prevStudents.lastName.toLowerCase().includes(searchValue.toLowerCase())
-                )
-            );
-        } else setStudents(allStudents);
+    const handleSorterClick = property => {
+        let newDirection = 'asc';
+        if (sorter.field === property && sorter.direction === 'asc') {
+            newDirection = 'desc';
+        } else if (sorter.field === property && sorter.direction === 'desc') {
+            newDirection = null;
+        }
+
+        const newSorter = {
+            field: newDirection ? property : null,
+            direction: newDirection,
+        };
+
+        let filteredData = applySearchFilter(searchValue, allStudents);
+        if (newSorter.field && newSorter.direction) {
+            filteredData = sortData(filteredData, newSorter.field, newSorter.direction);
+        }
+
+        setStudents(filteredData);
+        setPage(0);
+        setSorter(newSorter);
     };
 
     const handleChangePage = (event, newPage) => {
@@ -84,55 +135,9 @@ export default function AllStudents() {
         setPage(0);
     };
 
-    // Helper function to access nested properties
-    const getNestedValue = (obj, path) => {
-        return path.split('.').reduce((value, key) => (value ? value[key] : null), obj);
-    };
-
-    function sortDataBy(field, direction) {
-        const sortedStudents = [...allStudents];
-
-        sortedStudents.sort((a, b) => {
-            const valueA = getNestedValue(a, field);
-            const valueB = getNestedValue(b, field);
-
-            console.log(`Sorting by ${field}, direction: ${direction}`);
-            console.log(`Value A: ${valueA}, Value B: ${valueB}`);
-
-            if (typeof valueA === 'number' && typeof valueB === 'number') {
-                return direction === 'asc' ? valueA - valueB : valueB - valueA;
-            }
-
-            if (typeof valueA === 'string' && typeof valueB === 'string') {
-                return direction === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
-            }
-
-            return 0; // Default case if values are not comparable
-        });
-
-        setStudents(sortedStudents);
-        setPage(0);
-    }
-
-    const handleSorterClick = property => {
-        let newSorter = {};
-        Object.keys(sorters).forEach(key => {
-            if (key === property) {
-                if (!sorters[key]) newSorter[key] = 'asc';
-                else if (sorters[key] === 'asc') newSorter[key] = 'desc';
-                else if (sorters[key] === 'desc') newSorter[key] = false;
-            } else newSorter[key] = false;
-        });
-
-        console.log(`Sorting by: ${property}, Direction: ${newSorter[property]}`);
-
-        sortDataBy(property, newSorter[property]);
-        setSorters(newSorter);
-    };
-
     return (
         <Layout>
-            <div>
+            <div style={styles.container}>
                 <Typography variant='h4'>Students</Typography>
                 <Divider />
                 <div style={{ paddingBlock: '1rem' }} />
@@ -158,8 +163,8 @@ export default function AllStudents() {
                                 <TableCell>Email</TableCell>
                                 <TableCell>
                                     <TableSortLabel
-                                        active={sorters.avgRating !== false}
-                                        direction={sorters.avgRating ? sorters.avgRating : 'asc'}
+                                        active={sorter.field === 'feedbackReceived.avgRating'}
+                                        direction={sorter.field === 'feedbackReceived.avgRating' ? sorter.direction : 'asc'}
                                         onClick={() => handleSorterClick('feedbackReceived.avgRating')}
                                     >
                                         Rating
@@ -168,8 +173,8 @@ export default function AllStudents() {
                                 <TableCell align='center'>
                                     <Tooltip title='Is always on time'>
                                         <TableSortLabel
-                                            active={sorters.sumPunctuality !== false}
-                                            direction={sorters.sumPunctuality ? sorters.sumPunctuality : 'asc'}
+                                            active={sorter.field === 'feedbackReceived.sumPunctuality'}
+                                            direction={sorter.field === 'feedbackReceived.sumPunctuality' ? sorter.direction : 'asc'}
                                             onClick={() => handleSorterClick('feedbackReceived.sumPunctuality')}
                                         >
                                             <AccessTimeIcon />
@@ -179,8 +184,8 @@ export default function AllStudents() {
                                 <TableCell align='center'>
                                     <Tooltip title='Do the homework'>
                                         <TableSortLabel
-                                            active={sorters.sumMaterial !== false}
-                                            direction={sorters.sumMaterial ? sorters.sumMaterial : 'asc'}
+                                            active={sorter.field === 'feedbackReceived.sumMaterial'}
+                                            direction={sorter.field === 'feedbackReceived.sumMaterial' ? sorter.direction : 'asc'}
                                             onClick={() => handleSorterClick('feedbackReceived.sumMaterial')}
                                         >
                                             <InsertDriveFileIcon />
@@ -190,8 +195,8 @@ export default function AllStudents() {
                                 <TableCell align='center'>
                                     <Tooltip title='Pays attention and listens'>
                                         <TableSortLabel
-                                            active={sorters.sumPolite !== false}
-                                            direction={sorters.sumPolite ? sorters.sumPolite : 'asc'}
+                                            active={sorter.field === 'feedbackReceived.sumPolite'}
+                                            direction={sorter.field === 'feedbackReceived.sumPolite' ? sorter.direction : 'asc'}
                                             onClick={() => handleSorterClick('feedbackReceived.sumPolite')}
                                         >
                                             <SentimentSatisfiedAltIcon />

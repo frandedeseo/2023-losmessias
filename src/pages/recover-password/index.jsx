@@ -5,7 +5,7 @@ import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useApi } from '../../hooks/useApi.js';
-import { CircularProgress, CssBaseline } from '@mui/material';
+import { Alert, CircularProgress, CssBaseline, Snackbar } from '@mui/material';
 
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
@@ -23,18 +23,19 @@ export default function RecoverPassword() {
     const [errorPassword, setErrorPassword] = useState('');
     const [passwordValidated, setPasswordValidated] = useState(false);
 
-    const { changePassword, confirmTokenForgotPassword } = useApi();
+    const { changePassword, confirmTokenForgotPassword, alertState, setOpen, open } = useApi();
     const [isProcessing, setIsProcessing] = useState(false);
 
-    useEffect(() => {
-        confirmTokenForgotPassword(token);
-    }, [token]);
+    // useEffect(() => {
+    //     confirmTokenForgotPassword(token);
+    // }, [token]);
 
     const handleSubmit = event => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
 
         const request = {
+            token: token,
             email: email,
             password: formData.get('password'),
         };
@@ -43,6 +44,14 @@ export default function RecoverPassword() {
 
     return (
         <ThemeProvider theme={defaultTheme}>
+            <Snackbar
+                open={open}
+                autoHideDuration={3000}
+                onClose={() => setOpen(false)}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert severity={'error'}>{alertState.message}</Alert>
+            </Snackbar>
             <Grid container component='main' justifyContent='center' direction='row' sx={{ height: '100vh' }}>
                 <CssBaseline />
                 <Grid
