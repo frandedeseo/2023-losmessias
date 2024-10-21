@@ -25,6 +25,7 @@ import {
     Snackbar,
     TextField,
     Typography,
+    useMediaQuery,
 } from '@mui/material';
 import LoadingModal from '@/components/modals/LoadingModal';
 import useSWR from 'swr';
@@ -44,6 +45,7 @@ export default function Classes() {
     const camelCaseUserRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
+    const isMobile = useMediaQuery('(max-width:500px)');
 
     const { data: subjects } = useSWR([`${process.env.NEXT_PUBLIC_API_URI}/api/subject/all`, user.token], fetcherGetWithToken, {
         fallbackData: [],
@@ -139,102 +141,109 @@ export default function Classes() {
     return (
         <>
             <Layout>
-                <Grid
-                    container
-                    sx={{
-                        display: 'flex',
-                        backgroundColor: '#F5F5F5',
-                        maxWidth: '100%',
-                    }}
-                >
-                    <Box
+                <div style={{ width: '95%', margin: 'auto' }}>
+                    <Grid
+                        container
                         sx={{
                             display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            marginTop: 2,
-
-                            px: 1,
+                            backgroundColor: '#F5F5F5',
+                            maxWidth: '100%',
                         }}
                     >
-                        <Typography variant='h5' component='div' sx={{ ml: 2 }} color={'black'}>
-                            Filters
-                        </Typography>
+                        <Grid
+                            container
+                            sx={{
+                                display: 'flex',
+                                flexDirection: isMobile ? 'column' : 'row',
+                                alignItems: 'center',
+                                marginTop: 2,
+                                px: 1,
+                            }}
+                        >
+                            <Typography variant='h5' component='div' sx={{ ml: 2 }} color={'black'}>
+                                Filters
+                            </Typography>
 
-                        <FormControl sx={{ ml: 2, backgroundColor: '#fff', minWidth: '200px' }}>
-                            <form onSubmit={handleSubmit}>
-                                <TextField
-                                    value={search}
-                                    onChange={event => setSearch(event.target.value)}
-                                    label='Search'
-                                    variant='outlined'
-                                    fullWidth
-                                />
-                            </form>
-                        </FormControl>
+                            <FormControl sx={{ ml: 2, backgroundColor: '#fff', minWidth: '200px', marginTop: isMobile ? 1 : 0 }}>
+                                <form onSubmit={handleSubmit}>
+                                    <TextField
+                                        value={search}
+                                        onChange={event => setSearch(event.target.value)}
+                                        label='Search'
+                                        variant='outlined'
+                                        fullWidth
+                                    />
+                                </form>
+                            </FormControl>
 
-                        <FormControl sx={{ ml: 2, backgroundColor: '#fff', minWidth: '200px' }}>
-                            <InputLabel id='office-select'>Subjects</InputLabel>
-                            <Select
-                                multiple
-                                labelId='office-select'
-                                input={<OutlinedInput label='Subjects' />}
-                                value={subjectSelected}
-                                onChange={event => handleSubjectChange(event)}
-                                onClose={handleFilter}
-                                renderValue={selected => (
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                        {selected.map(value => (
-                                            <Chip key={value} label={value} sx={{ backgroundColor: getColor(value) }} />
-                                        ))}
-                                    </Box>
-                                )}
-                            >
-                                {subjects.map(subject => (
-                                    <MenuItem key={subject.id} value={subject.name}>
-                                        {subject.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Box>
-                    <Divider width={'100%'} sx={{ my: 2 }} />
-                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
-                        {isLoading ? (
-                            <>
-                                <CircularProgress />
-                                <Typography variant='h4' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
-                                    Loading...
-                                </Typography>
-                            </>
-                        ) : (
-                            <>
-                                {classes.length === 0 ? (
+                            <FormControl sx={{ ml: 2, backgroundColor: '#fff', minWidth: '200px', marginTop: isMobile ? 1 : 0 }}>
+                                <InputLabel id='office-select'>Subjects</InputLabel>
+                                <Select
+                                    multiple
+                                    labelId='office-select'
+                                    input={<OutlinedInput label='Subjects' />}
+                                    value={subjectSelected}
+                                    onChange={event => handleSubjectChange(event)}
+                                    onClose={handleFilter}
+                                    renderValue={selected => (
+                                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                            {selected.map(value => (
+                                                <Chip key={value} label={value} sx={{ backgroundColor: getColor(value) }} />
+                                            ))}
+                                        </Box>
+                                    )}
+                                >
+                                    {subjects.map(subject => (
+                                        <MenuItem key={subject.id} value={subject.name}>
+                                            {subject.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Divider width={'100%'} sx={{ my: 2 }} />
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', mb: 2, ml: 2 }}>
+                            {isLoading ? (
+                                <>
+                                    <CircularProgress />
                                     <Typography variant='h4' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
-                                        No reservations found!
+                                        Loading...
                                     </Typography>
-                                ) : (
-                                    <>
-                                        {classes.map((reservation, idx) => (
-                                            <ClassCard key={idx} reservation={reservation} style={{ mr: 3, mt: 2 }} cancel={handleCancel} />
-                                        ))}
-                                    </>
-                                )}
-                            </>
-                        )}
-                    </Box>
-                </Grid>
+                                </>
+                            ) : (
+                                <>
+                                    {classes.length === 0 ? (
+                                        <Typography variant='h4' component='div' sx={{ mt: 2, mb: 2, ml: 2 }} color={'black'}>
+                                            No reservations found!
+                                        </Typography>
+                                    ) : (
+                                        <>
+                                            {classes.map((reservation, idx) => (
+                                                <ClassCard
+                                                    key={idx}
+                                                    reservation={reservation}
+                                                    style={{ mr: 3, mt: 2 }}
+                                                    cancel={handleCancel}
+                                                />
+                                            ))}
+                                        </>
+                                    )}
+                                </>
+                            )}
+                        </Box>
+                    </Grid>
 
-                <Snackbar
-                    open={alert}
-                    autoHideDuration={3000}
-                    onClose={() => setAlert(false)}
-                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                >
-                    <Alert severity={alertSeverity}>{alertMessage}</Alert>
-                </Snackbar>
+                    <Snackbar
+                        open={alert}
+                        autoHideDuration={3000}
+                        onClose={() => setAlert(false)}
+                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                    >
+                        <Alert severity={alertSeverity}>{alertMessage}</Alert>
+                    </Snackbar>
 
-                <LoadingModal isOpen={isProcessing} message={'Processing cancelation...'} />
+                    <LoadingModal isOpen={isProcessing} message={'Processing cancelation...'} />
+                </div>
             </Layout>
         </>
     );
